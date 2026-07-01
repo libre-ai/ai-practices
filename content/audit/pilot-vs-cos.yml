@@ -1,0 +1,66 @@
+# Audit critique des 5 questions pilotes au regard des cas reels documentes par rumble-cos.
+# Source: question (nos propres pilotes) ; conforme a schemas/audit-existing.schema.json.
+# Posture: enrichissement neutre-source, pas de blocage — les pilotes sont solides.
+
+- id: audit-101
+  source: question
+  original_text: "Risqué. Demander des sources améliore le prompt mais ne prouve pas que les sources sont réelles ou pertinentes."
+  category:
+    - oversimplification
+    - missing_source
+  severity: high
+  problem: "q-source-001 traite la vérification mais n'aborde pas la responsabilité professionnelle lorsqu'une source fabriquée par l'IA est propagée dans un livrable, ce qui peut engager la personne."
+  recommendation: contextualize
+  replacement_idea: "Ajouter un rappel de responsabilité de l'émetteur et renvoyer vers q-hallucination-002 (fausse référence juridique et sanctions réelles)."
+  reviewer: TBD
+  status: fixed
+
+- id: audit-102
+  source: question
+  original_text: "Bonne pratique. Un brouillon peut contenir des informations internes même s'il est destiné à publication."
+  category:
+    - privacy_risk
+    - oversimplification
+  severity: high
+  problem: "q-data-001 évalue le contenu du fichier mais ne questionne jamais la juridiction ni la localisation du service destinataire ; un contenu même assaini traité hors UE reste exposé (ex. Cloud Act)."
+  recommendation: contextualize
+  replacement_idea: "Ajouter la dimension juridiction/localisation du service ou renvoyer vers q-data-002."
+  reviewer: TBD
+  status: fixed
+
+- id: audit-103
+  source: question
+  original_text: "Bloquer la publication tant qu'une revue de biais, de nécessité et de transparence n'est pas réalisée."
+  category:
+    - missing_source
+    - media_bias
+  severity: high
+  problem: "q-media-001 traite le biais mais n'évoque ni l'obligation de transparence/marquage des médias synthétiques (EU AI Act art. 50) ni le risque de deepfake d'une personne réelle."
+  recommendation: source
+  replacement_idea: "Ajouter la source EU AI Act art. 50 et renvoyer vers q-media-002 (marquage) et q-media-003 (deepfake)."
+  reviewer: TBD
+  status: fixed
+
+- id: audit-104
+  source: question
+  original_text: "Donner un rôle peut aider à cadrer le style, mais ne garantit ni exactitude, ni sécurité, ni conformité."
+  category:
+    - oversimplification
+  severity: medium
+  problem: "q-prompt-001 dé-dogmatise le prompting mais ne relie pas ce thème au risque de sécurité qu'est l'injection de prompt lorsque le contenu manipulé provient d'une source externe."
+  recommendation: contextualize
+  replacement_idea: "Contextualiser et renvoyer vers q-security-002 (injection de prompt)."
+  reviewer: TBD
+  status: fixed
+
+- id: audit-105
+  source: question
+  original_text: "Retirer secrets/PII, minimiser l'extrait et utiliser uniquement un outil autorisé pour ce niveau de données."
+  category:
+    - oversimplification
+  severity: low
+  problem: "q-security-logs-001 recommande un outil autorisé mais ne demande pas d'évaluer la localisation ni la juridiction de cet outil, laissant un angle mort de souveraineté sur des logs potentiellement sensibles."
+  recommendation: contextualize
+  replacement_idea: "Ajouter un critère de localisation/juridiction de l'outil autorisé (cf. q-data-002, q-business-001)."
+  reviewer: TBD
+  status: fixed

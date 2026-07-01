@@ -1,0 +1,214 @@
+# Axes security & prompt_practice — ancrage rumble-cos (scraping, agentic-harness, sécurité).
+# Sources primaires : OWASP LLM Top 10, ANSSI, NIST. Feedback non-dogmatique.
+
+- id: q-security-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Le contenu externe est une donnée, pas une instruction
+  axis: security
+  difficulty: advanced
+  intent: Faire appliquer le principe anti-injection lorsqu'un agent IA lit du contenu externe non fiable.
+  context:
+    role: utilisateur d'un assistant connecté
+    scenario: Un assistant IA connecté à vos e-mails peut suivre des instructions contenues dans un message reçu.
+  prompt: Quel principe protège le mieux ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: content_as_data_not_commands
+      label: Traiter le contenu externe comme des données, jamais comme des instructions, et confirmer toute action sensible.
+      score: 1.0
+      feedback: Bonne pratique. Un contenu reçu peut contenir des instructions malveillantes (injection de prompt) ; il ne doit pas déclencher d'action seul.
+    - id: let_agent_follow_email
+      label: Laisser l'agent exécuter les instructions trouvées dans les e-mails.
+      score: -2.0
+      severity: critical
+      feedback: Critique. Exécuter des instructions issues d'un contenu externe ouvre la porte à l'exfiltration de données et aux actions non autorisées.
+    - id: trust_because_internal_tool
+      label: Faire confiance car l'outil est interne.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Le caractère interne de l'outil ne protège pas contre un contenu externe malveillant qu'il traite.
+  expected_reasoning:
+    - Un contenu externe ne doit jamais être exécuté comme une instruction de confiance.
+    - Les actions sensibles exigent une confirmation hors du contenu observé.
+  risks:
+    - prompt_injection
+    - data_exfiltration
+    - unauthorized_action
+  sources:
+    - id: owasp-llm01
+      label: OWASP Top 10 for LLM Applications — LLM01 Prompt Injection
+      url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+      type: public_guidance
+    - id: anssi-ia
+      label: ANSSI-PA-102 — Recommandations de sécurité pour un système d'IA générative (2024)
+      url: https://messervices.cyber.gouv.fr/guides/recommandations-de-securite-pour-un-systeme-dia-generative
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (agentic-harness / sécurité). À relier au principe anti-injection interne.
+
+- id: q-security-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Une clé API n'a pas sa place dans un prompt
+  axis: security
+  difficulty: beginner
+  intent: Rappeler que les secrets doivent être retirés avant tout envoi à une IA, même pour déboguer.
+  context:
+    role: développeur
+    scenario: Pour déboguer, vous voulez coller un fichier de configuration contenant une clé API dans une IA.
+  prompt: Quelle est la bonne pratique ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: remove_secrets_before
+      label: Retirer les secrets et n'envoyer qu'un extrait minimal nécessaire au diagnostic.
+      score: 1.0
+      feedback: Bonne pratique. Un secret transmis à un service est potentiellement exposé et doit être retiré en amont.
+    - id: paste_and_rotate_later
+      label: Coller la clé puis la renouveler plus tard.
+      score: -1.0
+      severity: high
+      feedback: Risqué. La clé est déjà exposée dès l'envoi ; la renouveler après ne supprime pas la fuite.
+    - id: paste_because_private_chat
+      label: Coller la clé car la conversation semble privée.
+      score: -1.5
+      severity: high
+      feedback: Risqué. Une conversation d'apparence privée reste un traitement par un tiers pouvant conserver l'entrée.
+  expected_reasoning:
+    - Un secret envoyé à un service est considéré comme exposé.
+    - La minimisation de l'extrait réduit la surface d'exposition.
+  risks:
+    - secret_leak
+    - credential_exposure
+    - security_exposure
+  sources:
+    - id: owasp-llm-top10
+      label: OWASP Top 10 for LLM Applications
+      url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+      type: public_guidance
+    - id: anssi-ia
+      label: ANSSI-PA-102 — Recommandations de sécurité pour un système d'IA générative (2024)
+      url: https://messervices.cyber.gouv.fr/guides/recommandations-de-securite-pour-un-systeme-dia-generative
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (sécurité). À relier à la gestion des secrets interne.
+
+- id: q-prompt-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Contourner un garde-fou n'est pas une astuce
+  axis: prompt_practice
+  difficulty: intermediate
+  intent: Rappeler qu'un contournement de garde-fou (jailbreak) n'est pas une bonne pratique de productivité.
+  context:
+    role: utilisateur métier
+    scenario: Une astuce circule pour faire ignorer ses règles de sécurité à une IA afin d'obtenir une réponse habituellement bloquée.
+  prompt: Quelle est la bonne conduite ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: respect_guardrails
+      label: Ne pas contourner les garde-fous et passer par une voie autorisée si le besoin est légitime.
+      score: 1.0
+      feedback: Bonne pratique. Les garde-fous existent pour des raisons de sécurité et de conformité ; un besoin légitime a une voie officielle.
+    - id: use_jailbreak_for_productivity
+      label: Utiliser le contournement pour gagner en productivité.
+      score: -1.5
+      severity: high
+      feedback: Risqué. Contourner un garde-fou peut produire un contenu dangereux ou non conforme et engager votre responsabilité.
+    - id: share_jailbreak_with_team
+      label: Diffuser l'astuce de contournement à l'équipe.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Propager un contournement étend le risque de sécurité et de conformité à toute l'équipe.
+  expected_reasoning:
+    - Les garde-fous répondent à des exigences de sécurité et de conformité.
+    - Un besoin légitime se traite par une voie autorisée, pas par contournement.
+  risks:
+    - guardrail_bypass
+    - safety_risk
+    - policy_violation
+  sources:
+    - id: owasp-llm-top10
+      label: OWASP Top 10 for LLM Applications
+      url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+      type: public_guidance
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — fonction Manage
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (sécurité). À relier à la charte d'usage acceptable.
+
+- id: q-prompt-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Reformuler jusqu'à obtenir la réponse voulue
+  axis: prompt_practice
+  difficulty: intermediate
+  intent: Alerter sur le biais de confirmation induit quand on reformule un prompt jusqu'à ce que l'IA valide l'hypothèse de départ.
+  context:
+    role: analyste
+    scenario: La réponse de l'IA ne va pas dans le sens attendu ; vous reformulez plusieurs fois le prompt jusqu'à ce qu'elle confirme votre hypothèse initiale.
+  prompt: Quel est le principal risque de cette manière de faire ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: recognize_confirmation_bias
+      label: Reconnaître qu'orienter le prompt vers la réponse souhaitée introduit un biais de confirmation, et garder une vérification indépendante.
+      score: 1.0
+      feedback: Bonne pratique. Reformuler jusqu'à obtenir l'accord de l'IA sélectionne la réponse voulue, pas la plus juste.
+    - id: keep_until_agrees
+      label: Continuer à reformuler jusqu'à ce que l'IA confirme, car c'est le résultat attendu.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Forcer l'IA à valider une hypothèse fabrique une confirmation, sans en établir la véracité.
+    - id: trust_final_because_effort
+      label: Faire confiance à la dernière réponse car elle a demandé plusieurs essais.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Le nombre d'essais ne renforce pas la fiabilité ; il traduit surtout l'insistance à obtenir une réponse précise.
+  expected_reasoning:
+    - Orienter un prompt vers la réponse attendue biaise le résultat.
+    - Une confirmation obtenue par insistance n'est pas une vérification.
+  risks:
+    - confirmation_bias
+    - overconfidence
+    - prompt_dogma
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — biais et fiabilité
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Remplace un doublon de q-prompt-001 ; angle distinct (biais de confirmation). Ancrage rumble-cos (esprit critique).

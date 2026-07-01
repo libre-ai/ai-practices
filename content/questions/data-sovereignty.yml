@@ -1,0 +1,271 @@
+# Axes data_confidentiality & business_context — ancrage rumble-cos (souveraineté, Cloud Act).
+# Posture neutre-sourcée : sources primaires (loi/régulateur), feedback non-dogmatique.
+
+- id: q-data-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Où partent vraiment les données envoyées à une IA
+  axis: data_confidentiality
+  difficulty: intermediate
+  intent: Montrer que la minimisation du contenu ne suffit pas si le service traitant relève d'une juridiction extra-UE.
+  context:
+    role: chef de projet
+    scenario: Vous voulez coller un compte rendu de réunion interne dans un assistant IA grand public hébergé hors Union européenne pour le reformuler.
+  prompt: Quel réflexe est le plus adapté avant d'utiliser ce service ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: check_jurisdiction_reversibility
+      label: Vérifier la localisation des données, la base légale du traitement et l'existence d'un outil autorisé équivalent avant tout envoi.
+      score: 1.0
+      feedback: Bonne pratique. Un service soumis à une juridiction extra-UE (ex. Cloud Act) peut donner accès aux données ou interrompre le service ; localisation et réversibilité se vérifient en amont.
+    - id: redact_names_only
+      label: Retirer seulement les noms propres puis envoyer le reste au service.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Retirer les noms réduit le risque mais ne change ni la juridiction du service ni le statut des autres informations internes.
+    - id: send_because_reformulation
+      label: Envoyer le compte rendu car il s'agit d'une simple reformulation, pas d'une publication.
+      score: -1.0
+      severity: high
+      feedback: Risqué. La finalité de reformulation n'empêche pas le traitement de données internes par un tiers hors du cadre autorisé.
+  expected_reasoning:
+    - La confidentialité dépend aussi de la juridiction et du contrat du service traitant, pas seulement du contenu.
+    - Un accès légal étranger ou une coupure de service sont des risques distincts de la fuite volontaire.
+  risks:
+    - confidentiality_leak
+    - jurisdiction_exposure
+    - vendor_dependency
+  sources:
+    - id: cloud-act
+      label: CLOUD Act (Clarifying Lawful Overseas Use of Data Act, 2018)
+      url: https://www.congress.gov/bill/115th-congress/house-bill/4943
+      type: law
+    - id: cnil-transferts
+      label: CNIL — Transferts de données hors de l'Union européenne
+      url: https://www.cnil.fr/fr/transferer-des-donnees-hors-de-lue
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (essai « Cloud Act, le bouton off »). À valider avec la politique interne d'outils autorisés.
+
+- id: q-data-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Un compte personnel ne rend pas un échange confidentiel
+  axis: data_confidentiality
+  difficulty: intermediate
+  intent: Rappeler que l'historique d'une conversation IA est une surface d'exposition et peut être conservé ou réutilisé.
+  context:
+    role: collaborateur
+    scenario: Vous posez des questions de travail à une IA via votre compte personnel gratuit, en y collant des extraits internes, en supposant que l'échange reste privé.
+  prompt: Quelle est la conduite la plus adaptée ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authorized_tool_check_retention
+      label: Utiliser un outil professionnel autorisé et vérifier la politique de conservation et de réutilisation des échanges.
+      score: 1.0
+      feedback: Bonne pratique. L'historique peut être conservé, relu ou réutilisé pour l'entraînement selon les conditions du service.
+    - id: assume_private_because_personal
+      label: Considérer les échanges comme privés parce que le compte est personnel.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Le caractère personnel du compte ne garantit ni la confidentialité ni l'absence de réutilisation des données saisies.
+    - id: send_then_delete
+      label: Envoyer les extraits puis supprimer l'historique ensuite.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. La suppression a posteriori n'annule pas un traitement ou une copie déjà effectués côté service.
+  expected_reasoning:
+    - L'historique d'une IA est une donnée traitée par un tiers, pas un espace privé.
+    - La conservation et la réutilisation dépendent des conditions du service, pas du type de compte.
+  risks:
+    - confidentiality_leak
+    - data_reuse
+    - retention_risk
+  sources:
+    - id: cnil-ia
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+    - id: rgpd-art5
+      label: RGPD — article 5 (principes, dont limitation de conservation)
+      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+      type: law
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (réutilisation / data brokers). À aligner avec la charte d'usage des outils.
+
+- id: q-business-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Bâtir un service critique sur une IA sans plan de sortie
+  axis: business_context
+  difficulty: advanced
+  intent: Faire évaluer la réversibilité et la continuité avant d'adosser un processus critique à un fournisseur IA unique.
+  context:
+    role: responsable produit
+    scenario: Votre équipe veut construire un flux interne critique entièrement sur une seule API IA propriétaire hébergée hors UE, sans plan de sortie.
+  prompt: Quel critère est prioritaire avant d'engager ce socle ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: plan_reversibility_portability
+      label: Évaluer la réversibilité, la portabilité des données et une alternative activable en cas d'interruption du service.
+      score: 1.0
+      feedback: Bonne pratique. Un fournisseur soumis à une juridiction extra-UE peut restreindre ou couper l'accès ; la continuité se prépare en amont.
+    - id: choose_most_capable_only
+      label: Choisir uniquement le modèle le plus performant, sans plan de sortie.
+      score: -1.0
+      severity: high
+      feedback: Risqué. La performance ne compense pas l'absence de réversibilité sur un processus critique.
+    - id: assume_vendor_stable
+      label: Supposer que le fournisseur restera disponible parce qu'il est grand.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. La taille d'un fournisseur ne garantit ni la continuité de service ni l'absence de contrainte juridique externe.
+  expected_reasoning:
+    - Un processus critique exige un plan de réversibilité et de continuité.
+    - La dépendance à un fournisseur unique hors UE ajoute un risque juridique et opérationnel.
+  risks:
+    - vendor_lockin
+    - service_continuity
+    - jurisdiction_exposure
+  sources:
+    - id: cloud-act
+      label: CLOUD Act (Clarifying Lawful Overseas Use of Data Act, 2018)
+      url: https://www.congress.gov/bill/115th-congress/house-bill/4943
+      type: law
+    - id: eu-data-act
+      label: Règlement (UE) 2023/2854 sur les données (Data Act) — portabilité et changement de fournisseur
+      url: https://eur-lex.europa.eu/eli/reg/2023/2854/oj
+      type: law
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (Cloud Act coupure ; Polytechnique quitte Microsoft). À relier à la politique achats/architecture.
+
+- id: q-business-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Le plus performant n'est pas toujours le bon choix
+  axis: business_context
+  difficulty: intermediate
+  intent: Montrer que le choix d'un outil IA se pondère avec la conformité et la localisation, pas seulement la performance.
+  context:
+    role: référent outils
+    scenario: Vous comparez deux assistants IA pour un usage traitant des données internes ; l'un est plus performant mais hébergé hors UE, l'autre est conforme et localisé.
+  prompt: Sur quoi fonder le choix ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: weigh_compliance_localisation
+      label: Pondérer conformité, localisation et réversibilité avec la performance, selon la sensibilité des données.
+      score: 1.0
+      feedback: Bonne pratique. Pour des données internes, l'ordre à respecter place la conformité et la localisation avant la performance ; celle-ci ne prime pas sur le cadre légal.
+    - id: pick_best_benchmark
+      label: Choisir le meilleur au benchmark sans considérer la localisation des données.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Un meilleur score ne compense pas un traitement de données internes hors du cadre autorisé.
+    - id: pick_cheapest
+      label: Choisir le moins cher sans évaluer le traitement des données.
+      score: -0.5
+      severity: low
+      feedback: Insuffisant. Le coût seul ignore les risques juridiques et de confidentialité du traitement.
+  expected_reasoning:
+    - Le choix d'un outil dépend de la sensibilité des données traitées.
+    - Conformité et localisation sont des critères à part entière, pas des détails.
+  risks:
+    - jurisdiction_exposure
+    - compliance_gap
+  sources:
+    - id: cnil-ia
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+    - id: eu-data-act
+      label: Règlement (UE) 2023/2854 sur les données (Data Act)
+      url: https://eur-lex.europa.eu/eli/reg/2023/2854/oj
+      type: law
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (souveraineté). À adapter à la grille de choix d'outils interne.
+
+- id: q-business-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Remplacer un processus par une IA sans mesure ni retour arrière
+  axis: business_context
+  difficulty: intermediate
+  intent: Rappeler qu'un remplacement de processus par une IA se pilote, se mesure et se réversibilise.
+  context:
+    role: responsable opérations
+    scenario: Pour réduire les coûts, on veut remplacer entièrement un support client par un agent IA, sans mesure de qualité ni possibilité de retour arrière.
+  prompt: Quelle approche est la plus prudente ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: pilot_measure_rollback
+      label: Piloter sur un périmètre limité, mesurer la qualité et prévoir un retour arrière humain.
+      score: 1.0
+      feedback: Bonne pratique. Un remplacement se valide par la mesure et garde une porte de sortie en cas de dégradation.
+    - id: full_replace_for_savings
+      label: Remplacer tout le support immédiatement pour l'économie annoncée.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Un basculement total sans mesure expose à une dégradation de service difficile à corriger.
+    - id: trust_vendor_promise
+      label: Se fier à la promesse du fournisseur sans mesure interne.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. La promesse commerciale ne remplace pas une mesure de qualité sur votre contexte.
+  expected_reasoning:
+    - Un changement de processus se pilote et se mesure avant généralisation.
+    - Prévoir un retour arrière limite l'impact d'un échec.
+  risks:
+    - quality_regression
+    - no_rollback
+    - overreliance
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — fonction Map
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+    - id: iso-42001
+      label: ISO/IEC 42001:2023 — Système de management de l'IA
+      url: https://www.iso.org/standard/42001
+      type: standard
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (Klarna marche arrière ; bullshit jobs). À relier aux indicateurs qualité internes.

@@ -1,0 +1,256 @@
+# Axes hallucination & source_verification — ancrage rumble-cos (fact-checking, fausses références).
+# Source primaire principale : NIST AI RMF. Feedback non-dogmatique.
+
+- id: q-hallucination-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Un chiffre précis n'est pas un chiffre vérifié
+  axis: hallucination
+  difficulty: beginner
+  intent: Rappeler qu'un chiffre fourni par une IA doit être vérifié dans sa source primaire avant usage.
+  context:
+    role: rédacteur
+    scenario: Une IA fournit une statistique précise pour étayer une note, sans indiquer de source.
+  prompt: Que faire avant d'utiliser ce chiffre ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: verify_primary_source
+      label: Retrouver et vérifier la source primaire du chiffre avant de l'utiliser.
+      score: 1.0
+      feedback: Bonne pratique. Une IA peut produire un chiffre plausible mais inexact ou sans source réelle.
+    - id: use_because_precise
+      label: L'utiliser tel quel car il est précis et crédible.
+      score: -1.0
+      severity: high
+      feedback: Risqué. La précision d'un chiffre n'atteste ni de son exactitude ni de son existence.
+    - id: ask_ai_to_confirm
+      label: Demander à la même IA de confirmer le chiffre et s'en contenter.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Une IA n'est pas une source indépendante de sa propre affirmation.
+  expected_reasoning:
+    - Un chiffre généré doit être retracé jusqu'à la publication ou au jeu de données d'origine.
+    - La précision d'un résultat n'est pas une preuve de fiabilité.
+  risks:
+    - hallucination
+    - misinformation
+    - unverified_claim
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — mesure et gestion des risques IA
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (fact-checking obsessionnel). À relier à la charte de sourcing interne.
+
+- id: q-hallucination-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Une référence juridique plausible peut être inventée
+  axis: hallucination
+  difficulty: intermediate
+  intent: Montrer qu'une citation juridique fournie par une IA doit être vérifiée dans une source officielle, avec des enjeux de responsabilité réels.
+  context:
+    role: assistant juridique
+    scenario: Une IA cite une décision de justice à l'appui d'un argument ; la référence semble plausible.
+  prompt: Quelle vérification est nécessaire ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: check_ruling_official
+      label: Vérifier l'existence et le contenu de la décision dans une source officielle avant tout usage.
+      score: 1.0
+      feedback: Bonne pratique. Des références juridiques fabriquées par une IA ont déjà entraîné des sanctions pour les professionnels qui les ont reprises.
+    - id: cite_because_plausible
+      label: Citer la décision car elle paraît plausible et bien formulée.
+      score: -1.5
+      severity: high
+      feedback: Risqué. Une référence bien formulée peut être entièrement inventée par le modèle.
+    - id: trust_ai_legal
+      label: Faire confiance à l'IA sur le terrain juridique.
+      score: -1.0
+      severity: high
+      feedback: Risqué. L'IA n'est pas une autorité juridique et peut produire des références erronées avec assurance.
+  expected_reasoning:
+    - Une citation juridique se vérifie dans une source officielle.
+    - La plausibilité d'une référence ne prouve pas son existence.
+  risks:
+    - hallucination
+    - legal_risk
+    - misinformation
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — fiabilité et robustesse
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+    - id: mata-avianca
+      label: Affaire Mata v. Avianca, 678 F. Supp. 3d 443 (S.D.N.Y. 2023) — sanctions pour citations fabriquées par une IA
+      url: https://law.justia.com/cases/federal/district-courts/new-york/nysdce/1:2022cv01461/575368/54/
+      type: documentation
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (impacts / responsabilité). Source Justia (ordonnance de sanction, doc. 54) ajoutée.
+
+- id: q-hallucination-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Un ton assuré ne garantit pas une information à jour
+  axis: hallucination
+  difficulty: beginner
+  intent: Rappeler qu'une IA peut ignorer des faits récents malgré une réponse détaillée et assurée.
+  context:
+    role: utilisateur métier
+    scenario: Vous interrogez une IA sur un événement très récent ; elle répond avec assurance et de nombreux détails.
+  prompt: Quelle attitude est adaptée ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: check_recency_scope
+      label: Vérifier via une source à jour, l'IA pouvant ignorer les faits récents malgré un ton assuré.
+      score: 1.0
+      feedback: Bonne pratique. La couverture temporelle d'un modèle est limitée ; l'assurance du ton n'y change rien.
+    - id: trust_confident_answer
+      label: Faire confiance car la réponse est détaillée et assurée.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Le niveau de détail et d'assurance n'indique pas l'actualité ni l'exactitude de l'information.
+    - id: assume_realtime_knowledge
+      label: Supposer que l'IA connaît l'actualité en temps réel.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Sans accès à jour explicite, un modèle peut ignorer les événements récents.
+  expected_reasoning:
+    - La couverture temporelle d'un modèle est bornée.
+    - Le ton d'une réponse n'indique pas sa fraîcheur ni son exactitude.
+  risks:
+    - hallucination
+    - outdated_information
+    - overconfidence
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — limites et incertitudes
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (vérification). À adapter selon les outils réellement utilisés.
+
+- id: q-source-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Citer la source primaire, pas le résumé de l'IA
+  axis: source_verification
+  difficulty: intermediate
+  intent: Faire remonter aux sources primaires plutôt que de citer un résumé produit par une IA.
+  context:
+    role: chargé de veille
+    scenario: Une IA résume plusieurs articles et présente une conclusion ; vous devez la citer dans une note.
+  prompt: Quelle source citer ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: trace_cite_primary
+      label: Remonter aux sources primaires, les vérifier et citer celles-ci plutôt que le résumé de l'IA.
+      score: 1.0
+      feedback: Bonne pratique. Un résumé peut déformer ou agréger des sources ; la source primaire fait foi.
+    - id: cite_ai_summary
+      label: Citer le résumé de l'IA comme source.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Un résumé d'IA n'est pas une source vérifiable et peut introduire des erreurs.
+    - id: cite_first_link
+      label: Citer le premier lien proposé sans le lire.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Un lien non lu peut ne pas soutenir la conclusion avancée.
+  expected_reasoning:
+    - La source primaire prime sur un résumé intermédiaire.
+    - Un résumé peut agréger ou déformer sans que cela soit visible.
+  risks:
+    - misattribution
+    - misinformation
+    - unverified_claim
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — traçabilité et provenance
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (rigueur de sourcing). À relier aux règles de citation internes.
+
+- id: q-source-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Un lien qui fonctionne n'est pas une source fiable
+  axis: source_verification
+  difficulty: intermediate
+  intent: Faire évaluer l'autorité, la date et la pertinence d'une source, au-delà de sa simple existence.
+  context:
+    role: rédacteur
+    scenario: Une IA fournit un lien réel, mais l'article est ancien et provient d'un site peu fiable.
+  prompt: Que vérifier avant de vous appuyer dessus ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: assess_authority_date
+      label: Évaluer l'autorité, la date et la pertinence de la source, pas seulement son existence.
+      score: 1.0
+      feedback: Bonne pratique. Une source fiable se juge sur son autorité, sa date et sa pertinence au sujet.
+    - id: accept_because_link_works
+      label: Accepter la source car le lien fonctionne.
+      score: -1.0
+      severity: high
+      feedback: Risqué. L'accessibilité d'un lien ne dit rien de la fiabilité de son contenu.
+    - id: accept_because_top_result
+      label: Accepter la source car elle apparaît en premier.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Le rang d'affichage ne mesure ni l'autorité ni l'actualité de la source.
+  expected_reasoning:
+    - La fiabilité d'une source dépend de son autorité, sa date et sa pertinence.
+    - L'existence d'un lien ne présume pas de la qualité de son contenu.
+  risks:
+    - misinformation
+    - outdated_information
+    - low_authority_source
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — évaluation des sources
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (esprit critique sur les sources). À adapter au domaine métier.

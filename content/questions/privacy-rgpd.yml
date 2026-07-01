@@ -1,0 +1,164 @@
+# Axe privacy_rgpd — ancrage rumble-cos (data brokers, réutilisation, fuites de données).
+# Sources primaires : RGPD, CNIL, EDPB. Feedback non-dogmatique.
+
+- id: q-privacy-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Des données clients ne se collent pas dans n'importe quelle IA
+  axis: privacy_rgpd
+  difficulty: intermediate
+  intent: Rappeler qu'un traitement de données personnelles par une IA externe exige une base légale et un cadre de sous-traitance.
+  context:
+    role: chargé de relation client
+    scenario: Vous voulez coller une liste de clients avec e-mails et historiques d'achat dans une IA externe pour générer des messages personnalisés.
+  prompt: Quelle est la démarche conforme ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: legal_basis_and_processor
+      label: Vérifier la base légale et la finalité, et n'utiliser qu'un service encadré par un contrat de sous-traitance conforme.
+      score: 1.0
+      feedback: Bonne pratique. Des données personnelles ne se traitent que sur une base légale et via un sous-traitant offrant des garanties (RGPD art. 6 et 28).
+    - id: mask_first_names
+      label: Remplacer les prénoms par des initiales puis envoyer le reste.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. E-mails et historiques restent des données identifiantes ; masquer les prénoms n'est pas une anonymisation.
+    - id: send_because_business_need
+      label: Envoyer les données car le besoin métier est légitime et urgent.
+      score: -1.5
+      severity: high
+      feedback: Risqué. L'utilité métier n'est pas une base légale au sens du RGPD (consentement, contrat, obligation légale, intérêt légitime) ; les données confiées peuvent en outre être réutilisées selon les conditions du service.
+  expected_reasoning:
+    - Un traitement de données personnelles suppose base légale, finalité et cadre de sous-traitance.
+    - Masquer quelques champs ne rend pas un jeu de données anonyme s'il reste identifiant.
+  risks:
+    - pii_leak
+    - rgpd_violation
+    - data_reuse
+  sources:
+    - id: rgpd-art6-28
+      label: RGPD — articles 6 (licéité) et 28 (sous-traitant)
+      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+      type: law
+    - id: cnil-ia
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (data brokers / réutilisation). À aligner avec le registre des traitements interne.
+
+- id: q-privacy-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Renommer n'est pas anonymiser
+  axis: privacy_rgpd
+  difficulty: intermediate
+  intent: Distinguer une pseudonymisation de façade d'une véritable anonymisation, au regard du risque de ré-identification.
+  context:
+    role: analyste données
+    scenario: Pour partager un jeu de données à une IA, vous remplacez les noms par des identifiants mais conservez date de naissance, code postal et sexe.
+  prompt: Ce jeu de données est-il anonyme ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: recognize_reidentification
+      label: Non ; la combinaison de quasi-identifiants permet la ré-identification, une véritable anonymisation supprime ce risque.
+      score: 1.0
+      feedback: Bonne pratique. Date de naissance, code postal et sexe combinés suffisent souvent à ré-identifier une personne.
+    - id: anonymous_because_no_names
+      label: Oui, car les noms ont été retirés.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Retirer les noms ne suffit pas ; les données restent personnelles tant que la ré-identification est possible.
+    - id: pseudonymization_is_enough
+      label: Considérer la pseudonymisation comme équivalente à l'anonymisation.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. La pseudonymisation reste un traitement de données personnelles (réidentification possible avec une clé), contrairement à l'anonymisation.
+  expected_reasoning:
+    - Des quasi-identifiants combinés permettent la ré-identification.
+    - Pseudonymisation et anonymisation ne relèvent pas du même régime juridique.
+  risks:
+    - reidentification
+    - rgpd_violation
+    - pii_leak
+  sources:
+    - id: rgpd-cons26
+      label: RGPD — considérant 26 (données anonymes vs identifiables)
+      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+      type: law
+    - id: cnil-anonymisation
+      label: CNIL — Anonymisation de données personnelles
+      url: https://www.cnil.fr/fr/lanonymisation-de-donnees-personnelles
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (réutilisation des données). À adapter aux jeux de données internes.
+
+- id: q-privacy-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Quand un service IA réutilise ce que vous saisissez
+  axis: privacy_rgpd
+  difficulty: advanced
+  intent: Faire vérifier la finalité et la réutilisation des saisies avant d'y placer des données personnelles de tiers.
+  context:
+    role: agent d'accueil
+    scenario: Un service IA gratuit indique réutiliser les entrées pour améliorer ses modèles ; un collègue y saisit des données personnelles de bénéficiaires.
+  prompt: Quelle est la bonne conduite ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: check_terms_finality
+      label: Vérifier les conditions de réutilisation et la finalité, et n'utiliser qu'un service sans réutilisation non maîtrisée pour ce type de données.
+      score: 1.0
+      feedback: Bonne pratique. La réutilisation des saisies doit être compatible avec la finalité initiale et les droits des personnes concernées.
+    - id: accept_because_free
+      label: Accepter la réutilisation car le service est gratuit et pratique.
+      score: -1.5
+      severity: high
+      feedback: Risqué. La gratuité ne justifie pas d'exposer les données de tiers à une réutilisation non maîtrisée.
+    - id: rely_on_optout_later
+      label: Saisir maintenant et activer une option de retrait plus tard.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Une fois saisies, les données peuvent déjà avoir été traitées ; le droit à l'effacement (art. 17 RGPD) ne couvre pas un traitement antérieur.
+  expected_reasoning:
+    - La réutilisation des saisies doit rester compatible avec la finalité initiale.
+    - Les données de tiers exigent une prudence renforcée sur le service choisi.
+  risks:
+    - data_reuse
+    - purpose_violation
+    - pii_leak
+  sources:
+    - id: rgpd-art5
+      label: RGPD — article 5 (limitation des finalités)
+      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+      type: law
+    - id: edpb-guidelines
+      label: EDPB — Lignes directrices sur la limitation des finalités et le traitement ultérieur
+      url: https://www.edpb.europa.eu/our-work-tools/general-guidance/guidelines-recommendations-best-practices_fr
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (données privées revendues). À relier à la liste des services autorisés.

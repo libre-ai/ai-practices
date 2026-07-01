@@ -1,0 +1,251 @@
+- id: q-source-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Demander des sources ne suffit pas
+  axis: source_verification
+  difficulty: beginner
+  intent: Montrer qu'une demande de liens à une IA ne remplace pas la vérification humaine des sources.
+  context:
+    role: chargé de veille
+    scenario: Vous demandez à un assistant IA de chercher la dernière faille zero-day Apache et de fournir des liens.
+  prompt: Quelle action est nécessaire avant de partager la réponse ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: verify_links
+      label: Ouvrir les liens, vérifier qu'ils existent, qu'ils disent bien cela, leur date et leur autorité.
+      score: 1.0
+      feedback: Bonne pratique. Une IA peut fournir des sources inventées, obsolètes ou mal interprétées.
+    - id: trust_because_links_requested
+      label: Partager directement car le prompt demandait explicitement les sources.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Demander des sources améliore le prompt mais ne prouve pas que les sources sont réelles ou pertinentes.
+  expected_reasoning:
+    - Une citation générée doit être vérifiée dans la source elle-même.
+    - La fiabilité dépend de l'existence, du contenu, de la date et de l'autorité de la source.
+    - Diffuser une source fabriquée engage la responsabilité de l'émetteur.
+  risks:
+    - hallucinated_source
+    - misinformation
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — mesure et gestion des risques IA
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: À relire et compléter avec politique interne veille/sécurité. Contextualisé via audit-101 — responsabilité de l'émetteur ; voir q-hallucination-002.
+
+- id: q-data-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Le nom d'un fichier ne suffit pas à juger sa sensibilité
+  axis: data_confidentiality
+  difficulty: beginner
+  intent: Corriger le mauvais réflexe consistant à envoyer un brouillon supposé public sans inspecter son contenu.
+  context:
+    role: collaborateur marketing
+    scenario: Vous voulez faire corriger par une IA externe un fichier nommé brouillon_blog_tech.docx, destiné à devenir un article public.
+    assets:
+      - type: document_ref
+        label: brouillon_blog_tech.docx
+  prompt: Que devez-vous faire avant tout envoi ?
+  interaction:
+    type: multiple_choice
+    min_choices: 1
+    max_choices: 3
+  choices:
+    - id: inspect_content_metadata
+      label: Vérifier contenu réel, commentaires, métadonnées, noms clients, roadmap et classification.
+      score: 1.0
+      feedback: Bonne pratique. Un brouillon peut contenir des informations internes même s'il est destiné à publication.
+    - id: use_internal_tool_or_redact
+      label: Utiliser un outil autorisé ou retirer les informations internes avant soumission.
+      score: 1.0
+      feedback: Bonne pratique. Réduire les données envoyées et utiliser un outil conforme limite le risque.
+    - id: send_because_public
+      label: Envoyer directement car le document sera publié plus tard.
+      score: -1.0
+      severity: high
+      feedback: Risqué. L'intention de publication ne garantit pas l'absence de données sensibles dans la version de travail.
+  expected_reasoning:
+    - La sensibilité se juge sur le contenu, pas le nom du fichier.
+    - Les brouillons peuvent contenir commentaires, métadonnées et informations internes.
+    - La juridiction et la localisation du service destinataire comptent autant que le contenu.
+  risks:
+    - confidentiality_leak
+    - pii_leak
+    - internal_information_exposure
+  sources:
+    - id: cnil-ia
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: À aligner avec la classification interne. Contextualisé via audit-102 — juridiction du service à vérifier ; voir q-data-002.
+
+- id: q-media-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Analyser une image IA sans renforcer un stéréotype
+  axis: media_synthetic
+  difficulty: intermediate
+  intent: Apprendre à distinguer l'analyse de média synthétique d'un jugement d'apparence ou de stéréotype.
+  context:
+    role: référent communication
+    scenario: Une image générée par IA représente une personne dans un contexte culturel très caricatural pour illustrer une erreur d'IA.
+  prompt: Quelle est la meilleure réaction éditoriale ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: run_bias_review
+      label: Bloquer la publication tant qu'une revue de biais, de nécessité et de transparence n'est pas réalisée.
+      score: 1.0
+      feedback: Bonne pratique. Les médias IA peuvent introduire des associations stéréotypées même si l'intention est pédagogique.
+    - id: publish_because_ai
+      label: Publier car l'image est artificielle et ne représente personne de réel.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Un média synthétique peut quand même véhiculer des stéréotypes ou ressembler à une personne réelle.
+    - id: ask_model_if_biased
+      label: Demander au modèle générateur si l'image est biaisée et suivre sa réponse.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Un modèle ne doit pas être seul juge de ses propres biais ; une revue humaine structurée est nécessaire.
+  expected_reasoning:
+    - Le caractère synthétique ne supprime pas le risque de stéréotype.
+    - L'usage d'un média doit être nécessaire, transparent et audité.
+  risks:
+    - media_bias
+    - stereotype_reinforcement
+    - deepfake_confusion
+  sources:
+    - id: unesco-ai-ethics
+      label: UNESCO — Recommendation on the Ethics of Artificial Intelligence
+      url: https://www.unesco.org/en/artificial-intelligence/recommendation-ethics
+      type: public_guidance
+    - id: eu-ai-act-art50
+      label: Règlement (UE) 2024/1689 sur l'IA — transparence des contenus générés (art. 50)
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Prévoir une fiche média dédiée si un asset réel est ajouté. Sourcé via audit-103 — marquage EU AI Act art. 50 ; voir q-media-002 et q-media-003.
+
+- id: q-security-logs-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Logs applicatifs et exclusions explicites
+  axis: security
+  difficulty: intermediate
+  intent: Enseigner qu'un prompt d'analyse de logs doit exclure secrets et données sensibles, mais surtout éviter l'envoi à un outil non autorisé.
+  context:
+    role: développeur support
+    scenario: Vous voulez demander à une IA d'analyser serveur_app_logs.txt pour diagnostiquer une erreur.
+  prompt: Quelle approche est la plus sûre ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: redact_and_authorized_tool
+      label: Retirer secrets/PII, minimiser l'extrait et utiliser uniquement un outil autorisé pour ce niveau de données.
+      score: 1.0
+      feedback: Bonne pratique. Les logs peuvent contenir tokens, IP, identifiants, chemins internes et traces utilisateur.
+    - id: add_exclusion_only
+      label: Ajouter au prompt "ignore les tokens et IP" puis envoyer le fichier complet.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Une instruction dans le prompt ne retire pas les données du fichier transmis au service.
+    - id: send_full_logs
+      label: Envoyer le fichier complet pour que l'IA ait tout le contexte.
+      score: -2.0
+      severity: critical
+      feedback: Critique. Les logs complets peuvent exposer secrets, données personnelles et informations internes.
+  expected_reasoning:
+    - Les données envoyées sont déjà exposées, même si le prompt demande de les ignorer.
+    - Minimisation, anonymisation et outil autorisé priment sur la qualité du prompt.
+    - L'outil autorisé doit lui-même être évalué (localisation, juridiction).
+  risks:
+    - secret_leak
+    - pii_leak
+    - security_exposure
+  sources:
+    - id: owasp-llm-top10
+      label: OWASP Top 10 for Large Language Model Applications
+      url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: À compléter par la politique interne logs/secrets. Contextualisé via audit-105 — évaluer localisation/juridiction de l'outil ; voir q-business-001.
+
+- id: q-prompt-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Les méthodes de prompt ne sont pas des garanties
+  axis: prompt_practice
+  difficulty: beginner
+  intent: Dé-dogmatiser les acronymes de prompting et rappeler qu'un rôle donné à l'IA n'est qu'une aide de formulation.
+  context:
+    role: utilisateur métier
+    scenario: Une fiche affirme qu'il faut systématiquement attribuer une identité à l'IA pour obtenir une bonne réponse.
+  prompt: Quelle affirmation est la plus juste ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: role_can_help_not_guarantee
+      label: Donner un rôle peut aider à cadrer le style, mais ne garantit ni exactitude, ni sécurité, ni conformité.
+      score: 1.0
+      feedback: Bonne pratique. Le rôle est une technique de cadrage, pas un contrôle de fiabilité.
+    - id: role_guarantees_quality
+      label: Le rôle donné à l'IA conditionne suffisamment la qualité de la réponse.
+      score: -0.5
+      severity: medium
+      feedback: Trop fort. La qualité dépend aussi des données, sources, contraintes, vérifications et limites du modèle.
+    - id: prompting_is_useless
+      label: Les méthodes de prompt sont inutiles.
+      score: -0.5
+      severity: low
+      feedback: Trop faible. Les méthodes de prompt peuvent aider, mais elles ne remplacent pas la vérification et le jugement.
+  expected_reasoning:
+    - Un bon prompt aide mais ne sécurise pas automatiquement le résultat.
+    - Les acronymes doivent rester des aides, pas des dogmes.
+  risks:
+    - prompt_dogma
+    - overconfidence
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — Govern/Map/Measure/Manage
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: À adapter au vocabulaire interne si une méthode officielle existe. Contextualisé via audit-104 — lien avec l'injection de prompt ; voir q-security-002.

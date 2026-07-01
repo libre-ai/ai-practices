@@ -1,0 +1,110 @@
+# Axe media_synthetic — ancrage rumble-cos (deepfakes, transparence des médias IA).
+# Sources primaires : EU AI Act art. 50, C2PA. Aucune référence à un asset média (texte seul).
+
+- id: q-media-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Publier une image générée par IA sans le dire
+  axis: media_synthetic
+  difficulty: intermediate
+  intent: Rappeler l'obligation de transparence et de traçabilité de la provenance d'un média synthétique.
+  context:
+    role: chargé de communication
+    scenario: Vous publiez une illustration générée par IA sur un support officiel de l'organisation.
+  prompt: Quelle obligation prendre en compte ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: disclose_synthetic_provenance
+      label: Signaler le caractère synthétique et tracer la provenance, la transparence des contenus IA étant requise.
+      score: 1.0
+      feedback: Bonne pratique. Les contenus synthétiques doivent être signalés pour ne pas induire le public en erreur.
+    - id: publish_without_label
+      label: Publier sans indiquer que l'image est générée par IA.
+      score: -1.0
+      severity: high
+      feedback: Risqué. L'absence de mention peut tromper le public et contrevenir aux obligations de transparence.
+    - id: label_only_if_asked
+      label: N'indiquer l'origine que si quelqu'un le demande.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. La transparence sur un média synthétique s'anticipe, elle ne se déclenche pas sur demande.
+  expected_reasoning:
+    - Un média synthétique publié doit être signalé comme tel.
+    - La provenance se trace en amont de la publication.
+  risks:
+    - transparency_gap
+    - media_bias
+    - deepfake_confusion
+  sources:
+    - id: eu-ai-act-art50
+      label: Règlement (UE) 2024/1689 sur l'IA — transparence des contenus générés (art. 50)
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+    - id: c2pa
+      label: C2PA — standard de provenance et d'authenticité des contenus
+      url: https://spec.c2pa.org/specifications/
+      type: standard
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (transparence des médias IA). À relier à la charte éditoriale.
+
+- id: q-media-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Une vidéo réaliste peut être un deepfake
+  axis: media_synthetic
+  difficulty: advanced
+  intent: Faire vérifier l'authenticité d'un média représentant une personne réelle avant de le relayer ou d'agir.
+  context:
+    role: responsable communication
+    scenario: On vous transmet une vidéo où un dirigeant tient des propos surprenants ; elle pourrait être un deepfake.
+  prompt: Quelle est la bonne démarche ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: verify_authenticity_first
+      label: Vérifier l'authenticité (source, provenance, indices techniques) avant de relayer ou d'agir.
+      score: 1.0
+      feedback: Bonne pratique. Un média peut usurper l'image d'une personne réelle ; l'authenticité se vérifie avant toute diffusion.
+    - id: share_because_urgent
+      label: Relayer immédiatement car le contenu est urgent et frappant.
+      score: -2.0
+      severity: critical
+      feedback: Critique. Relayer sans vérifier fait de vous le diffuseur d'un contenu potentiellement falsifié ; l'obligation de transparence (EU AI Act art. 50) et le risque juridique s'appliquent.
+    - id: trust_because_looks_real
+      label: Y croire car la vidéo paraît réaliste.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Le réalisme n'atteste pas l'authenticité ; s'y fier conduit à relayer un faux, alors que les deepfakes sont conçus pour paraître crédibles.
+  expected_reasoning:
+    - Un média représentant une personne réelle exige une vérification d'authenticité.
+    - Le réalisme perçu n'est pas une preuve d'authenticité.
+  risks:
+    - deepfake_confusion
+    - misinformation
+    - reputational_harm
+  sources:
+    - id: eu-ai-act-art50
+      label: Règlement (UE) 2024/1689 sur l'IA — transparence et hypertrucages (art. 50)
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+    - id: c2pa
+      label: C2PA — standard de provenance et d'authenticité des contenus
+      url: https://spec.c2pa.org/specifications/
+      type: standard
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (deepfakes documentés). À relier à la procédure de vérification des contenus.

@@ -1,0 +1,329 @@
+# Axes human_responsibility & bias_fairness — ancrage rumble-cos (incidents documentés, impacts sociétaux).
+# Sources primaires : EU AI Act, RGPD, NIST, CNIL, UNESCO. Ton factuel, non sensationnaliste.
+
+- id: q-responsibility-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Une décision qui touche une personne exige un humain
+  axis: human_responsibility
+  difficulty: advanced
+  intent: Rappeler qu'une décision impactant une personne exige une supervision humaine effective et une voie de contestation.
+  context:
+    role: gestionnaire de dossiers
+    scenario: Un outil IA propose de refuser automatiquement des demandes d'aide sur la base d'un score, sans intervention humaine.
+  prompt: Quelle exigence s'impose ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: human_oversight_recourse
+      label: Garantir une supervision humaine effective et une voie de contestation avant toute décision impactant une personne.
+      score: 1.0
+      feedback: Bonne pratique. Une décision individuelle automatisée exige un contrôle humain réel et un droit de recours.
+    - id: automate_fully_for_speed
+      label: Automatiser entièrement la décision pour gagner du temps.
+      score: -1.5
+      severity: high
+      feedback: Risqué. Une décision automatisée sans intervention humaine sur un droit peut être illicite et préjudiciable.
+    - id: human_rubber_stamp
+      label: Garder un humain qui valide sans réel pouvoir d'analyse.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Une validation de pure forme n'est pas une supervision humaine effective.
+  expected_reasoning:
+    - Une décision impactant une personne suppose un contrôle humain réel.
+    - Une voie de contestation fait partie du dispositif, pas une option.
+  risks:
+    - automated_harm
+    - lack_of_recourse
+    - responsibility_dilution
+  sources:
+    - id: eu-ai-act-oversight
+      label: Règlement (UE) 2024/1689 sur l'IA — supervision humaine (art. 14)
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+    - id: rgpd-art22
+      label: RGPD — article 22 (décision individuelle automatisée)
+      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+      type: law
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (impacts documentés). À relier aux procédures internes de décision.
+
+- id: q-responsibility-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Une IA n'est pas responsable à votre place
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: Montrer que la responsabilité d'un livrable reste humaine, même lorsqu'une IA a produit le contenu.
+  context:
+    role: analyste
+    scenario: Un rapport que vous avez généré avec une IA contient une erreur qui a été transmise à un client.
+  prompt: Quelle posture est la plus juste ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: human_accountable_add_controls
+      label: Assumer la responsabilité du livrable et renforcer la relecture avant diffusion.
+      score: 1.0
+      feedback: Bonne pratique. La responsabilité d'un livrable reste sur la personne qui le diffuse ; l'IA est un outil, pas un décideur.
+    - id: blame_model_provider
+      label: Attribuer l'erreur au fournisseur du modèle puisque c'est lui qui a produit le texte.
+      score: -1.0
+      severity: high
+      feedback: "Risqué. Déléguer la responsabilité au modèle ou à son éditeur ne tient pas : la validation avant diffusion vous incombe."
+    - id: disable_ai_entirely
+      label: Interdire tout usage de l'IA pour ne plus jamais être responsable d'une erreur.
+      score: -0.5
+      severity: low
+      feedback: Excessif. Le problème n'est pas l'outil mais l'absence de contrôle humain ; supprimer l'outil n'installe pas la supervision nécessaire.
+  expected_reasoning:
+    - L'IA assiste la production mais ne porte pas la responsabilité juridique ou professionnelle.
+    - La supervision humaine et la relecture avant diffusion sont le point de contrôle.
+  risks:
+    - responsibility_dilution
+    - misinformation
+  sources:
+    - id: eu-ai-act-oversight
+      label: Règlement (UE) 2024/1689 sur l'IA — supervision humaine (art. 14)
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+    - id: nist-ai-rmf-govern
+      label: NIST AI Risk Management Framework — fonction Govern
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (incidents documentés). Ton volontairement factuel, non sensationnaliste.
+
+- id: q-responsibility-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Laisser une IA seule sur des situations à risque
+  axis: human_responsibility
+  difficulty: advanced
+  intent: Imposer une escalade humaine et des garde-fous quand une IA intervient auprès de personnes vulnérables.
+  context:
+    role: responsable service usagers
+    scenario: On envisage un agent IA pour répondre seul à des messages d'usagers exprimant une détresse psychologique.
+  prompt: Quelle est la posture responsable ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: human_escalation_safeguards
+      label: Prévoir une escalade humaine et des garde-fous, sans laisser l'IA seule sur des situations à risque pour les personnes.
+      score: 1.0
+      feedback: Bonne pratique. Sur des situations sensibles, un relais humain et des garde-fous sont indispensables.
+    - id: deploy_ai_alone_247
+      label: Déployer l'IA seule car elle est disponible en continu.
+      score: -2.0
+      severity: critical
+      feedback: Critique. Une IA n'assure ni escalade ni prise en charge d'urgence ; seul un relais humain peut enclencher une chaîne de sécurité et de suivi.
+    - id: rely_on_disclaimer
+      label: Se reposer sur un avertissement indiquant que ce n'est pas un professionnel.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Un avertissement ne remplace pas un dispositif d'escalade et de prise en charge humaine.
+  expected_reasoning:
+    - Les situations à risque pour les personnes exigent un relais humain.
+    - Un avertissement ne constitue pas un garde-fou opérationnel.
+  risks:
+    - safety_risk
+    - vulnerable_users
+    - responsibility_dilution
+  sources:
+    - id: eu-ai-act-highrisk
+      label: Règlement (UE) 2024/1689 sur l'IA — systèmes à haut risque
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+    - id: rgpd-art22
+      label: RGPD — article 22 (décision individuelle automatisée)
+      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+      type: law
+    - id: nist-ai-rmf-govern
+      label: NIST AI Risk Management Framework — fonction Govern
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (incident documenté). Formulation centrée sur le garde-fou, non sur le cas dramatique.
+
+- id: q-bias-001
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Trier des candidatures avec une IA
+  axis: bias_fairness
+  difficulty: advanced
+  intent: Faire reconnaître le tri de candidatures comme un usage à haut risque nécessitant test de biais et revue humaine.
+  context:
+    role: chargé de recrutement
+    scenario: Un outil IA classe automatiquement les candidatures ; on veut l'utiliser pour présélectionner sans revue.
+  prompt: Quelle précaution est indispensable ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: test_bias_human_review
+      label: Tester les biais, documenter le dispositif et maintenir une revue humaine — le recrutement est un usage à haut risque.
+      score: 1.0
+      feedback: Bonne pratique. Le tri de candidatures peut reproduire des discriminations et relève d'un encadrement renforcé.
+    - id: trust_ranking_as_neutral
+      label: Se fier au classement comme s'il était neutre et objectif.
+      score: -1.5
+      severity: high
+      feedback: Risqué. Un classement automatique peut encoder des biais historiques sans être neutre pour autant.
+    - id: remove_gender_field_only
+      label: Retirer seulement le champ genre et considérer le biais réglé.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Des variables corrélées peuvent réintroduire un biais même sans champ genre explicite.
+  expected_reasoning:
+    - Le recrutement est un usage à haut risque au sens de la réglementation IA.
+    - Retirer une variable ne supprime pas les biais portés par des variables corrélées.
+  risks:
+    - discrimination
+    - automation_bias
+    - unfair_outcome
+  sources:
+    - id: eu-ai-act-annex3
+      label: Règlement (UE) 2024/1689 sur l'IA — usages à haut risque (annexe III, emploi)
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+    - id: cnil-ia
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (impacts emploi). À relier à la politique RH et à la DPIA.
+
+- id: q-bias-002
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Une sortie d'IA n'est pas une vérité neutre
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: Corriger le réflexe consistant à traiter une sortie d'IA comme objective parce que produite par une machine.
+  context:
+    role: chargé d'études
+    scenario: Un rapport IA présente une synthèse d'opinions comme un fait neutre ; on veut la reprendre telle quelle.
+  prompt: Quelle lecture est juste ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: treat_output_as_situated
+      label: Traiter la sortie comme située (données, entraînement, cadrage) et la vérifier, pas comme une vérité neutre.
+      score: 1.0
+      feedback: Bonne pratique. Une sortie reflète ses données et son cadrage ; elle se vérifie plutôt qu'elle ne se présume neutre.
+    - id: assume_neutral_because_machine
+      label: La supposer objective car produite par une machine.
+      score: -1.0
+      severity: high
+      feedback: Risqué. L'origine machine ne garantit pas la neutralité ; les biais des données se transmettent aux sorties.
+    - id: accept_if_confident_tone
+      label: L'accepter parce qu'elle est formulée avec assurance.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Le ton assuré n'est pas un indice de fiabilité ni de neutralité.
+  expected_reasoning:
+    - Une sortie d'IA porte les biais de ses données et de son cadrage.
+    - Le ton d'une réponse n'indique pas sa fiabilité.
+  risks:
+    - automation_bias
+    - misinformation
+    - overconfidence
+  sources:
+    - id: nist-ai-rmf
+      label: NIST AI Risk Management Framework — gestion des biais
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+    - id: unesco-ai-ethics
+      label: UNESCO — Recommandation sur l'éthique de l'intelligence artificielle
+      url: https://www.unesco.org/en/artificial-intelligence/recommendation-ethics
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (esprit critique). À illustrer avec un exemple métier interne.
+
+- id: q-bias-003
+  version: 1
+  status: review
+  locale: fr-FR
+  title: Un score d'IA ne décide pas d'une évaluation RH
+  axis: bias_fairness
+  difficulty: advanced
+  intent: Montrer qu'un score d'IA reste un signal limité et ne remplace pas une décision humaine motivée et transparente.
+  context:
+    role: manager
+    scenario: Vous voulez fonder une décision d'évaluation d'un collaborateur sur un score de performance produit par une IA.
+  prompt: Quelle est la bonne pratique ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: contextualize_score
+      label: Traiter le score comme un signal limité, en vérifier les biais et garder une décision humaine motivée et transparente.
+      score: 1.0
+      feedback: Bonne pratique. Un score peut éclairer mais ne fonde pas seul une évaluation individuelle.
+    - id: decide_on_score_alone
+      label: Décider sur le seul score produit par l'IA.
+      score: -1.5
+      severity: high
+      feedback: Risqué. Décider sur un score automatique seul expose à une évaluation injuste et non motivée.
+    - id: hide_ai_use
+      label: Ne pas informer la personne de l'usage d'un score automatisé.
+      score: -1.0
+      severity: high
+      feedback: Risqué. L'information de la personne sur un traitement automatisé est due (RGPD art. 13-14) ; l'omettre nuit à ses droits et à l'équité.
+  expected_reasoning:
+    - Un score d'IA est un signal partiel, pas une décision.
+    - La transparence envers la personne évaluée fait partie de l'équité.
+  risks:
+    - unfair_evaluation
+    - transparency_gap
+    - automation_bias
+  sources:
+    - id: eu-ai-act
+      label: Règlement (UE) 2024/1689 sur l'IA — usages à haut risque (emploi)
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+    - id: cnil-ia
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Ancrage rumble-cos (impacts emploi). À aligner avec le processus d'évaluation RH.
