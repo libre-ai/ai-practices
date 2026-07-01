@@ -1,0 +1,22 @@
+[package]
+name = "rumble-ai-practices-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "rumble-ai-practices"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+rumble-ai-practices-api.workspace = true
+rumble-ai-practices-audit.workspace = true
+rumble-ai-practices-content.workspace = true
+rumble-ai-practices-domain.workspace = true
+rumble-ai-practices-session.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true

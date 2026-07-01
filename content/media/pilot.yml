@@ -1,0 +1,22 @@
+- id: media-synthetic-bias-demo
+  status: draft
+  type: image
+  origin: generated_ai
+  model: null
+  prompt: null
+  purpose: Exemple de fiche média non publiée pour tester la revue de biais avant usage pédagogique.
+  contains_human_like_person: true
+  consent_or_rights: "N/A — brouillon non publié"
+  labels:
+    synthetic_disclosed: true
+    watermark_required: true
+  bias_review:
+    stereotypes_detected: []
+    representation_risks:
+      - "Risque de renforcer un stéréotype si l'image associe apparence, origine perçue ou décor à une erreur IA."
+    protected_attributes_inferred: []
+    realism_risk: medium
+    deepfake_confusion_risk: medium
+    reviewer: TBD
+    decision: rework
+    notes: "Brouillon de validation technique ; non utilisable dans une question approved."

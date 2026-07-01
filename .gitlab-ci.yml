@@ -1,0 +1,92 @@
+stages:
+  - verify
+  - package
+  - smoke
+  - review
+
+variables:
+  CARGO_TERM_COLOR: always
+
+verify:rust:
+  stage: verify
+  image: rust:1.95
+  before_script:
+    - rustup target add wasm32-unknown-unknown
+    - cargo install cargo-deny --locked
+  script:
+    - cargo fmt --all --check
+    - cargo check --workspace
+    - cargo check -p rumble-ai-practices-web --target wasm32-unknown-unknown
+    - cargo test --workspace
+    - cargo clippy --workspace --all-targets --all-features -- -D warnings
+    - cargo deny check
+    - cargo run -p rumble-ai-practices-cli -- validate-corpus --content content/questions --media content/media
+    - cargo run -p rumble-ai-practices-cli -- audit-corpus --content content/questions --media content/media --out reports/audit.json
+    - cargo run -p rumble-ai-practices-cli -- run-session --fixture fixtures/session-basic.json --content content/questions --media content/media --out reports/session-basic.json
+  artifacts:
+    when: always
+    paths:
+      - reports/
+    expire_in: 7 days
+
+package:linux:
+  stage: package
+  image: rust:1.95
+  needs: ["verify:rust"]
+  script:
+    - cargo build --release -p rumble-ai-practices-cli
+    - mkdir -p dist
+    - cp target/release/rumble-ai-practices dist/rumble-ai-practices-linux-x86_64
+    - sha256sum dist/rumble-ai-practices-linux-x86_64 > dist/SHA256SUMS
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 14 days
+
+smoke:api:
+  stage: smoke
+  image: rust:1.95
+  needs: ["verify:rust"]
+  script:
+    - cargo run -p rumble-ai-practices-cli -- serve --bind 127.0.0.1:3000 > server.log 2>&1 & echo $! > server.pid
+    - |
+      python3 - <<'PY'
+      import json, time, urllib.request
+      base = 'http://127.0.0.1:3000'
+      for _ in range(60):
+          try:
+              urllib.request.urlopen(base + '/readyz', timeout=1).read()
+              break
+          except Exception:
+              time.sleep(0.25)
+      else:
+          raise SystemExit('server did not become ready')
+      html = urllib.request.urlopen(base + '/', timeout=2).read().decode()
+      assert 'manifest.webmanifest' in html
+      req = urllib.request.Request(
+          base + '/v1/sessions',
+          data=b'{"mode":"anonymous"}',
+          headers={'content-type': 'application/json'},
+          method='POST',
+      )
+      session = json.loads(urllib.request.urlopen(req, timeout=2).read())['data']['session_id']
+      question = json.loads(urllib.request.urlopen(base + f'/v1/sessions/{session}/next', timeout=2).read())['data']
+      assert 'score' not in question['choices'][0]
+      print('smoke ok', session, question['id'])
+      PY
+    - kill $(cat server.pid)
+  artifacts:
+    when: always
+    paths:
+      - server.log
+    expire_in: 7 days
+
+review:human-gate:
+  stage: review
+  image: alpine:3.20
+  needs: ["smoke:api", "package:linux"]
+  when: manual
+  allow_failure: false
+  script:
+    - echo "Manual gate only: download artifacts, run the binary locally, review http://127.0.0.1:3000, then record go/no-go outside CI."
+    - echo "See docs/local-review.md"

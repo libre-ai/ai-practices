@@ -1,0 +1,41 @@
+id: q-domain-000
+version: 1
+status: draft
+locale: fr-FR
+title: Titre court
+axis: data_confidentiality
+difficulty: beginner
+intent: Intention pédagogique claire en une phrase complète.
+context:
+  role: rôle utilisateur
+  scenario: Situation concrète et suffisamment contextualisée.
+prompt: Question posée à l'utilisateur.
+interaction:
+  type: single_choice
+  min_choices: 1
+  max_choices: 1
+choices:
+  - id: good_action
+    label: Action recommandée.
+    score: 1.0
+    feedback: Explication pédagogique de la bonne pratique.
+  - id: risky_action
+    label: Action risquée.
+    score: -1.0
+    severity: high
+    feedback: Explication du risque concret.
+expected_reasoning:
+  - Raisonnement attendu.
+risks:
+  - risk_tag
+sources:
+  - id: source-id
+    label: Source ou politique interne
+    url: internal://policy
+    type: internal_policy
+review:
+  author: TBD
+  reviewers: []
+  last_reviewed_at: null
+  confidence: medium
+  notes: À relire.

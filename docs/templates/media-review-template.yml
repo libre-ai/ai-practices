@@ -1,0 +1,21 @@
+id: media-000
+status: draft
+type: image
+origin: generated_ai
+model: null
+prompt: null
+purpose: Objectif pédagogique du média, et pourquoi un média est nécessaire.
+contains_human_like_person: true
+consent_or_rights: "N/A ou preuve de droits"
+labels:
+  synthetic_disclosed: true
+  watermark_required: true
+bias_review:
+  stereotypes_detected: []
+  representation_risks: []
+  protected_attributes_inferred: []
+  realism_risk: medium
+  deepfake_confusion_risk: medium
+  reviewer: TBD
+  decision: rework
+  notes: "À relire avant tout usage."

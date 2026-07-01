@@ -1,0 +1,28 @@
+# Rust / build
+/target/
+**/*.rs.bk
+
+# JS / frontend if introduced later
+node_modules/
+dist/
+.next/
+.output/
+
+# Local env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# Local artifacts
+/out/
+/tmp/
+*.log
+.DS_Store
+
+# Generated reports
+/reports/
+/playwright-report/
+/test-results/
