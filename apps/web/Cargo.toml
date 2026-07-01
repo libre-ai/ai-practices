@@ -1,0 +1,23 @@
+[package]
+name = "rumble-ai-practices-web"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lib]
+name = "rumble_ai_practices_web"
+path = "src/lib.rs"
+
+[features]
+default = []
+ssr = ["dep:dioxus-ssr"]
+
+[dependencies]
+dioxus.workspace = true
+dioxus-ssr = { workspace = true, optional = true }
+rumble-ai-practices-ui.workspace = true
+serde.workspace = true
+
+[dev-dependencies]
+dioxus-ssr.workspace = true

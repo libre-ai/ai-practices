@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rumble-ai-practices.local/schemas/media-review.schema.json",
+  "title": "Rumble AI Practices Media Review",
+  "type": "object",
+  "required": ["id", "status", "type", "origin", "purpose", "contains_human_like_person", "bias_review"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^media-[a-z0-9-]+$" },
+    "status": { "enum": ["draft", "review", "approved", "blocked", "retired"] },
+    "type": { "enum": ["image", "video", "audio"] },
+    "origin": { "enum": ["generated_ai", "stock", "internal", "screenshot", "synthetic_non_human"] },
+    "model": { "type": ["string", "null"] },
+    "prompt": { "type": ["string", "null"] },
+    "purpose": { "type": "string", "minLength": 20 },
+    "contains_human_like_person": { "type": "boolean" },
+    "consent_or_rights": { "type": "string" },
+    "labels": {
+      "type": "object",
+      "properties": {
+        "synthetic_disclosed": { "type": "boolean" },
+        "watermark_required": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "bias_review": {
+      "type": "object",
+      "required": ["realism_risk", "deepfake_confusion_risk", "reviewer", "decision"],
+      "properties": {
+        "stereotypes_detected": { "type": "array", "items": { "type": "string" } },
+        "representation_risks": { "type": "array", "items": { "type": "string" } },
+        "protected_attributes_inferred": { "type": "array", "items": { "type": "string" } },
+        "realism_risk": { "enum": ["low", "medium", "high"] },
+        "deepfake_confusion_risk": { "enum": ["low", "medium", "high"] },
+        "reviewer": { "type": "string" },
+        "decision": { "enum": ["approved", "rework", "blocked"] },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

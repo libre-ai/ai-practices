@@ -1,0 +1,13 @@
+{
+  "session_id": "fixture-basic",
+  "answers": [
+    {
+      "question_id": "q-source-001",
+      "choice_ids": ["verify_links"]
+    },
+    {
+      "question_id": "q-data-001",
+      "choice_ids": ["inspect_content_metadata", "use_internal_tool_or_redact"]
+    }
+  ]
+}

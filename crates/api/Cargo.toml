@@ -1,0 +1,18 @@
+[package]
+name = "rumble-ai-practices-api"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+axum.workspace = true
+rumble-ai-practices-domain.workspace = true
+rumble-ai-practices-session.workspace = true
+rumble-ai-practices-web = { workspace = true, features = ["ssr"] }
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+tower.workspace = true

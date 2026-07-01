@@ -1,0 +1,44 @@
+- id: audit-001
+  source: capture
+  original_text: "Incorrect ! Ce prompt demande explicitement les liens des sources : la vérification est déjà incluse, il n'y a rien à ajouter avant envoi."
+  screenshot: "TODO"
+  category:
+    - factual_error
+    - misleading_feedback
+    - oversimplification
+  severity: high
+  problem: "Demander des liens à une IA ne garantit pas que les sources existent, sont pertinentes, récentes ou correctement interprétées."
+  recommendation: rewrite
+  replacement_idea: "Réécrire en scénario demandant de vérifier existence, contenu, date et autorité des sources avant partage."
+  reviewer: TBD
+  status: open
+
+- id: audit-002
+  source: capture
+  original_text: "Bravo ! Le fichier brouillon_blog_tech.docx est un article destiné à être publié : aucune donnée C4 n'est exposée dans ce contenu public soumis à correction."
+  screenshot: "TODO"
+  category:
+    - privacy_risk
+    - security_risk
+    - misleading_feedback
+  severity: critical
+  problem: "La destination publique d'un document ne prouve pas que le brouillon ne contient pas de données internes, commentaires, métadonnées, clients ou roadmap."
+  recommendation: rewrite
+  replacement_idea: "Exiger inspection du contenu réel, classification, suppression des métadonnées et usage d'un outil autorisé."
+  reviewer: TBD
+  status: open
+
+- id: audit-003
+  source: capture
+  original_text: "Image IA présentée comme biaisée/OK sans grille de revue visible."
+  screenshot: "TODO"
+  category:
+    - media_bias
+    - ambiguous_question
+    - missing_source
+  severity: high
+  problem: "Une image générée peut elle-même renforcer des stéréotypes. La question doit documenter l'origine du média, l'objectif pédagogique et la grille de biais."
+  recommendation: block
+  replacement_idea: "Remplacer par un média abstrait ou créer une fiche d'audit média complète avant publication."
+  reviewer: TBD
+  status: open

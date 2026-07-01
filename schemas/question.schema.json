@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rumble-ai-practices.local/schemas/question.schema.json",
+  "title": "Rumble AI Practices Question",
+  "type": "object",
+  "required": [
+    "id",
+    "version",
+    "status",
+    "locale",
+    "title",
+    "axis",
+    "difficulty",
+    "intent",
+    "context",
+    "prompt",
+    "interaction",
+    "choices",
+    "expected_reasoning",
+    "risks",
+    "review"
+  ],
+  "properties": {
+    "id": { "type": "string", "pattern": "^q-[a-z0-9-]+$" },
+    "version": { "type": "integer", "minimum": 1 },
+    "status": { "enum": ["draft", "review", "approved", "blocked", "retired"] },
+    "locale": { "type": "string" },
+    "title": { "type": "string", "minLength": 3 },
+    "axis": {
+      "enum": [
+        "data_confidentiality",
+        "source_verification",
+        "hallucination",
+        "bias_fairness",
+        "security",
+        "privacy_rgpd",
+        "human_responsibility",
+        "prompt_practice",
+        "business_context",
+        "media_synthetic"
+      ]
+    },
+    "difficulty": { "enum": ["beginner", "intermediate", "advanced"] },
+    "intent": { "type": "string", "minLength": 20 },
+    "context": {
+      "type": "object",
+      "required": ["scenario"],
+      "properties": {
+        "role": { "type": "string" },
+        "scenario": { "type": "string", "minLength": 20 },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type", "label"],
+            "properties": {
+              "type": { "type": "string" },
+              "label": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "prompt": { "type": "string", "minLength": 5 },
+    "interaction": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["single_choice", "multiple_choice", "ranked_actions", "media_review"] },
+        "min_choices": { "type": "integer", "minimum": 0 },
+        "max_choices": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "choices": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "score", "feedback"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string", "minLength": 3 },
+          "score": { "type": "number", "minimum": -2, "maximum": 1 },
+          "severity": { "enum": ["low", "medium", "high", "critical"] },
+          "feedback": { "type": "string", "minLength": 20 }
+        },
+        "additionalProperties": true
+      }
+    },
+    "expected_reasoning": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 5 }
+    },
+    "risks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "type"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "url": { "type": "string" },
+          "type": { "enum": ["internal_policy", "public_guidance", "law", "standard", "documentation", "other"] }
+        },
+        "additionalProperties": true
+      }
+    },
+    "media": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "review": {
+      "type": "object",
+      "required": ["author", "reviewers", "confidence"],
+      "properties": {
+        "author": { "type": "string" },
+        "reviewers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "last_reviewed_at": { "type": ["string", "null"] },
+        "confidence": { "enum": ["low", "medium", "high"] },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
