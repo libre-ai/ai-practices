@@ -1,5 +1,7 @@
 # rumble-ai-practices
 
+> **Rumble Officialized Product**: This is a Rumble-tier product with official governance. Documentation is intentionally in French to reflect the product's primary audience and strategic positioning.
+
 **Layer:** Rumble — Product  
 **Role:** multi-plateforme d'entraînement aux pratiques professionnelles de l'IA  
 **Mission:** aider des collaborateurs à renforcer leurs réflexes IA par des scénarios réalistes, sourcés, non binaires et audités contre les biais.
