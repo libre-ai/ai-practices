@@ -12,6 +12,23 @@ path = "src/lib.rs"
 [features]
 default = []
 ssr = ["dep:dioxus-ssr"]
+# Mirror dioxus' standard "default + web" set (default was stripped by the
+# workspace's default-features = false). devtools carries web-sys/Location.
+web = [
+    "dioxus/launch",
+    "dioxus/devtools",
+    "dioxus/logger",
+    "dioxus/lib",
+    "dioxus/document",
+    "dioxus/web",
+]
+
+# Client (WASM) binary. Its body is cfg-gated on `web`: on host CI (default
+# features) it compiles to an empty `main` with no web deps; `dx build
+# --features web` compiles the real WASM entrypoint.
+[[bin]]
+name = "rumble-ai-practices-web-app"
+path = "src/main.rs"
 
 [dependencies]
 dioxus.workspace = true
