@@ -29,7 +29,7 @@ Le produit refuse :
 
 ## Stack cible
 
-Trajectoire Rumble interactive : **Rust-first + Dioxus**.
+Trajectoire Rumble interactive : **Rust-first + Portal client platform**. Dioxus/PWA reste la voie rapide par défaut pour prouver le produit ; SwiftUI/Compose sont des voies natives first-class si le besoin pédagogique et la vérification locale le justifient.
 
 ```text
 crates/domain          types purs, scénarios, scoring, invariants
@@ -38,10 +38,10 @@ crates/audit           audit des questions, médias, biais et corrections
 crates/session         progression, réponses, feedback, synthèse
 crates/api             adapter HTTP Axum
 crates/cli             validation locale, import/export, audit corpus
-crates/ui              design system Dioxus
-apps/web               PWA mobile-first Dioxus/WASM
+crates/ui              composants métier consommant Portal
+apps/web               PWA mobile-first Rust/WASM
 apps/desktop           Tauri 2 après PWA prouvée
-apps/mobile            cible différée après preuve offline/auth
+apps/mobile            SwiftUI/Compose via Portal après preuve offline/auth
 content/questions      corpus pédagogique versionné
 schemas                contrats JSON/YAML lisibles par agents
 ```

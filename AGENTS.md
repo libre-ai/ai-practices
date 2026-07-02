@@ -6,7 +6,7 @@
 
 ## Doctrine
 
-- **Rust-first** : invariants métier, scoring, validation corpus et audit vivent en Rust.
+- **Rust-first + Portal** : invariants métier, scoring, validation corpus et audit vivent en Rust ; les primitives client partagées, tokens, accessibilité, i18n UI et shells natifs/web relèvent de Portal.
 - **Content-as-data** : les questions sont des fichiers versionnés, pas du texte codé dans l'UI.
 - **Validation humaine obligatoire** : aucune question ou correction générée par IA n'est publiée sans revue.
 - **Nuance > binaire** : préférer les scénarios contextualisés aux vrai/faux simplistes.
@@ -26,11 +26,11 @@ crates/
   session/   progression, réponses, synthèse pédagogique
   api/       adapter HTTP Axum
   cli/       validation, audit, import/export, fixtures
-  ui/        composants Dioxus réutilisables
+  ui/        composants métier consommant Portal
 apps/
-  web/       PWA Dioxus/WASM mobile-first
+  web/       PWA Rust/WASM mobile-first
   desktop/   Tauri 2 après PWA validée
-  mobile/    différé, pas de natif avant preuve produit
+  mobile/    SwiftUI/Compose via Portal après preuve produit
 content/
   questions/ corpus versionné
 schemas/     contrats lisibles par agents
@@ -49,7 +49,7 @@ cargo deny check
 Pour la PWA quand elle existe :
 
 ```bash
-# nom exact à stabiliser avec la stack Dioxus retenue
+# nom exact à stabiliser avec la stack Rust/WASM retenue et Portal
 cargo check --target wasm32-unknown-unknown
 # puis smoke navigateur/mobile avec Playwright si un harness web est ajouté
 ```
@@ -73,6 +73,6 @@ cargo check --target wasm32-unknown-unknown
 5. Créer CLI `validate-corpus` et `audit-corpus`.
 6. Ajouter `crates/session` et synthèse pédagogique.
 7. Ajouter API Axum.
-8. Ajouter PWA Dioxus.
+8. Ajouter PWA Rust/WASM consommant Portal.
 9. Évaluer desktop Tauri.
-10. Évaluer mobile seulement après preuves sécurité/offline.
+10. Évaluer mobile SwiftUI/Compose via Portal seulement après preuves sécurité/offline.
