@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="rumble-ai-practices">
+  <rect width="512" height="512" rx="112" fill="#171a21"/>
+  <!-- keycap skirt (brass actuation edge) -->
+  <rect x="116" y="140" width="280" height="232" rx="40" fill="#c8925a"/>
+  <!-- keycap body -->
+  <rect x="116" y="128" width="280" height="232" rx="40" fill="#262b37" stroke="#333a49" stroke-width="3"/>
+  <!-- dish highlight -->
+  <rect x="140" y="150" width="232" height="70" rx="24" fill="#ffffff" opacity="0.06"/>
+  <!-- return glyph: a reflex is a keystroke -->
+  <g fill="none" stroke="#e8e2d4" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M330 196 v52 a20 20 0 0 1 -20 20 H210"/>
+    <path d="M244 234 l-40 34 40 34"/>
+  </g>
+  <!-- four-verdict dots -->
+  <circle cx="196" cy="322" r="11" fill="#5fb79a"/>
+  <circle cx="238" cy="322" r="11" fill="#d9b45a"/>
+  <circle cx="280" cy="322" r="11" fill="#d9765f"/>
+  <circle cx="322" cy="322" r="11" fill="#9b7bb0"/>
+</svg>

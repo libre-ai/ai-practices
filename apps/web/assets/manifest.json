@@ -1,0 +1,22 @@
+{
+  "name": "rumble-ai-practices — entraînement aux réflexes IA",
+  "short_name": "AI Practices",
+  "description": "Entraînez vos réflexes face à l'IA : confidentialité, sources, biais média. Navigation au clavier, souverain et sans classement nominatif.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#171a21",
+  "theme_color": "#171a21",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9InJ1bWJsZS1haS1wcmFjdGljZXMiPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTEyIiBmaWxsPSIjMTcxYTIxIi8+CiAgPCEtLSBrZXljYXAgc2tpcnQgKGJyYXNzIGFjdHVhdGlvbiBlZGdlKSAtLT4KICA8cmVjdCB4PSIxMTYiIHk9IjE0MCIgd2lkdGg9IjI4MCIgaGVpZ2h0PSIyMzIiIHJ4PSI0MCIgZmlsbD0iI2M4OTI1YSIvPgogIDwhLS0ga2V5Y2FwIGJvZHkgLS0+CiAgPHJlY3QgeD0iMTE2IiB5PSIxMjgiIHdpZHRoPSIyODAiIGhlaWdodD0iMjMyIiByeD0iNDAiIGZpbGw9IiMyNjJiMzciIHN0cm9rZT0iIzMzM2E0OSIgc3Ryb2tlLXdpZHRoPSIzIi8+CiAgPCEtLSBkaXNoIGhpZ2hsaWdodCAtLT4KICA8cmVjdCB4PSIxNDAiIHk9IjE1MCIgd2lkdGg9IjIzMiIgaGVpZ2h0PSI3MCIgcng9IjI0IiBmaWxsPSIjZmZmZmZmIiBvcGFjaXR5PSIwLjA2Ii8+CiAgPCEtLSByZXR1cm4gZ2x5cGg6IGEgcmVmbGV4IGlzIGEga2V5c3Ryb2tlIC0tPgogIDxnIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2U4ZTJkNCIgc3Ryb2tlLXdpZHRoPSIyNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj4KICAgIDxwYXRoIGQ9Ik0zMzAgMTk2IHY1MiBhMjAgMjAgMCAwIDEgLTIwIDIwIEgyMTAiLz4KICAgIDxwYXRoIGQ9Ik0yNDQgMjM0IGwtNDAgMzQgNDAgMzQiLz4KICA8L2c+CiAgPCEtLSBmb3VyLXZlcmRpY3QgZG90cyAtLT4KICA8Y2lyY2xlIGN4PSIxOTYiIGN5PSIzMjIiIHI9IjExIiBmaWxsPSIjNWZiNzlhIi8+CiAgPGNpcmNsZSBjeD0iMjM4IiBjeT0iMzIyIiByPSIxMSIgZmlsbD0iI2Q5YjQ1YSIvPgogIDxjaXJjbGUgY3g9IjI4MCIgY3k9IjMyMiIgcj0iMTEiIGZpbGw9IiNkOTc2NWYiLz4KICA8Y2lyY2xlIGN4PSIzMjIiIGN5PSIzMjIiIHI9IjExIiBmaWxsPSIjOWI3YmIwIi8+Cjwvc3ZnPgo=",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -12,8 +12,9 @@ path = "src/lib.rs"
 [features]
 default = []
 ssr = ["dep:dioxus-ssr"]
-# Mirror dioxus' standard "default + web" set (default was stripped by the
-# workspace's default-features = false). devtools carries web-sys/Location.
+# One shared Root, four render targets. Host CI (default features, none of
+# these) compiles an empty `main`; `dx build --platform <p>` enables the
+# matching feature and launches the real entrypoint.
 web = [
     "dioxus/launch",
     "dioxus/devtools",
@@ -22,16 +23,20 @@ web = [
     "dioxus/document",
     "dioxus/web",
 ]
+desktop = ["dioxus/launch", "dioxus/document", "dioxus/desktop"]
+mobile = ["dioxus/launch", "dioxus/document", "dioxus/mobile"]
 
-# Client (WASM) binary. Its body is cfg-gated on `web`: on host CI (default
-# features) it compiles to an empty `main` with no web deps; `dx build
-# --features web` compiles the real WASM entrypoint.
+# Application binary. Its body is cfg-gated on any render feature; on host CI
+# (default features) it compiles to an empty `main` with no renderer deps.
 [[bin]]
 name = "rumble-ai-practices-web-app"
 path = "src/main.rs"
 
 [dependencies]
-dioxus.workspace = true
+# `hooks` adds use_signal/use_effect/spawn on top of the workspace base
+# features; they work in SSR too, so the interactive shell compiles under
+# default features (host CI) as well as under `web`.
+dioxus = { workspace = true, features = ["hooks"] }
 dioxus-ssr = { workspace = true, optional = true }
 rumble-ai-practices-ui.workspace = true
 serde.workspace = true
