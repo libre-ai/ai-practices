@@ -1,82 +1,594 @@
-/* Component styles for rumble-ai-practices, driven entirely by portal-* design
- * tokens (assets/tokens.css). No hard-coded colours or sizes — everything is a
- * `var(--…)`, so the identity changes by regenerating tokens.css, not by editing
- * this file. */
+/* Component styles for rumble-ai-practices — the "keycap" direction.
+ * Driven entirely by portal tokens (assets/tokens.css): no hardcoded colors,
+ * every value is a var(--…). The identity changes by regenerating tokens, not
+ * by editing this file (tokens-only rule, ADR 0033 / ADR 0036). */
+
+* {
+  box-sizing: border-box;
+}
 
 body {
   margin: 0;
-  padding: var(--spacing-xl);
+  padding: 0;
   background: var(--color-background);
   color: var(--color-text);
   font-family: var(--font-family-body);
   font-size: var(--font-size-base);
-  line-height: 1.5;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-h2 {
-  font-size: var(--font-size-lg);
-  margin: 0 0 var(--spacing-sm);
+/* the themed wrapper: carries the in-app data-theme toggle and paints the
+ * whole viewport, so the toggle works without touching the document root. */
+.app-root {
+  min-height: 100vh;
+  min-height: 100dvh; /* mobile: exclude the browser chrome */
+  background: var(--color-background);
+  color: var(--color-text);
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
 }
 
-h3 {
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  margin: var(--spacing-md) 0 var(--spacing-xs);
+.app-shell {
+  max-width: 46rem;
+  margin: 0 auto;
+  /* safe-area insets so the shell clears notches / home indicators */
+  padding: calc(var(--spacing-lg) + env(safe-area-inset-top))
+    calc(var(--spacing-lg) + env(safe-area-inset-right))
+    calc(var(--spacing-xl) + env(safe-area-inset-bottom))
+    calc(var(--spacing-lg) + env(safe-area-inset-left));
 }
 
-.notice,
-.question-card,
-.feedback-panel,
-.summary-panel {
-  max-width: 42rem;
-  margin: 0 auto var(--spacing-md);
-  padding: var(--spacing-lg);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+/* masthead */
+.app-mast {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
 }
-
-.notice-privacy {
-  border-left: 4px solid var(--color-brand);
-}
-.notice-distribution {
-  border-left: 4px solid var(--color-accent);
-}
-
-.scenario,
-.privacy {
-  color: var(--color-text-secondary);
+.app-mast .brandmark {
+  font-family: var(--font-family-mono);
   font-size: var(--font-size-sm);
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
 }
-
-.prompt {
+.app-mast .brandmark b {
+  color: var(--color-text);
   font-weight: 600;
 }
-
-.choices {
-  list-style: none;
-  margin: var(--spacing-md) 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-}
-
-.choices button {
-  width: 100%;
-  text-align: left;
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--color-background);
+.theme-toggle {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: var(--color-cap);
   color: var(--color-text);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font: inherit;
+  padding: 7px 12px;
   cursor: pointer;
 }
-.choices button:hover {
-  border-color: var(--color-brand);
+.theme-toggle:hover {
+  border-color: var(--color-accent);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-.feedback-panel[data-level="correct"] {
-  border-left: 4px solid var(--color-success);
+/* ---------- the keycap: the signature ---------- */
+.cap {
+  --c: var(--color-accent);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+  color: var(--color-cap-face);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-cap) 100%, white 8%),
+    var(--color-cap)
+  );
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-cap);
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 14%) inset,
+    0 var(--cap-travel) 0 color-mix(in oklab, var(--color-cap) 100%, black 32%),
+    0 calc(var(--cap-travel) + 3px) 8px rgba(0, 0, 0, 0.35);
+  transform: translateY(0);
+  transition:
+    transform var(--motion-press),
+    box-shadow var(--motion-press);
+  user-select: none;
+}
+.cap::after {
+  content: "";
+  position: absolute;
+  inset: 3px 4px auto 4px;
+  height: 40%;
+  border-radius: 6px 6px 10px 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
+  pointer-events: none;
+}
+.cap.is-down {
+  transform: translateY(var(--cap-travel));
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 10%) inset,
+    0 0 0 color-mix(in oklab, var(--color-cap) 100%, black 32%),
+    0 1px 3px rgba(0, 0, 0, 0.3),
+    0 0 0 2px color-mix(in oklab, var(--c) 60%, transparent),
+    0 0 18px color-mix(in oklab, var(--c) 45%, transparent);
+}
+.cap.mini {
+  width: 1.7em;
+  height: 1.7em;
+  font-size: 0.78em;
+  border-radius: var(--radius-sm);
+  --cap-travel: 3px;
+}
+
+/* ---------- notices (intro) ---------- */
+.notice {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+.notice h2 {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  margin: 0 0 var(--spacing-xs);
+  letter-spacing: -0.01em;
+}
+.notice p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.notice-privacy {
+  border-left: 3px solid var(--color-brand);
+}
+.notice-distribution {
+  border-left: 3px solid var(--color-accent);
+}
+
+/* ---------- the question console ---------- */
+.console {
+  background:
+    radial-gradient(
+      120% 90% at 50% -10%,
+      color-mix(in oklab, var(--color-accent) 8%, transparent),
+      transparent 60%
+    ),
+    var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3.4vw, 36px);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.6);
+}
+.q-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+.q-meta b {
+  color: var(--color-text);
+  font-weight: 600;
+}
+.q-progress {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+  align-items: center;
+}
+.q-progress i {
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border);
+  display: block;
+}
+.q-progress i.on {
+  background: var(--color-accent);
+}
+
+.scenario {
+  font-size: clamp(19px, 2.4vw, 23px);
+  line-height: 1.5;
+  margin: 0 0 var(--spacing-xs);
+  text-wrap: pretty;
+}
+.scenario code {
+  font-family: var(--font-family-mono);
+  font-size: 0.82em;
+  background: var(--color-cap);
+  padding: 1px 7px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  color: var(--color-accent);
+}
+.prompt {
+  font-family: var(--font-family-sans);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: var(--spacing-md) 0 var(--spacing-lg);
+}
+
+/* ---------- choices (keycap radio group) ---------- */
+.choices {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.choice {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--spacing-md);
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  color: var(--color-text);
+  font-family: var(--font-family-serif);
+  font-size: 16.5px;
+  line-height: 1.45;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.choice .cap {
+  width: 44px;
+  height: 44px;
+  font-size: 17px;
+}
+.choice:hover {
+  border-color: color-mix(
+    in oklab,
+    var(--color-accent) 50%,
+    var(--color-border)
+  );
+}
+.choice.sel {
+  border-color: var(--color-accent);
+  background: color-mix(in oklab, var(--color-accent) 14%, transparent);
+  box-shadow:
+    0 0 0 1px var(--color-accent),
+    0 0 20px color-mix(in oklab, var(--color-accent) 30%, transparent);
+}
+.choice.sel .cap {
+  --c: var(--color-accent);
+}
+.choice:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.choice.locked {
+  cursor: default;
+}
+.choice.dim {
+  opacity: 0.45;
+}
+.choice[data-verdict] {
+  border-color: var(--v);
+  background: color-mix(in oklab, var(--v) 12%, transparent);
+}
+.choice[data-verdict] .cap {
+  --c: var(--v);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--v) 28%, var(--color-cap)),
+    color-mix(in oklab, var(--v) 16%, var(--color-cap))
+  );
+}
+.verdict-tag {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--v);
+  border: 1px solid color-mix(in oklab, var(--v) 50%, transparent);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+/* commit row: "je ne sais pas" (spacebar of humility) + Valider (⏎) */
+.commit-row {
+  margin-top: var(--spacing-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.validate-btn {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+  align-items: center;
+  background: var(--color-accent);
+  color: var(--color-ink);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-cap);
+  padding: 11px 20px;
+  font-family: var(--font-family-mono);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 var(--cap-travel) 0
+    color-mix(in oklab, var(--color-accent) 100%, black 34%);
+}
+.validate-btn .cap {
+  --cap: color-mix(in oklab, var(--color-accent) 100%, black 18%);
+  color: var(--color-ink);
+}
+.validate-btn:hover {
+  filter: brightness(1.06);
+}
+.validate-btn:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+.validate-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* "je ne sais pas" — the spacebar of humility */
+.idk-row {
+  margin-top: var(--spacing-md);
+  display: flex;
+  justify-content: center;
+}
+.idk {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 12px;
+  align-items: center;
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 18px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.idk .cap {
+  width: 120px;
+  height: 34px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  --cap-travel: 3px;
+}
+.idk:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+.idk:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- feedback (four-state verdict) ---------- */
+.feedback-panel {
+  margin-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-lg);
+}
+.fb-verdict {
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.fb-verdict .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--v);
+  box-shadow: 0 0 14px var(--v);
+}
+.feedback-panel p {
+  margin: 0 0 12px;
+  max-width: 66ch;
+}
+.fb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 6px;
+}
+.fb-cell {
+  background: var(--color-cap);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 13px 15px;
+}
+.fb-cell h4 {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0 0 6px;
+}
+.fb-cell p {
+  font-size: 14.5px;
+  margin: 0;
+}
+/* dioxus-primitives Collapsible inside the feedback (ADR 0036) */
+.fb-collapsible {
+  margin-top: 12px;
+}
+.fb-trigger {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.fb-trigger:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+.fb-trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.fb-trigger::before {
+  content: "▸ ";
+}
+.fb-collapsible[data-state="open"] .fb-trigger::before,
+.fb-trigger[data-state="open"]::before {
+  content: "▾ ";
+}
+.fb-collapsible .fb-grid {
+  margin-top: 12px;
+}
+
+.nav-hint {
+  margin-top: var(--spacing-lg);
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-family: var(--font-family-mono);
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+}
+.nav-hint span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ---------- summary ---------- */
+.summary-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+}
+.summary-panel h2 {
+  font-family: var(--font-family-mono);
+  font-weight: 600;
+}
+.summary-panel h3 {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: var(--spacing-md) 0 var(--spacing-xs);
+}
+.summary-panel ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.summary-panel .privacy {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-md);
+}
+
+/* ---------- start button ---------- */
+.start-btn {
+  font-family: var(--font-family-mono);
+  font-size: 15px;
+  background: var(--color-cap);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-cap);
+  padding: 12px 22px;
+  cursor: pointer;
+  box-shadow: 0 var(--cap-travel) 0
+    color-mix(in oklab, var(--color-cap) 100%, black 32%);
+}
+.start-btn:hover {
+  border-color: var(--color-accent);
+}
+.start-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-shell {
+    max-width: 100%;
+  }
+  .console {
+    padding: 18px 16px;
+    border-radius: var(--radius-md);
+  }
+  .choice {
+    grid-template-columns: auto 1fr;
+    font-size: 16px;
+  }
+  .choice .cap {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+  .verdict-tag {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .q-meta {
+    font-size: 11px;
+  }
+  .q-progress {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+  .idk .cap {
+    width: 96px;
+  }
+  .fb-grid {
+    grid-template-columns: 1fr;
+  }
+  /* comfortable tap targets — no hover-only affordances on touch */
+  .choice,
+  .idk,
+  .fb-trigger,
+  .theme-toggle {
+    min-height: 44px;
+  }
 }

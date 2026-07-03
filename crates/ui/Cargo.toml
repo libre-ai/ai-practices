@@ -6,7 +6,11 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-dioxus.workspace = true
+# `hooks` is needed by the stateful dioxus-primitives components (Collapsible).
+dioxus = { workspace = true, features = ["hooks"] }
+# Dioxus Components — headless WAI-ARIA primitives (ADR 0036). Not on crates.io
+# yet (F-006), pinned by rev to the version proven in wrench-dioxus-lab.
+dioxus-primitives = { git = "https://github.com/DioxusLabs/components", rev = "bf007c15d0cf4d04d3181cc46cf12325aa773955" }
 serde.workspace = true
 
 [dev-dependencies]

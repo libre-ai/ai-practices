@@ -15,6 +15,9 @@ allow = [
   "ISC",
   "Unicode-3.0",
   "Zlib",
+  # CC0-1.0: public-domain dedication pulled transitively via dioxus-primitives
+  # (ADR 0036). Permissive, sovereignty-safe, on the same floor as the lab.
+  "CC0-1.0",
 ]
 
 [bans]
@@ -26,3 +29,8 @@ highlight = "all"
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = [
+    # Dioxus Components (dioxus-primitives) is not published on crates.io
+    # (lab friction F-006); pinned by rev in crates/ui/Cargo.toml. ADR 0036.
+    "https://github.com/DioxusLabs/components",
+]
