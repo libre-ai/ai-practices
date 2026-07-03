@@ -1,5 +1,14 @@
 # UX produit
 
+## Modes
+
+- **Entraînement libre** (défaut) : répétable à volonté, sans enjeu, sans rationnement
+  (pas de tickets, pas de vies, pas de chrono). Rejouer une question ou un parcours est
+  toujours possible et ne fait jamais régresser le meilleur score affiché
+  (cf. `docs/scoring.md`).
+- Un futur « mode Évaluation » (parcours figé, restitution organisationnelle) est un
+  non-objectif tant qu'aucune ADR ne le cadre — voir `docs/benchmark-jeu-competitif.md`.
+
 ## Ton
 
 - Calme, professionnel, pédagogique.
@@ -26,6 +35,8 @@ Doit afficher :
 - action demandée ;
 - choix ;
 - si média : mention synthétique ou contexte d'analyse ;
+- si transcription de conversation (`context.assets`) : présentation type chat,
+  la question portant sur l'action prioritaire ;
 - bouton "je ne sais pas" acceptable.
 
 ## Feedback
@@ -54,6 +65,14 @@ Doit afficher :
 - fiches réflexes recommandées ;
 - rappel confidentialité ;
 - pas de rang, pas de comparaison nominative.
+
+## Saisie clavier
+
+- Touches `1`-`9` : sélectionner le choix correspondant ; `Entrée` : valider.
+- Le clavier est un confort de saisie et un support d'accessibilité, **jamais une prime
+  de vitesse** : aucun bonus, aucun malus, aucune mesure de temps de réponse
+  (`docs/benchmark-jeu-competitif.md`, Famille D).
+- "Je ne sais pas" reste accessible au clavier au même titre que les autres choix.
 
 ## Accessibilité
 

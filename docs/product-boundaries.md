@@ -26,16 +26,31 @@ Il possède l'expérience utilisateur, les scénarios pédagogiques, le feedback
 - Le stockage/provenance générique : candidat Gear.
 - L'évaluation RH des collaborateurs.
 
+### Non-objectifs importés (benchmark jeu compétitif de référence)
+
+Mécaniques compétitives explicitement hors produit, par décision de conception
+(`docs/benchmark-jeu-competitif.md`, ADR 0003) :
+
+- Vitesse notée / chrono par question.
+- Vies-sanction / _game over_.
+- Tickets / rationnement de l'entraînement.
+- Ligues inter-joueurs, promotion/relégation.
+- Multiplicateurs de score, note globale.
+- Leaderboard et prix nominatifs.
+
+Toute réintroduction passe par une nouvelle ADR (et une analyse d'impact si des
+données personnelles sont en jeu).
+
 ## Tests de frontière
 
-| Si la fonctionnalité... | Décision |
-| --- | --- |
-| change l'expérience d'entraînement IA | reste ici |
-| valide la qualité d'une question du corpus | reste ici |
-| extrait du texte depuis PDF/DOCX/vidéo | candidat Wrench |
-| orchestre des agents de génération/revue | candidat Bolt |
-| stocke des artefacts signés/réutilisables | candidat Gear |
-| anime des sessions live génériques | considérer `rumble-lm` |
+| Si la fonctionnalité...                      | Décision                                     |
+| -------------------------------------------- | -------------------------------------------- |
+| change l'expérience d'entraînement IA        | reste ici                                    |
+| valide la qualité d'une question du corpus   | reste ici                                    |
+| extrait du texte depuis PDF/DOCX/vidéo       | candidat Wrench                              |
+| orchestre des agents de génération/revue     | candidat Bolt                                |
+| stocke des artefacts signés/réutilisables    | candidat Gear                                |
+| anime des sessions live génériques           | considérer `rumble-lm`                       |
 | devient un contenu de formation réutilisable | exporter comme corpus, pas réinventer un LMS |
 
 ## Challenge structurel

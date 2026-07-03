@@ -33,6 +33,17 @@ Le scoring mesure des réflexes pratiques, pas une valeur professionnelle. Il do
 - Une réponse partielle doit être reconnue comme telle.
 - Le niveau final doit inclure des recommandations actionnables.
 
+## Meilleur score sans régression
+
+Principe importé du benchmark jeu compétitif de référence (verdict PRENDRE, Famille A) :
+
+- Rejouer une question ou un parcours **ne fait jamais baisser** le meilleur score affiché.
+- Le meilleur score est un repère pédagogique individuel qui encourage la répétition
+  sans peur de régresser — pas une note, pas un rang.
+- Stockage **côté client uniquement** (localStorage du navigateur) : aucune donnée
+  nominative, aucune persistance serveur (cf. `docs/security-rgpd.md`). Sa perte
+  (navigateur nettoyé) est acceptable par conception.
+
 ## Pondération
 
 Chaque choix peut avoir :

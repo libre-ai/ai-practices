@@ -85,6 +85,23 @@ Verdicts possibles : **PRENDRE** · **ADAPTER** · **REJETER** · **DÉJÀ PRÉS
 | Souris / tactile / mobile                        | DÉJÀ PRÉVU                            | Rumble est une PWA mobile-first (Dioxus). Rien à importer.                                                                                                                                                                |
 | « La vitesse rapporte des points » (via clavier) | **REJETER**                           | Même raison anti-pédagogique que la vitesse notée en Famille A.                                                                                                                                                           |
 
+### Famille E — Formats de drill (addendum 2026-07-03)
+
+La source présente cinq formats de présentation de situation (« drills »). Le tri ci-dessous les
+mappe sur les types d'interaction déjà déclarés dans `schemas/question.schema.json`
+(`single_choice`, `multiple_choice`, `ranked_actions`, `media_review`) : le vrai delta est
+l'implémentation moteur/UI de `media_review` et `ranked_actions`, pas le modèle de données.
+Plan d'exécution : `docs/plans/2026-07-drill-formats.md`.
+
+| Élément source                                                                       | Verdict               | Justification                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------ | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Affirmation à évaluer Vrai/Faux + illustration                                       | **ADAPTER**           | Le binaire strict est rejeté (le non-binaire est un différenciateur revendiqué, Famille B). Devient une variante de présentation de `single_choice` avec choix « ça dépend » possible (score 0.0/+0.5). L'illustration doit servir l'objectif pédagogique. |
+| Évaluer une image générée « biaisée / OK »                                           | **ADAPTER**           | Format retenu via `media_review`, mais avec nuance : une image « diverse » peut aussi être un artefact de génération forcée. Pas de diversité-case-à-cocher.                                                                                               |
+| Détection deepfake « authentique / deepfake »                                        | **ADAPTER**           | Format retenu via `media_review`. Les tells visuels grossiers (mains, texte illisible) ne représentent plus l'état de l'art : la pédagogie porte sur la vérification de source et de contexte, pas sur l'œil. Médias originaux audités (ADR 0004).         |
+| Revue de prompt en UI chat (envoyer / demander sources / retirer données / préciser) | **PRENDRE / ADAPTER** | Excellent format d'ancrage de réflexes méthodiques. Via `ranked_actions` (MVP : choix de l'action prioritaire), transcription portée par `context.assets`.                                                                                                 |
+| MCQ mnémotechnique (framework de prompting à compléter)                              | **REJETER le dogme**  | `prompt_dogma` est une catégorie d'audit bloquante. Un framework de prompting est une aide, pas une garantie (axe `prompt_practice`) ; le format MCQ lui-même est couvert par `single_choice`.                                                             |
+| Assets de la source (bucket public)                                                  | **REJETER**           | Propriété d'un tiers ; au moins un média utilise le visage d'une personnalité réelle (droit à l'image) ; hébergement hyperscaler non souverain. Médias originaux uniquement, de préférence SVG sans visage humain.                                         |
+
 ## Principe directeur
 
 De l'jeu de référence, Rumble retient l'**ossature d'engagement non-punitive** — parties courtes,
@@ -111,6 +128,9 @@ pas atteint).
 | P2   | Ergonomie clavier 1/2/3 + Entrée, **découplée de toute prime de vitesse**                         | `docs/ux.md`, `crates/ui`    | —                                                             |
 | P2   | Enrichir la checklist conformité (rétention datée, base légale, droits, anti-triche)              | `docs/security-rgpd.md`      | —                                                             |
 | P3   | « Garde-fou de charge cognitive » (réinterprétation non-punitive des vies)                        | nouvelle ADR                 | **ADR obligatoire** (proche d'une mécanique punitive rejetée) |
+
+Exécution : les items P1/P2 et la Famille E sont pris en charge par
+`docs/plans/2026-07-drill-formats.md` (2026-07-03). Le P3 reste hors scope de ce plan.
 
 ## Non-objectifs importés
 

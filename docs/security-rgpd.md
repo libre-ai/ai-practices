@@ -2,14 +2,14 @@
 
 ## Classification des données
 
-| Donnée | Sensibilité | Mesure |
-| --- | --- | --- |
-| Corpus public validé | faible à moyenne | versionné, revue |
-| Corpus interne/politiques | interne | accès restreint |
-| Réponses utilisateur | personnelle potentielle | minimisation, rétention courte |
-| Agrégats de cohorte | faible si anonymisés | seuil minimum de groupe |
-| Logs techniques | peuvent contenir IP/session | minimiser, purger |
-| Médias pédagogiques | droits/biais | audit et provenance |
+| Donnée                    | Sensibilité                 | Mesure                         |
+| ------------------------- | --------------------------- | ------------------------------ |
+| Corpus public validé      | faible à moyenne            | versionné, revue               |
+| Corpus interne/politiques | interne                     | accès restreint                |
+| Réponses utilisateur      | personnelle potentielle     | minimisation, rétention courte |
+| Agrégats de cohorte       | faible si anonymisés        | seuil minimum de groupe        |
+| Logs techniques           | peuvent contenir IP/session | minimiser, purger              |
+| Médias pédagogiques       | droits/biais                | audit et provenance            |
 
 ## Principes RGPD
 
@@ -57,6 +57,31 @@ Biscuit peut être ajouté pour :
 - tokens ;
 - IP si non nécessaire ;
 - prompts contenant données sensibles.
+
+## Stockage local (meilleur score)
+
+Le principe « meilleur score sans régression » (`docs/scoring.md`) s'appuie sur le
+`localStorage` du navigateur, avec un contrat strict :
+
+- Contenu autorisé : scores pédagogiques par question (clés namespacées, ex. `best_q_*`),
+  rien d'autre.
+- Aucune donnée nominative, aucun identifiant de personne, aucun token (la règle
+  « pas de token en storage » ci-dessous reste entière).
+- Aucune synchronisation ni persistance serveur : le stockage est client-only et sa
+  suppression par l'utilisateur ou le navigateur est une perte acceptable.
+- Vérifiable : l'export/inspection du storage ne doit révéler aucune PII.
+
+## Checklist conformité (imports benchmark)
+
+Enrichissements issus de `docs/benchmark-jeu-competitif.md` (Famille C) :
+
+- Base légale explicitée et documentée (intérêt légitime pour l'entraînement pédagogique).
+- Rétention **datée** pour toute donnée stockée, même technique.
+- Droits des personnes rappelés dans l'écran d'introduction, avec voie de recours (CNIL).
+- Si un « challenge » ponctuel est un jour organisé : règlement structuré préalable
+  (éligibilité, rétention, litiges) et nouvelle ADR — cf. non-objectifs importés.
+- Posture anti-triche : paradoxe pédagogique documenté (un entraînement _sur_ l'IA
+  n'interdit pas l'IA ; aucun enjeu compétitif ne le justifie ici).
 
 ## Sécurité frontend
 
