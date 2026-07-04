@@ -43,7 +43,7 @@ jobs:
       - name: Build web (release PWA)
         run: cd apps/web && dx build --platform web --release
       - name: Build binary (release)
-        run: cargo build -p cli --release
+        run: cargo build -p rumble-ai-practices-cli --release
       - name: Install e2e deps
         run: cd apps/web && npm ci
       - name: Install Playwright browser

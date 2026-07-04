@@ -11,7 +11,7 @@ Run the full single-origin deployable (API + static web bundle) on one address:
 ```bash
 cargo install dioxus-cli --version 0.7.9 --locked    # Dioxus CLI (note: not the homebrew `dx`/Deno)
 dx build --platform web --release                     # Build wasm bundle to target/dx/…/release/web/public/
-cargo run -p cli -- serve                             # Serve on http://127.0.0.1:3000
+cargo run -p rumble-ai-practices-cli -- serve         # Serve on http://127.0.0.1:3000
 ```
 
 Or use the provided justfile shortcut:
