@@ -642,6 +642,23 @@ fn axis_levels_from_answers(questions: &[Question], answers: &[Option<String>]) 
     complete_session(&state).axis_levels
 }
 
+/// The offline-first cohort submission the client posts to `/v1/cohort` — the
+/// anonymous per-axis result plus an optional opaque idempotency key, no
+/// nominative field (ADR 0006). Public so the API's integration test can drive
+/// the exact wire contract (both serde directions) against the live handler,
+/// with the real client type rather than a mirror that could drift.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CohortSubmission {
+    pub client_id: Option<String>,
+    pub axis_levels: Vec<AxisLevel>,
+}
+
+/// The API envelope the client reads back (`{ data: [...] }`); `meta` is ignored.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CohortEnvelope {
+    pub data: Vec<DistributionPosition>,
+}
+
 /// The result of the offline-first cohort call. `Offline` is the safe default:
 /// the local synthesis stands on its own, and nothing is lost when the network
 /// (or the backend) is unavailable.
@@ -666,17 +683,7 @@ enum CohortState {
 async fn fetch_cohort(client_id: Option<String>, axis_levels: Vec<AxisLevel>) -> CohortState {
     use gloo_net::http::Request;
 
-    #[derive(Serialize)]
-    struct Payload {
-        client_id: Option<String>,
-        axis_levels: Vec<AxisLevel>,
-    }
-    #[derive(Deserialize)]
-    struct Envelope {
-        data: Vec<DistributionPosition>,
-    }
-
-    let payload = Payload {
+    let payload = CohortSubmission {
         client_id,
         axis_levels,
     };
@@ -685,7 +692,7 @@ async fn fetch_cohort(client_id: Option<String>, axis_levels: Vec<AxisLevel>) ->
         Err(_) => return CohortState::Offline,
     };
     match request.send().await {
-        Ok(response) if response.ok() => match response.json::<Envelope>().await {
+        Ok(response) if response.ok() => match response.json::<CohortEnvelope>().await {
             Ok(envelope) => CohortState::Online(envelope.data),
             Err(_) => CohortState::Offline,
         },
@@ -1370,5 +1377,47 @@ mod tests {
         // export + restart controls survive the extraction into SummaryStage
         assert!(html.contains("data-action=\"export\""));
         assert!(html.contains("data-action=\"restart\""));
+    }
+
+    #[test]
+    fn cohort_panel_renders_online_distribution_and_withholds_below_k() {
+        use rumble_ai_practices_domain::DistributionBucket;
+        // one axis at/above k with the learner's own band marked, and one axis
+        // below k whose position must be withheld (not shown as a distribution).
+        let positions = vec![
+            DistributionPosition {
+                cohort_label: "Vérification des sources".into(),
+                min_cohort_size_met: true,
+                buckets: vec![
+                    DistributionBucket {
+                        label: "découverte".into(),
+                        percent: 20.0,
+                    },
+                    DistributionBucket {
+                        label: "référence".into(),
+                        percent: 80.0,
+                    },
+                ],
+                user_bucket: Some("référence".into()),
+            },
+            DistributionPosition {
+                cohort_label: "Confidentialité".into(),
+                min_cohort_size_met: false,
+                buckets: vec![],
+                user_bucket: None,
+            },
+        ];
+        let html = dioxus_ssr::render_element(
+            rsx! { CohortPanel { state: CohortState::Online(positions) } },
+        );
+
+        // the distribution renders: bands, a percentage, and the learner's band
+        assert!(html.contains("cohort-bars"));
+        assert!(html.contains("80 %"));
+        assert!(html.contains("data-you=\"true\""));
+        assert!(html.contains("Vérification des sources"));
+        // the sub-k axis is withheld with an explicit k-anonymity notice
+        assert!(html.contains("data-withheld=\"true\""));
+        assert!(html.contains("k-anonymat"));
     }
 }

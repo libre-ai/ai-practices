@@ -1091,4 +1091,35 @@ mod tests {
         let resp = post_cohort(&app, r#"{"axis_levels":[]}"#).await;
         assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     }
+
+    #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    async fn cohort_wire_contract_roundtrips_with_the_web_client_types(pool: PgPool) {
+        use rumble_ai_practices_domain::PracticeLevel;
+        // The real client wire types (not mirrors) drive both serde directions
+        // against the live handler, so a drift between app and API would fail
+        // here — this is the offline-first client↔server contract.
+        use rumble_ai_practices_web::{CohortEnvelope, CohortSubmission};
+
+        let app = router_with_state(ApiState::with_store(vec![question()], pool));
+        let submission = CohortSubmission {
+            client_id: Some("contract".into()),
+            axis_levels: vec![AxisLevel {
+                axis: RiskAxis::SourceVerification,
+                level: PracticeLevel::CarefulAutonomy,
+                score: 1.0,
+            }],
+        };
+        let body = serde_json::to_string(&submission).unwrap();
+
+        // request leg: the client's serialization is what the handler accepts
+        let resp = post_cohort(&app, &body).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+
+        // response leg: the client parses the envelope back with its own type
+        let json = response_json(resp).await;
+        let envelope: CohortEnvelope = serde_json::from_value(json).unwrap();
+        assert_eq!(envelope.data.len(), 1);
+        // a single learner is below k, so the position is withheld
+        assert!(!envelope.data[0].min_cohort_size_met);
+    }
 }
