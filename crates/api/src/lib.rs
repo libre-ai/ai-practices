@@ -150,6 +150,9 @@ pub fn router_with_state(state: ApiState) -> Router {
             post(submit_session_answer),
         )
         .route("/v1/sessions/{session_id}/summary", get(session_summary))
+        // offline-first: the client runs the parcours locally and posts only its
+        // anonymous result here to be situated against the cohort (ADR 0006).
+        .route("/v1/cohort", post(cohort_position))
         .layer(DefaultBodyLimit::max(16 * 1024))
         .layer(middleware::from_fn(security_headers))
         .with_state(state)
@@ -437,6 +440,36 @@ async fn enrich_cohort(
         positions.push(position);
     }
     Ok(positions)
+}
+
+/// Offline-first cohort submission: the client sends its locally-computed
+/// anonymous result (per-axis levels) and gets the k-anonymous distribution
+/// back. `client_id` is an optional client-generated opaque idempotency key so a
+/// network retry does not double-count the learner; without one the server mints
+/// a fresh opaque id. Never carries a nominative field (ADR 0006).
+#[derive(Debug, Clone, Deserialize)]
+pub struct CohortRequest {
+    #[serde(default)]
+    pub client_id: Option<String>,
+    pub axis_levels: Vec<AxisLevel>,
+}
+
+async fn cohort_position(
+    State(state): State<ApiState>,
+    Json(request): Json<CohortRequest>,
+) -> Result<Json<ApiEnvelope<Vec<DistributionPosition>>>, ApiError> {
+    if request.axis_levels.is_empty() {
+        return Err(ApiError::bad_request("axis_levels must not be empty"));
+    }
+    let Some(pool) = &state.store else {
+        return Err(ApiError::unavailable("cohort backend not configured"));
+    };
+    let anon_id = request
+        .client_id
+        .filter(|id| !id.trim().is_empty())
+        .unwrap_or_else(|| Uuid::new_v4().to_string());
+    let positions = enrich_cohort(pool, &anon_id, &request.axis_levels).await?;
+    Ok(Json(ApiEnvelope::new(positions)))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -986,5 +1019,76 @@ mod tests {
             .map(|b| b["percent"].as_f64().unwrap())
             .sum();
         assert!((sum - 100.0).abs() < 1e-9);
+    }
+
+    // ---- offline-first cohort endpoint (POST /v1/cohort) ----
+
+    async fn post_cohort(app: &Router, body: &str) -> axum::response::Response {
+        app.clone()
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri("/v1/cohort")
+                    .header("content-type", "application/json")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap()
+    }
+
+    #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    async fn cohort_endpoint_withholds_below_k_and_is_idempotent(pool: PgPool) {
+        let app = router_with_state(ApiState::with_store(vec![question()], pool.clone()));
+        let body = r#"{"client_id":"abc","axis_levels":[{"axis":"source_verification","level":"careful_autonomy","score":1.0}]}"#;
+
+        let resp = post_cohort(&app, body).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        let json = response_json(resp).await;
+        let dists = json["data"].as_array().unwrap();
+        assert_eq!(dists.len(), 1);
+        assert_eq!(dists[0]["min_cohort_size_met"], false);
+
+        // same client_id -> idempotent, no double count
+        let _ = post_cohort(&app, body).await;
+        let count: i64 = sqlx::query_scalar("select count(*) from anonymous_sessions")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    async fn cohort_endpoint_exposes_at_k(pool: PgPool) {
+        use rumble_ai_practices_domain::PracticeLevel;
+        let k = rumble_ai_practices_session::cohort::DEFAULT_MIN_COHORT;
+        for i in 0..(k - 1) {
+            store::insert_session(
+                &pool,
+                &format!("seed-{i}"),
+                1000,
+                1000,
+                &[AxisOutcome {
+                    axis: RiskAxis::SourceVerification,
+                    level: PracticeLevel::CarefulAutonomy,
+                    score: 1.0,
+                }],
+            )
+            .await
+            .unwrap();
+        }
+        let app = router_with_state(ApiState::with_store(vec![question()], pool));
+        let body =
+            r#"{"axis_levels":[{"axis":"source_verification","level":"reference","score":1.0}]}"#;
+        let json = response_json(post_cohort(&app, body).await).await;
+        assert_eq!(json["data"][0]["min_cohort_size_met"], true);
+        assert_eq!(json["data"][0]["user_bucket"], "référence");
+    }
+
+    #[tokio::test]
+    async fn cohort_endpoint_rejects_empty_axis_levels() {
+        let app = router(vec![question()]); // no store: input is validated first
+        let resp = post_cohort(&app, r#"{"axis_levels":[]}"#).await;
+        assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     }
 }

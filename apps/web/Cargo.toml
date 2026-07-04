@@ -49,5 +49,11 @@ serde.workspace = true
 # Local JSON export of the private synthesis (categories + verdicts only).
 serde_json.workspace = true
 
+# Offline-first cohort call (POST /v1/cohort): a wasm-only fetch. The host/SSR
+# build never pulls it — `fetch_cohort` is a stub off-wasm, so the summary
+# degrades to local-only there, exactly as it does offline in the browser.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+gloo-net = { version = "0.6", default-features = false, features = ["http", "json"] }
+
 [dev-dependencies]
 dioxus-ssr.workspace = true
