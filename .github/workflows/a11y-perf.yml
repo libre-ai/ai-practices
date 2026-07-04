@@ -31,6 +31,7 @@ jobs:
         run: npx --yes @lhci/cli@0.14.x autorun
       - name: axe-core accessibility
         run: |
+          npx --yes browser-driver-manager install chrome
           npx --yes serve -s target/dx/rumble-ai-practices-web-app/release/web/public -l 8080 &
           sleep 4
           npx --yes @axe-core/cli http://localhost:8080 --exit
