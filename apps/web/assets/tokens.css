@@ -42,6 +42,7 @@
   --color-text-secondary: var(--color-ink-soft);
   --color-border: var(--color-edge);
   --color-accent: var(--color-brass);
+  --color-accent-ink: var(--color-ink);
   --color-brand: var(--color-brass);
   /* legacy names kept, remapped to the four-state system */
   --color-success: var(--color-juste);
@@ -86,10 +87,11 @@
     --color-cap: #f3eee1;
     --color-cap-face: #2a2f3a;
     --color-text: #23262e;
-    --color-text-secondary: #6b6456;
+    --color-text-secondary: #5f594c;
     --color-border: #cbc2ab;
-    --color-accent: #a86f38;
-    --color-brand: #a86f38;
+    --color-accent: #76501f;
+    --color-accent-ink: var(--color-cap);
+    --color-brand: #76501f;
     /* darker verdict text on the paper ground (WCAG AA on #e2dbc9) */
     --color-juste-ink: #1a5c43;
     --color-partiel-ink: #5f480e;
@@ -110,6 +112,7 @@
   --color-text-secondary: #9aa2b1;
   --color-border: #333a49;
   --color-accent: #c8925a;
+  --color-accent-ink: #171a21;
   --color-brand: #c8925a;
 }
 :root[data-theme="light"],
@@ -119,10 +122,11 @@
   --color-cap: #f3eee1;
   --color-cap-face: #2a2f3a;
   --color-text: #23262e;
-  --color-text-secondary: #6b6456;
+  --color-text-secondary: #5f594c;
   --color-border: #cbc2ab;
-  --color-accent: #a86f38;
-  --color-brand: #a86f38;
+  --color-accent: #76501f;
+  --color-accent-ink: #f3eee1;
+  --color-brand: #76501f;
   --color-juste-ink: #1a5c43;
   --color-partiel-ink: #5f480e;
   --color-risque-ink: #992c19;
