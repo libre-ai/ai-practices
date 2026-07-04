@@ -2,7 +2,7 @@
 
 ## Statut
 
-Acceptée.
+Acceptée. **Note** : les clauses de proof-gate natif (« SwiftUI/Compose seulement après preuve produit/offline/auth » ; « pas de natif sans preuve produit » ; « mobile natif conditionné à une preuve produit ») sont **supersédées par ADR 0005** — le natif via portal-\*/UniFFI devient first-class. Le reste demeure en vigueur.
 
 ## Contexte
 

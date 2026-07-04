@@ -1,5 +1,8 @@
 //! Session engine: answer evaluation and private pedagogical summaries.
 
+/// Anonymous k-anonymous cohort aggregation + retention (ADR 0006).
+pub mod cohort;
+
 use rumble_ai_practices_domain::{
     AnswerEvaluation, AxisImpact, AxisLevel, EvaluationLevel, FeedbackCard, InteractionType,
     ModuleRef, PracticeLevel, Question, QuestionId, RiskAxis, SessionSummary, SourceRef,
