@@ -14,9 +14,23 @@ cd apps/web
 - Ouvrir `http://localhost:8080` dans le navigateur.
 - Mobile : DevTools → device toolbar (ou un vrai téléphone sur le même réseau
   via `--addr 0.0.0.0`, puis `http://<ip-machine>:8080`).
-- Navigation : `A`/`B`/`C`/`D` sélectionnent, `Entrée` ou **Valider** valident,
-  `Espace` = « je ne sais pas », `R` rejoue. Au tactile : taper un choix puis
-  **Valider**.
+- Parcours : une porte d'onboarding (objectif, « pas une évaluation RH »,
+  durée, données), une situation par axe de risque (issue du contenu réel), une
+  synthèse privée par catégorie, un export
+  JSON local.
+- Chaque situation montre son **artefact** (pièce jointe façon keycap) plutôt
+  que de le décrire : fichier `.docx` avec drapeau de sensibilité, liens-sources
+  marqués « non vérifié », image générée par IA, ticket client à PII caviardée.
+  Cadrage **hybride** : fil de discussion (collègue / IA qui répond) pour les
+  échanges, scénario posé pour les autres. Un motif de catégorie en filigrane
+  d'en-tête et en vignette de synthèse (bouclier / lien / portrait / enveloppe).
+- Navigation clavier (listener global, actif sur tous les écrans) : `Entrée`
+  lance / valide / continue / recommence selon l'écran, `1`–`4` sélectionnent,
+  `Espace` = « je ne sais pas », `R` rejoue / recommence, `E` exporte la
+  synthèse. Au tactile : taper un choix le sélectionne, un second appui sur le
+  même choix valide (geste unique).
+- À la validation, la réponse s'affiche **en place** (le choix reste épinglé, le
+  feedback apparaît en fondu à la place des choix) — aucun reflux ni scroll.
 
 ## Builds par plateforme (un seul code Rust)
 
@@ -83,3 +97,41 @@ WebView sur mobile). Pour la publication :
 - Apparence via tokens Portal uniquement (`assets/tokens.css`), zéro couleur en
   dur (ADR 0033 / ADR 0036).
 - `prefers-reduced-motion` et navigation clavier respectés.
+- Le verdict ne dépend jamais de la couleur seule : un glyphe l'accompagne
+  (`✓ ≈ ⚠ ✗`, WCAG 1.4.1).
+
+## Tests e2e (parcours réel)
+
+Playwright pilote le parcours dans un vrai navigateur (chromium + viewport mobile
+Pixel 7) — la version reproductible et gatée des vérifications manuelles :
+
+```bash
+cd apps/web && npm ci && npx playwright install chromium
+npx playwright test            # réutilise un `dx serve` sur :8080 s'il tourne
+```
+
+Couvre : porte d'onboarding, lancement au clavier, geste tactile unique + bascule
+en place sans scroll, navigation clavier (`1-4` / Entrée / Espace / `R`), « je ne
+sais pas », parcours complet → synthèse par catégorie, export JSON. Gaté en CI
+(`.github/workflows/e2e.yml`).
+
+## Mesure (qualité observable)
+
+- **Contraste** : `apps/web/tests/wcag_contrast.rs` vérifie que chaque encre de
+  verdict atteint AA (≥ 4.5:1) sur les deux thèmes ; les valeurs miroir de
+  `tokens.css` (à garder synchronisées).
+- **a11y + budget perf** : `.github/workflows/a11y-perf.yml` lance axe-core et
+  Lighthouse CI (`lighthouserc.json`) sur le build release — a11y ≥ 0.9 bloquant,
+  CLS ≤ 0.1 bloquant (garde-fou du reflux en place), perf en avertissement.
+- **RUM** : le délai sélection→validation est marqué côté client
+  (`window.__raipDelays`, `localStorage['raip_delays']`) et **inclus dans
+  l'export JSON** (`rum.select_to_validate_ms` + `rum.median_ms`) — la métrique
+  de la direction (a) (« ralentir la révélation fait-il réfléchir ? »). Aucune
+  donnée personnelle, local uniquement.
+- **Chaîne de contenu (ADR 0003)** : l'app **embarque** le corpus réel
+  (`content/questions/*.yml` via `include_str!`), le parse/valide (`content`),
+  et fait dériver chaque verdict par le moteur (`session` : score →
+  `EvaluationLevel` → `VerdictKind`). Le scoring reste dans le moteur, jamais
+  dans l'UI. `apps/web/tests/engine_pipeline.rs` verrouille la chaîne ; le
+  parcours est « une situation par axe de risque » (sélection dans
+  `corpus()`, triviale à changer).

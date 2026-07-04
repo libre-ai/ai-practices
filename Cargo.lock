@@ -4598,8 +4598,12 @@ version = "0.1.0"
 dependencies = [
  "dioxus",
  "dioxus-ssr",
+ "rumble-ai-practices-content",
+ "rumble-ai-practices-domain",
+ "rumble-ai-practices-session",
  "rumble-ai-practices-ui",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

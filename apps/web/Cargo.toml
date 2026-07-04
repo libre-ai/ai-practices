@@ -39,7 +39,15 @@ path = "src/main.rs"
 dioxus = { workspace = true, features = ["hooks"] }
 dioxus-ssr = { workspace = true, optional = true }
 rumble-ai-practices-ui.workspace = true
+# The corpus is embedded (include_str!) and driven through the engine at
+# runtime: content parses/validates, session scores each choice into a verdict
+# (ADR 0003 — no scoring in the UI). These are pure Rust and compile to wasm.
+rumble-ai-practices-domain.workspace = true
+rumble-ai-practices-content.workspace = true
+rumble-ai-practices-session.workspace = true
 serde.workspace = true
+# Local JSON export of the private synthesis (categories + verdicts only).
+serde_json.workspace = true
 
 [dev-dependencies]
 dioxus-ssr.workspace = true

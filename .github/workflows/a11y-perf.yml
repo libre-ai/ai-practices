@@ -1,0 +1,36 @@
+name: a11y-perf
+
+# Accessibility (axe + Lighthouse a11y category) and a performance / layout-shift
+# budget for the web PWA. The CLS assertion guards the in-place reveal (the
+# answer must not reflow the page). Node 20 is preinstalled on ubuntu-latest, so
+# no setup-node action is pinned; the audit tools are pulled per-run via npx.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Accessibility & performance budget
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32 # v2
+      - name: Install dioxus-cli
+        run: cargo install dioxus-cli --version 0.7.9 --locked
+      - name: Build web (release PWA)
+        run: cd apps/web && dx build --platform web --release
+      - name: Verify build output path
+        run: test -d target/dx/rumble-ai-practices-web-app/release/web/public
+      - name: Lighthouse CI (a11y + perf + CLS budget)
+        run: npx --yes @lhci/cli@0.14.x autorun
+      - name: axe-core accessibility
+        run: |
+          npx --yes serve -s target/dx/rumble-ai-practices-web-app/release/web/public -l 8080 &
+          sleep 4
+          npx --yes @axe-core/cli http://localhost:8080 --exit

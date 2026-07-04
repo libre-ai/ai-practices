@@ -19,11 +19,19 @@
   --color-brass: #c8925a; /* actuation accent — the press */
   --color-brass-soft: #9a7548;
 
-  /* four-state verdict spectrum (semantic, distinct from the accent) */
+  /* four-state verdict spectrum (semantic, distinct from the accent).
+   * Two tones per verdict: the base (borders/dots/keycaps) and an *ink* tone
+   * for TEXT, kept ≥ 4.5:1 on the ground (WCAG AA). On the dark ground the
+   * bright base already passes, so ink == base; the light theme overrides ink
+   * with darker values. */
   --color-juste: #5fb79a; /* correct */
   --color-partiel: #d9b45a; /* partial — recognized, incomplete */
   --color-risque: #d9765f; /* risky — burnt coral, not alarm-red */
   --color-faux: #9b7bb0; /* incorrect — reconsider, not shame */
+  --color-juste-ink: #6fc7ab;
+  --color-partiel-ink: #e0bd6a;
+  --color-risque-ink: #e08974;
+  --color-faux-ink: #b193c4;
 
   /* semantic surface tokens (components read these) */
   --color-background: var(--color-ink);
@@ -65,7 +73,9 @@
   --spacing-xl: 40px;
 
   --cap-travel: 4px;
-  --motion-press: 0.09s cubic-bezier(0.3, 1.4, 0.5, 1);
+  /* A calm actuation, not a snappy click: slower, gentle ease-out, no
+   * overshoot. The product trains reflection, not speed (UX direction a). */
+  --motion-press: 0.16s cubic-bezier(0.2, 0.75, 0.3, 1);
 }
 
 /* OS-preference default: dark-first (the board), light fully designed */
@@ -80,6 +90,11 @@
     --color-border: #cbc2ab;
     --color-accent: #a86f38;
     --color-brand: #a86f38;
+    /* darker verdict text on the paper ground (WCAG AA on #e2dbc9) */
+    --color-juste-ink: #1a5c43;
+    --color-partiel-ink: #5f480e;
+    --color-risque-ink: #992c19;
+    --color-faux-ink: #5a3f73;
   }
 }
 
@@ -108,19 +123,32 @@
   --color-border: #cbc2ab;
   --color-accent: #a86f38;
   --color-brand: #a86f38;
+  --color-juste-ink: #1a5c43;
+  --color-partiel-ink: #5f480e;
+  --color-risque-ink: #992c19;
+  --color-faux-ink: #5a3f73;
 }
 
-/* verdict slug -> the --v color the components read (tokens-only: components
- * carry data-verdict="juste|partiel|risque|faux", never a hex value) */
+/* verdict slug -> two tokens: --v (borders/dots/keycaps) and --v-ink (text,
+ * AA-contrasted per theme). Components carry data-verdict, never a hex. */
 [data-verdict="juste"] {
   --v: var(--color-juste);
+  --v-ink: var(--color-juste-ink);
 }
 [data-verdict="partiel"] {
   --v: var(--color-partiel);
+  --v-ink: var(--color-partiel-ink);
 }
 [data-verdict="risque"] {
   --v: var(--color-risque);
+  --v-ink: var(--color-risque-ink);
 }
 [data-verdict="faux"] {
   --v: var(--color-faux);
+  --v-ink: var(--color-faux-ink);
+}
+/* "je ne sais pas" — neutral, neither reward nor alarm */
+[data-verdict="idk"] {
+  --v: var(--color-text-secondary);
+  --v-ink: var(--color-text-secondary);
 }

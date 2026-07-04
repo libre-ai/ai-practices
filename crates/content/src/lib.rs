@@ -89,6 +89,18 @@ pub fn load_questions(path: impl AsRef<Path>) -> Result<Vec<Question>, ContentEr
     Ok(questions)
 }
 
+/// Parse a question list from a raw YAML string — no filesystem, so it is usable
+/// from a wasm client that embeds the corpus via `include_str!`. Shares the same
+/// schema owner (`QuestionList`) as the path-based loader.
+pub fn parse_questions_yaml(raw: &str) -> Result<Vec<Question>, ContentError> {
+    yaml_serde::from_str::<QuestionList>(raw)
+        .map(QuestionList::into_vec)
+        .map_err(|source| ContentError::Yaml {
+            path: PathBuf::from("<embedded>"),
+            source,
+        })
+}
+
 pub fn load_media_reviews(path: impl AsRef<Path>) -> Result<Vec<MediaReview>, ContentError> {
     let path = path.as_ref();
     if !path.exists() {

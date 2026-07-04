@@ -114,14 +114,19 @@ body {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
   pointer-events: none;
 }
-.cap.is-down {
+/* actuation: a quiet depress, no neon glow (UX direction a). Applies to a
+ * real pointer press (:active) and to keyboard press (.is-down toggled by the
+ * global key listener). */
+.cap.is-down,
+.choice:active .cap,
+.validate-btn:active .cap,
+.idk:active .cap {
   transform: translateY(var(--cap-travel));
   box-shadow:
     0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 10%) inset,
     0 0 0 color-mix(in oklab, var(--color-cap) 100%, black 32%),
     0 1px 3px rgba(0, 0, 0, 0.3),
-    0 0 0 2px color-mix(in oklab, var(--c) 60%, transparent),
-    0 0 18px color-mix(in oklab, var(--c) 45%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--c) 45%, transparent);
 }
 .cap.mini {
   width: 1.7em;
@@ -171,6 +176,323 @@ body {
   border-radius: var(--radius-lg);
   padding: clamp(20px, 3.4vw, 36px);
   box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.6);
+  position: relative;
+}
+/* faint per-category watermark, tucked in the top-right corner */
+.console-filigrane {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 96px;
+  height: 96px;
+  color: var(--color-accent);
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+.console-filigrane .motif-svg {
+  width: 100%;
+  height: 100%;
+}
+.console > *:not(.console-filigrane) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- scenario artifacts (the visible object) ---------- */
+.attach {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin-top: var(--spacing-md);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-cap) 100%, white 6%),
+    var(--color-cap)
+  );
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 12%) inset,
+    0 var(--cap-travel) 0 color-mix(in oklab, var(--color-cap) 100%, black 30%),
+    0 calc(var(--cap-travel) + 4px) 12px rgba(0, 0, 0, 0.26);
+}
+.attach-ticket {
+  grid-template-columns: auto 1fr;
+}
+.attach-thumb {
+  width: 44px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
+  background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+  border: 1px solid
+    color-mix(in oklab, var(--color-accent) 40%, var(--color-border));
+  border-radius: 8px;
+}
+.attach-thumb svg {
+  width: 25px;
+  height: 25px;
+}
+.attach-body {
+  min-width: 0;
+}
+.attach-name {
+  font-family: var(--font-family-mono);
+  font-size: 14.5px;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+.attach-meta {
+  font-family: var(--font-family-sans);
+  font-size: 12.5px;
+  color: var(--color-text-secondary);
+  margin-top: 3px;
+}
+.attach-flag {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 8px;
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-partiel-ink, var(--color-partiel));
+  border: 1px solid color-mix(in oklab, var(--color-partiel) 50%, transparent);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+.attach-flag::before {
+  content: "⚠ ";
+}
+
+/* source-link chips */
+.links {
+  display: grid;
+  gap: 8px;
+  margin-top: var(--spacing-md);
+}
+.chip {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  color: var(--color-text);
+  background: color-mix(in oklab, var(--color-cap) 55%, transparent);
+  border: 1px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 8px 11px;
+}
+.chip-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-text-secondary);
+}
+.chip-url {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chip-note {
+  font-size: 11px;
+  color: var(--color-risque-ink, var(--color-risque));
+  white-space: nowrap;
+}
+
+/* generated image frame */
+.imgframe {
+  position: relative;
+  margin: var(--spacing-md) 0 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: color-mix(in oklab, var(--color-cap) 70%, transparent);
+  aspect-ratio: 16 / 8;
+  color: color-mix(
+    in oklab,
+    var(--color-faux) 75%,
+    var(--color-text-secondary)
+  );
+}
+.imgframe svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.ai-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-faux-ink, var(--color-faux));
+  background: color-mix(in oklab, var(--color-background) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-faux) 50%, transparent);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+/* client ticket with redacted PII */
+.ticket {
+  font-family: var(--font-family-sans);
+  font-size: 13.5px;
+}
+.ticket-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 3px 0;
+  color: var(--color-text-secondary);
+}
+.ticket-row b {
+  color: var(--color-text);
+  font-weight: 600;
+  font-family: var(--font-family-mono);
+  font-size: 12.5px;
+  min-width: 92px;
+}
+.redact {
+  background: color-mix(in oklab, var(--color-risque) 24%, var(--color-cap));
+  color: transparent;
+  border-radius: 3px;
+  padding: 0 6px;
+  user-select: none;
+}
+
+/* ---------- chat thread framing ---------- */
+.thread {
+  margin-top: var(--spacing-md);
+}
+.msg {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+}
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-family-mono);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-cap-face);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--color-cap) 100%, white 8%),
+    var(--color-cap)
+  );
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 12%) inset,
+    0 2px 0 color-mix(in oklab, var(--color-cap) 100%, black 30%);
+}
+.bubble {
+  background: color-mix(in oklab, var(--color-cap) 52%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 4px 14px 14px 14px;
+  padding: 13px 15px;
+}
+.bubble .who {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: 7px;
+}
+.bubble p {
+  margin: 0;
+  font-family: var(--font-family-serif);
+  font-size: 16.5px;
+  line-height: 1.5;
+}
+.bubble .attach,
+.bubble .links {
+  margin-top: 12px;
+}
+
+/* ---------- onboarding gate ---------- */
+.intro-gate {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(24px, 4vw, 44px);
+  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.6);
+}
+.intro-eyebrow {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 var(--spacing-sm);
+}
+.intro-title {
+  font-family: var(--font-family-serif);
+  font-size: clamp(26px, 4.4vw, 38px);
+  line-height: 1.12;
+  font-weight: 600;
+  text-wrap: balance;
+  margin: 0 0 var(--spacing-md);
+}
+.intro-lede {
+  font-family: var(--font-family-sans);
+  font-size: clamp(16px, 2.2vw, 19px);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+  max-width: 60ch;
+  margin: 0 0 var(--spacing-lg);
+}
+.intro-facts {
+  list-style: none;
+  margin: 0 0 var(--spacing-xl);
+  padding: 0;
+  display: grid;
+  gap: 1px;
+  background: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.intro-facts li {
+  display: grid;
+  grid-template-columns: minmax(96px, auto) 1fr;
+  gap: var(--spacing-md);
+  align-items: baseline;
+  padding: 13px 16px;
+  background: var(--color-surface);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.intro-k {
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.intro-start {
+  width: 100%;
+  justify-content: center;
+}
+.intro-unavailable {
+  font-family: var(--font-family-sans);
+  color: var(--color-risque-ink, var(--color-risque));
+  border: 1px solid color-mix(in oklab, var(--color-risque) 40%, transparent);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin: 0;
 }
 .q-meta {
   display: flex;
@@ -187,10 +509,19 @@ body {
   color: var(--color-text);
   font-weight: 600;
 }
+/* orientation: an explicit "N / total" beside the progress bar */
+.q-count {
+  margin-left: auto;
+  color: var(--color-text);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.q-count + .q-progress {
+  margin-left: 10px;
+}
 .q-progress {
   display: flex;
   gap: 5px;
-  margin-left: auto;
   align-items: center;
 }
 .q-progress i {
@@ -224,7 +555,23 @@ body {
   font-weight: 600;
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);
-  margin: var(--spacing-md) 0 var(--spacing-lg);
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+}
+/* the calm cue: reflection over speed (UX direction a) */
+.calm-hint {
+  font-family: var(--font-family-sans);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+  margin: 0 0 var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.calm-hint::before {
+  content: "◷";
+  font-size: 15px;
+  color: var(--color-accent);
 }
 
 /* ---------- choices (keycap radio group) ---------- */
@@ -270,12 +617,14 @@ body {
 .choice.sel {
   border-color: var(--color-accent);
   background: color-mix(in oklab, var(--color-accent) 14%, transparent);
-  box-shadow:
-    0 0 0 1px var(--color-accent),
-    0 0 20px color-mix(in oklab, var(--color-accent) 30%, transparent);
+  /* a steady ring marks the selection; no wide neon bloom (UX direction a) */
+  box-shadow: 0 0 0 1px var(--color-accent);
 }
 .choice.sel .cap {
   --c: var(--color-accent);
+}
+.choice-label {
+  min-width: 0;
 }
 .choice:focus-visible {
   outline: 2px solid var(--color-accent);
@@ -304,10 +653,11 @@ body {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--v);
-  border: 1px solid color-mix(in oklab, var(--v) 50%, transparent);
+  color: var(--v-ink);
+  border: 1px solid color-mix(in oklab, var(--v) 55%, transparent);
   border-radius: 999px;
   padding: 3px 10px;
+  white-space: nowrap;
 }
 
 /* commit row: "je ne sais pas" (spacebar of humility) + Valider (⏎) */
@@ -318,6 +668,9 @@ body {
   gap: 12px;
   align-items: center;
   justify-content: space-between;
+}
+.commit-row-end {
+  justify-content: flex-end;
 }
 .validate-btn {
   display: inline-grid;
@@ -395,24 +748,47 @@ body {
   margin-top: var(--spacing-lg);
   border-top: 1px solid var(--color-border);
   padding-top: var(--spacing-lg);
+  scroll-margin-top: 16px;
+}
+.feedback-panel.reveal {
+  animation: fb-rise 0.28s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+@keyframes fb-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .fb-verdict {
   font-family: var(--font-family-mono);
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--v);
+  color: var(--v-ink);
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 12px;
 }
-.fb-verdict .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--v);
-  box-shadow: 0 0 14px var(--v);
+.fb-verdict .glyph {
+  font-size: 16px;
+  line-height: 1;
+  color: var(--v-ink);
+}
+.fb-reason {
+  font-size: 18px;
+  line-height: 1.55;
+}
+.idk-action {
+  font-size: 17px;
+  line-height: 1.5;
+  padding-left: 14px;
+  border-left: 3px solid var(--v);
+  color: var(--color-text);
 }
 .feedback-panel p {
   margin: 0 0 12px;
@@ -504,22 +880,88 @@ body {
   font-family: var(--font-family-mono);
   font-weight: 600;
 }
-.summary-panel h3 {
-  font-family: var(--font-family-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.summary-count {
   color: var(--color-text-secondary);
-  margin: var(--spacing-md) 0 var(--spacing-xs);
+  margin: var(--spacing-xs) 0 var(--spacing-lg);
 }
-.summary-panel ul {
+.summary-count b {
+  color: var(--color-text);
+}
+/* one row per category: glyph rail + verdict + the reflex to keep */
+.summary-list {
+  list-style: none;
   margin: 0;
-  padding-left: 1.2em;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.summary-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--spacing-md);
+  align-items: start;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--v);
+  border-radius: var(--radius-md);
+  background: color-mix(in oklab, var(--v) 7%, transparent);
+}
+/* category vignette: the motif in a verdict-tinted frame */
+.summary-vignette {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--v-ink);
+  background: color-mix(in oklab, var(--v) 14%, transparent);
+  border: 1px solid color-mix(in oklab, var(--v) 40%, transparent);
+}
+.summary-vignette .motif-svg {
+  width: 24px;
+  height: 24px;
+}
+.summary-glyph {
+  font-size: 16px;
+  line-height: 1;
+  color: var(--v-ink);
+}
+.summary-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.summary-cat {
+  font-family: var(--font-family-sans);
+  font-weight: 600;
+  font-size: 16px;
+}
+.summary-takeaway {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  line-height: 1.5;
 }
 .summary-panel .privacy {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
-  margin-top: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+/* ---------- in-place answer (the reveal, no reflow) ---------- */
+.answered.reveal {
+  animation: fb-rise 0.26s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.choice.pinned {
+  cursor: default;
+  margin-bottom: var(--spacing-md);
+}
+@media (prefers-reduced-motion: reduce) {
+  .answered.reveal {
+    animation: none;
+  }
 }
 
 /* ---------- start button ---------- */
