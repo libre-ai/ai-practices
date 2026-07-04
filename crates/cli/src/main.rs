@@ -1,10 +1,11 @@
 use anyhow::{Context, Result, bail};
 use clap::{Parser, Subcommand};
-use rumble_ai_practices_api::serve;
+use rumble_ai_practices_api::{serve, serve_with_store};
 use rumble_ai_practices_audit::audit_corpus;
 use rumble_ai_practices_content::validate_content;
 use rumble_ai_practices_domain::QuestionId;
 use rumble_ai_practices_session::{SessionFixture, run_fixture};
+use sqlx::postgres::PgPoolOptions;
 use std::fs;
 use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
@@ -70,6 +71,22 @@ enum Command {
         )]
         web_root: PathBuf,
     },
+}
+
+/// Cohort backend mode: where to persist anonymous session outcomes.
+#[derive(Debug)]
+enum CohortBackend {
+    Postgres(String),
+    InMemory,
+}
+
+/// Decide the cohort backend based on the DATABASE_URL environment variable.
+/// Empty or whitespace-only strings are treated as unset (in-memory).
+fn cohort_backend(db_url: Option<String>) -> CohortBackend {
+    match db_url {
+        Some(url) if !url.trim().is_empty() => CohortBackend::Postgres(url.trim().to_string()),
+        _ => CohortBackend::InMemory,
+    }
 }
 
 #[tokio::main]
@@ -191,9 +208,37 @@ async fn serve_cmd(content: &Path, media: &Path, bind: SocketAddr, web_root: &Pa
 
     eprintln!("serving rumble-ai-practices on http://{bind}");
     eprintln!("serving static bundle from {}", web_root.display());
-    serve(bind, loaded.questions, web_root.to_path_buf())
-        .await
-        .context("API server failed")
+
+    // Decide cohort backend: Postgres (with k-anonymous cohort) or in-memory.
+    let db_url = std::env::var("DATABASE_URL").ok();
+    match cohort_backend(db_url) {
+        CohortBackend::Postgres(url) => {
+            let pool = PgPoolOptions::new()
+                .max_connections(5)
+                .connect(&url)
+                .await
+                .context("failed to connect to Postgres")?;
+
+            // Run embedded migrations (idempotent).
+            rumble_ai_practices_store::MIGRATOR
+                .run(&pool)
+                .await
+                .context("failed to run database migrations")?;
+
+            eprintln!("cohort backend: Postgres (k-anonymous cohort enabled)");
+            serve_with_store(bind, loaded.questions, pool, web_root.to_path_buf())
+                .await
+                .context("API server failed")
+        }
+        CohortBackend::InMemory => {
+            eprintln!(
+                "cohort backend: in-memory (set DATABASE_URL to enable the k-anonymous cohort)"
+            );
+            serve(bind, loaded.questions, web_root.to_path_buf())
+                .await
+                .context("API server failed")
+        }
+    }
 }
 
 fn print_json<T: serde::Serialize>(value: &T) -> Result<()> {
@@ -215,4 +260,42 @@ fn write_or_print<T: serde::Serialize>(out: Option<&Path>, value: &T) -> Result<
         println!("{json}");
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_cohort_backend_postgres() {
+        let url = "postgres://user@localhost/db".to_string();
+        match cohort_backend(Some(url)) {
+            CohortBackend::Postgres(s) => assert!(s.contains("postgres")),
+            CohortBackend::InMemory => panic!("expected Postgres"),
+        }
+    }
+
+    #[test]
+    fn test_cohort_backend_empty_string() {
+        match cohort_backend(Some("".to_string())) {
+            CohortBackend::InMemory => (),
+            CohortBackend::Postgres(_) => panic!("expected InMemory for empty string"),
+        }
+    }
+
+    #[test]
+    fn test_cohort_backend_whitespace() {
+        match cohort_backend(Some("  ".to_string())) {
+            CohortBackend::InMemory => (),
+            CohortBackend::Postgres(_) => panic!("expected InMemory for whitespace"),
+        }
+    }
+
+    #[test]
+    fn test_cohort_backend_unset() {
+        match cohort_backend(None) {
+            CohortBackend::InMemory => (),
+            CohortBackend::Postgres(_) => panic!("expected InMemory for None"),
+        }
+    }
 }
