@@ -4,7 +4,30 @@ L'app web (`apps/web`) est une PWA Dioxus 0.7.9 (WASM), mobile-first, installabl
 Un seul cœur Rust ; le web est la surface diffusable maintenant, le natif suit
 la voie `portal-*` (voir `multiplatform.md`).
 
-## Tester en local (version mobile)
+## Single-origin local run
+
+Run the full single-origin deployable (API + static web bundle) on one address:
+
+```bash
+cargo install dioxus-cli --version 0.7.9 --locked    # Dioxus CLI (note: not the homebrew `dx`/Deno)
+dx build --platform web --release                     # Build wasm bundle to target/dx/…/release/web/public/
+cargo run -p cli -- serve                             # Serve on http://127.0.0.1:3000
+```
+
+Or use the provided justfile shortcut:
+
+```bash
+just serve-local
+```
+
+- Ouvrir `http://127.0.0.1:3000` dans le navigateur.
+- API routes (`/v1/*`, `/healthz`, `/readyz`) are routed first.
+- Unknown paths fall back to `index.html` (SPA routing).
+- Service worker is served at `/sw.js` with the correct scope header.
+
+## Tester en local (version mobile dev)
+
+For quick iteration during development without rebuilding the full static bundle:
 
 ```bash
 cd apps/web
