@@ -36,6 +36,7 @@ sqlx = { version = "0.8", default-features = false, features = [
 ] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "sync"] }
 tower = { version = "0.5", features = ["util"] }
+uuid = { version = "1", features = ["v4"] }
 yaml_serde = "0.10"
 thiserror = "2"
 
@@ -43,6 +44,7 @@ rumble-ai-practices-domain = { path = "crates/domain" }
 rumble-ai-practices-content = { path = "crates/content" }
 rumble-ai-practices-audit = { path = "crates/audit" }
 rumble-ai-practices-session = { path = "crates/session" }
+rumble-ai-practices-store = { path = "crates/store" }
 rumble-ai-practices-api = { path = "crates/api" }
 rumble-ai-practices-ui = { path = "crates/ui" }
 rumble-ai-practices-web = { path = "apps/web" }

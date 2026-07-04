@@ -234,7 +234,8 @@ pub fn complete_session(state: &SessionState) -> SessionSummary {
         completed_at: "local-fixture".into(),
         answered_count: state.answers.len(),
         axis_levels,
-        private_distribution: None,
+        // populated by the API layer with k-anonymous cohort access (ADR 0006)
+        private_distributions: Vec::new(),
         strengths,
         recommended_practices,
         next_modules: vec![ModuleRef {

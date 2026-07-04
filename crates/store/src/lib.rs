@@ -62,6 +62,8 @@ fn level_from_db(raw: &str) -> Option<PracticeLevel> {
 }
 
 /// Persist one anonymous session and its per-axis levels (transactional).
+/// Idempotent on `session_id`: re-persisting the same completed session is a
+/// no-op, so a replayed summary request never double-counts a learner.
 pub async fn insert_session(
     pool: &PgPool,
     session_id: &str,
@@ -71,7 +73,8 @@ pub async fn insert_session(
 ) -> Result<(), StoreError> {
     let mut tx = pool.begin().await?;
     sqlx::query!(
-        "insert into anonymous_sessions (session_id, completed_at, created_at) values ($1, $2, $3)",
+        "insert into anonymous_sessions (session_id, completed_at, created_at) values ($1, $2, $3) \
+         on conflict (session_id) do nothing",
         session_id,
         completed_at,
         created_at,
@@ -80,7 +83,8 @@ pub async fn insert_session(
     .await?;
     for outcome in axes {
         sqlx::query!(
-            "insert into anonymous_session_axes (session_id, axis, level, score) values ($1, $2, $3, $4)",
+            "insert into anonymous_session_axes (session_id, axis, level, score) values ($1, $2, $3, $4) \
+             on conflict (session_id, axis) do nothing",
             session_id,
             axis_to_db(outcome.axis),
             level_to_db(outcome.level),

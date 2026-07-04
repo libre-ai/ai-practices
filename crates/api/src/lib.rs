@@ -8,20 +8,24 @@ use axum::response::{Html, IntoResponse, Response};
 use axum::routing::{get, post};
 use axum::{Json, Router};
 use rumble_ai_practices_domain::{
-    AnswerEvaluation, EvaluationLevel, FeedbackCard, Interaction, Question, QuestionId,
-    ScenarioContext, SessionSummary, SourceRef,
+    AnswerEvaluation, AxisLevel, DistributionPosition, EvaluationLevel, FeedbackCard, Interaction,
+    Question, QuestionId, ScenarioContext, SessionSummary, SourceRef,
 };
+use rumble_ai_practices_session::cohort::{DEFAULT_MIN_COHORT, DEFAULT_RETENTION_DAYS};
 use rumble_ai_practices_session::{
     SessionError, SessionState, complete_session, start_session, submit_answer,
 };
+use rumble_ai_practices_store::{self as store, AxisOutcome};
 use rumble_ai_practices_web::render_app_html;
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use std::collections::BTreeMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::sync::RwLock;
+use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HealthStatus {
@@ -44,12 +48,20 @@ pub struct ApiState {
     questions: Arc<Vec<Question>>,
     sessions: Arc<RwLock<BTreeMap<String, StoredSession>>>,
     next_session: Arc<AtomicU64>,
+    // Two-tier storage (ADR 0006): live sessions stay in memory (ephemeral,
+    // per-user, no cross-session value — data minimisation); only the completed
+    // ANONYMOUS result lands in Postgres for the k-anonymous cohort. `None`
+    // keeps the API fully in-memory (used by the unit tests).
+    store: Option<PgPool>,
 }
 
 #[derive(Debug, Clone)]
 struct StoredSession {
     state: SessionState,
     created_at: Instant,
+    /// Opaque, random id used when the completed result is persisted anonymously
+    /// — never the enumerable in-memory session id (ADR 0006).
+    anon_id: String,
 }
 
 impl ApiState {
@@ -58,6 +70,15 @@ impl ApiState {
             questions: Arc::new(questions),
             sessions: Arc::new(RwLock::new(BTreeMap::new())),
             next_session: Arc::new(AtomicU64::new(1)),
+            store: None,
+        }
+    }
+
+    /// Same as `new`, wired to a cohort store (anonymous results + distribution).
+    pub fn with_store(questions: Vec<Question>, pool: PgPool) -> Self {
+        Self {
+            store: Some(pool),
+            ..Self::new(questions)
         }
     }
 
@@ -67,12 +88,52 @@ impl ApiState {
     }
 }
 
+/// Current wall-clock time in epoch seconds (for persistence + retention).
+fn now_epoch_secs() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0)
+}
+
 pub async fn serve(addr: SocketAddr, questions: Vec<Question>) -> std::io::Result<()> {
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, router(questions)).await
 }
 
+/// Serve with a cohort store: persists completed anonymous results and runs the
+/// retention purge on a schedule (ADR 0006).
+pub async fn serve_with_store(
+    addr: SocketAddr,
+    questions: Vec<Question>,
+    pool: PgPool,
+) -> std::io::Result<()> {
+    spawn_retention(pool.clone(), 6 * 60 * 60);
+    let listener = tokio::net::TcpListener::bind(addr).await?;
+    axum::serve(
+        listener,
+        router_with_state(ApiState::with_store(questions, pool)),
+    )
+    .await
+}
+
+/// Background retention purge (ADR 0006): drops anonymous sessions past the
+/// retention window every `interval_secs`.
+fn spawn_retention(pool: PgPool, interval_secs: u64) {
+    tokio::spawn(async move {
+        let mut ticker = tokio::time::interval(Duration::from_secs(interval_secs));
+        loop {
+            ticker.tick().await;
+            let _ = store::purge_expired(&pool, now_epoch_secs(), DEFAULT_RETENTION_DAYS).await;
+        }
+    });
+}
+
 pub fn router(questions: Vec<Question>) -> Router {
+    router_with_state(ApiState::new(questions))
+}
+
+pub fn router_with_state(state: ApiState) -> Router {
     Router::new()
         .route("/", get(index))
         .route("/app.js", get(app_js))
@@ -91,7 +152,7 @@ pub fn router(questions: Vec<Question>) -> Router {
         .route("/v1/sessions/{session_id}/summary", get(session_summary))
         .layer(DefaultBodyLimit::max(16 * 1024))
         .layer(middleware::from_fn(security_headers))
-        .with_state(ApiState::new(questions))
+        .with_state(state)
 }
 
 fn cleanup_sessions(sessions: &mut BTreeMap<String, StoredSession>) {
@@ -275,6 +336,7 @@ async fn create_session(
         StoredSession {
             state: session,
             created_at: Instant::now(),
+            anon_id: Uuid::new_v4().to_string(),
         },
     );
     enforce_session_limit(&mut sessions);
@@ -332,7 +394,49 @@ async fn session_summary(
     let session = sessions
         .get(&session_id)
         .ok_or_else(|| ApiError::not_found("session not found"))?;
-    Ok(Json(ApiEnvelope::new(complete_session(&session.state))))
+
+    let mut summary = complete_session(&session.state);
+    let complete = session.state.answers.len() == session.state.questions.len();
+
+    // Only a fully-answered run is persisted to the anonymous cohort and situated
+    // against it (a partial run is neither counted nor compared).
+    if complete && let Some(pool) = &state.store {
+        summary.private_distributions =
+            enrich_cohort(pool, &session.anon_id, &summary.axis_levels).await?;
+    }
+
+    Ok(Json(ApiEnvelope::new(summary)))
+}
+
+/// Persist the completed anonymous result (idempotently, opaque id) and read
+/// back the k-anonymous distribution for each answered axis (ADR 0006). The
+/// user is persisted first, so they are counted in the cohort they see.
+async fn enrich_cohort(
+    pool: &PgPool,
+    anon_id: &str,
+    axis_levels: &[AxisLevel],
+) -> Result<Vec<DistributionPosition>, ApiError> {
+    let now = now_epoch_secs();
+    let outcomes: Vec<AxisOutcome> = axis_levels
+        .iter()
+        .map(|al| AxisOutcome {
+            axis: al.axis,
+            level: al.level,
+            score: al.score,
+        })
+        .collect();
+    store::insert_session(pool, anon_id, now, now, &outcomes)
+        .await
+        .map_err(ApiError::internal)?;
+
+    let mut positions = Vec::with_capacity(axis_levels.len());
+    for al in axis_levels {
+        let position = store::distribution(pool, al.axis, Some(al.level), DEFAULT_MIN_COHORT, now)
+            .await
+            .map_err(ApiError::internal)?;
+        positions.push(position);
+    }
+    Ok(positions)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -496,6 +600,17 @@ impl ApiError {
             body: ApiErrorBody {
                 code: "unavailable".into(),
                 message: message.into(),
+            },
+        }
+    }
+
+    /// A 500 that never leaks the underlying (e.g. database) error to the client.
+    fn internal(_source: impl std::fmt::Display) -> Self {
+        Self {
+            status: StatusCode::INTERNAL_SERVER_ERROR,
+            body: ApiErrorBody {
+                code: "internal".into(),
+                message: "internal error".into(),
             },
         }
     }
@@ -752,5 +867,124 @@ mod tests {
                 notes: None,
             },
         }
+    }
+
+    // ---- cohort persistence over a real Postgres (ADR 0006) ----
+
+    async fn create_anon_session(app: &Router) -> String {
+        let resp = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri("/v1/sessions")
+                    .header("content-type", "application/json")
+                    .body(Body::from(r#"{"mode":"anonymous"}"#))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        response_json(resp).await["data"]["session_id"]
+            .as_str()
+            .unwrap()
+            .to_string()
+    }
+
+    async fn answer_good(app: &Router, session_id: &str) {
+        app.clone()
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri(format!("/v1/sessions/{session_id}/answers"))
+                    .header("content-type", "application/json")
+                    .body(Body::from(
+                        r#"{"question_id":"q-api-001","choice_ids":["good"]}"#,
+                    ))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+    }
+
+    async fn get_summary(app: &Router, session_id: &str) -> Value {
+        let resp = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri(format!("/v1/sessions/{session_id}/summary"))
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        response_json(resp).await
+    }
+
+    #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    async fn summary_persists_anonymously_idempotently_and_withholds_below_k(pool: PgPool) {
+        let app = router_with_state(ApiState::with_store(vec![question()], pool.clone()));
+        let session_id = create_anon_session(&app).await;
+        answer_good(&app, &session_id).await;
+
+        let summary = get_summary(&app, &session_id).await;
+        let dists = summary["data"]["private_distributions"].as_array().unwrap();
+        // a single completed run -> cohort of 1 < k -> distribution withheld
+        assert_eq!(dists.len(), 1);
+        assert_eq!(dists[0]["min_cohort_size_met"], false);
+
+        // persisted once, under an OPAQUE id (never the enumerable session id)
+        let stored: String =
+            sqlx::query_scalar("select session_id from anonymous_sessions limit 1")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+        assert_ne!(stored, session_id);
+        assert!(stored.len() >= 32, "opaque uuid, got {stored}");
+
+        // replaying the summary must not double-count the learner (idempotent)
+        let _ = get_summary(&app, &session_id).await;
+        let count: i64 = sqlx::query_scalar("select count(*) from anonymous_sessions")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    async fn summary_exposes_distribution_at_k(pool: PgPool) {
+        use rumble_ai_practices_domain::PracticeLevel;
+        let k = rumble_ai_practices_session::cohort::DEFAULT_MIN_COHORT;
+        // pre-seed k-1 anonymous sessions on the answered axis; the learner is k-th
+        for i in 0..(k - 1) {
+            store::insert_session(
+                &pool,
+                &format!("seed-{i}"),
+                1000,
+                1000,
+                &[AxisOutcome {
+                    axis: RiskAxis::SourceVerification,
+                    level: PracticeLevel::CarefulAutonomy,
+                    score: 1.0,
+                }],
+            )
+            .await
+            .unwrap();
+        }
+
+        let app = router_with_state(ApiState::with_store(vec![question()], pool.clone()));
+        let session_id = create_anon_session(&app).await;
+        answer_good(&app, &session_id).await;
+        let summary = get_summary(&app, &session_id).await;
+
+        let dists = summary["data"]["private_distributions"].as_array().unwrap();
+        assert_eq!(dists[0]["min_cohort_size_met"], true);
+        let sum: f64 = dists[0]["buckets"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|b| b["percent"].as_f64().unwrap())
+            .sum();
+        assert!((sum - 100.0).abs() < 1e-9);
     }
 }

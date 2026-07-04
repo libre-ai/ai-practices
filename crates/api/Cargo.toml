@@ -9,10 +9,15 @@ license.workspace = true
 axum.workspace = true
 rumble-ai-practices-domain.workspace = true
 rumble-ai-practices-session.workspace = true
+# Anonymous cohort persistence (ADR 0006): the API persists completed anonymous
+# results and reads the k-anonymous distribution back.
+rumble-ai-practices-store.workspace = true
 rumble-ai-practices-web = { workspace = true, features = ["ssr"] }
 serde.workspace = true
 serde_json.workspace = true
+sqlx.workspace = true
 tokio.workspace = true
+uuid.workspace = true
 
 [dev-dependencies]
 tower.workspace = true

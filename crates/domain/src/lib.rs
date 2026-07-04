@@ -316,8 +316,11 @@ pub struct SessionSummary {
     pub completed_at: String,
     pub answered_count: usize,
     pub axis_levels: Vec<AxisLevel>,
+    /// One anonymised distribution position per pedagogical axis (ADR 0003).
+    /// Empty until a cohort backend fills it (ADR 0006); each carries its own
+    /// `min_cohort_size_met` flag when a threshold is not met.
     #[serde(default)]
-    pub private_distribution: Option<DistributionPosition>,
+    pub private_distributions: Vec<DistributionPosition>,
     pub strengths: Vec<String>,
     pub recommended_practices: Vec<String>,
     pub next_modules: Vec<ModuleRef>,

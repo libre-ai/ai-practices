@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "insert into anonymous_sessions (session_id, completed_at, created_at) values ($1, $2, $3) on conflict (session_id) do nothing",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "734ae9d984de9266c763be895388e5333df764f518eb6c9173ae42138d4dc106"
+}

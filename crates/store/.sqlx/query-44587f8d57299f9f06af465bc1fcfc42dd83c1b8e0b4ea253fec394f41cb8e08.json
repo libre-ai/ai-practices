@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "insert into anonymous_session_axes (session_id, axis, level, score) values ($1, $2, $3, $4) on conflict (session_id, axis) do nothing",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Float8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "44587f8d57299f9f06af465bc1fcfc42dd83c1b8e0b4ea253fec394f41cb8e08"
+}
