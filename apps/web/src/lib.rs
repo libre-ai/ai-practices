@@ -11,8 +11,10 @@
 
 use dioxus::prelude::*;
 use rumble_ai_practices_content::parse_questions_yaml;
-use rumble_ai_practices_domain::{Difficulty, EvaluationLevel, Question, RiskAxis};
-use rumble_ai_practices_session::{start_session, submit_answer};
+use rumble_ai_practices_domain::{
+    AxisLevel, Difficulty, DistributionPosition, EvaluationLevel, Question, RiskAxis,
+};
+use rumble_ai_practices_session::{complete_session, start_session, submit_answer};
 use rumble_ai_practices_ui::{
     CategoryMotif, CategoryOutcome, ChoiceViewModel, FeedbackPanel, FeedbackViewModel, Keycap,
     MotifKind, QuestionViewModel, ScenarioArtifact, ScenarioArtifactView, ScenarioFraming,
@@ -132,6 +134,14 @@ pub fn App() -> Element {
     let mut stage = use_signal(|| Stage::Intro);
     // recorded answers: (category, motif, chosen feedback | None for "idk").
     let mut results = use_signal(Vec::<(&'static str, MotifKind, Option<FeedbackViewModel>)>::new);
+    // The chosen choice id per answered question, in parcours order (`None` = "je
+    // ne sais pas"). Replayed through the engine at the end to derive the same
+    // per-axis levels the server computes — the offline-first cohort payload.
+    let mut answers = use_signal(Vec::<Option<String>>::new);
+    // The raw parcours questions, aligned index-for-index with `corpus` (both
+    // come from the deterministic `parcours_questions`), so a recorded choice can
+    // be replayed onto the real `Question` to score it.
+    let questions = use_hook(parcours_questions);
     let corpus = use_hook(corpus);
     let total = corpus.len();
     let theme_attr = theme().unwrap_or("");
@@ -172,6 +182,7 @@ pub fn App() -> Element {
                                 // to load (empty) — avoids an out-of-bounds access.
                                 if total > 0 {
                                     results.write().clear();
+                                    answers.write().clear();
                                     stage.set(Stage::Question(0));
                                 }
                             },
@@ -192,8 +203,12 @@ pub fn App() -> Element {
                                     question: q.view_model(i + 1, total),
                                     feedbacks: q.feedbacks.clone(),
                                     is_last: i + 1 == total,
-                                    on_continue: move |feedback: Option<FeedbackViewModel>| {
+                                    on_continue: move |(choice_id, feedback): (
+                                        Option<String>,
+                                        Option<FeedbackViewModel>,
+                                    )| {
                                         results.write().push((category, motif, feedback));
+                                        answers.write().push(choice_id);
                                         if i + 1 < total {
                                             stage.set(Stage::Question(i + 1));
                                         } else {
@@ -206,32 +221,19 @@ pub fn App() -> Element {
                     },
                     Stage::Summary => {
                         let summary = build_summary(&results.read());
-                        let export = export_script(&summary_json(&summary));
+                        // Replay the recorded choices through the engine to get the
+                        // same per-axis levels the server computes — the anonymous
+                        // offline-first cohort payload (ADR 0006).
+                        let axis_levels = axis_levels_from_answers(&questions, &answers.read());
                         rsx! {
-                            SummaryPanel { summary }
-                            div { class: "commit-row",
-                                button {
-                                    class: "idk",
-                                    r#type: "button",
-                                    "data-action": "export",
-                                    onclick: move |_| {
-                                        document::eval(&export);
-                                    },
-                                    span { "Exporter (JSON)" }
-                                    Keycap { legend: "E".to_string(), class: "mini".to_string() }
-                                }
-                                button {
-                                    class: "validate-btn",
-                                    r#type: "button",
-                                    "data-action": "restart",
-                                    autofocus: true,
-                                    onclick: move |_| {
-                                        results.write().clear();
-                                        stage.set(Stage::Intro);
-                                    },
-                                    span { "Recommencer" }
-                                    Keycap { legend: "R".to_string(), class: "mini".to_string() }
-                                }
+                            SummaryStage {
+                                summary,
+                                axis_levels,
+                                on_restart: move |_| {
+                                    results.write().clear();
+                                    answers.write().clear();
+                                    stage.set(Stage::Intro);
+                                },
                             }
                         }
                     }
@@ -315,7 +317,7 @@ pub fn QuestionConsole(
     question: QuestionViewModel,
     feedbacks: Vec<FeedbackViewModel>,
     is_last: bool,
-    on_continue: EventHandler<Option<FeedbackViewModel>>,
+    on_continue: EventHandler<(Option<String>, Option<FeedbackViewModel>)>,
 ) -> Element {
     let mut selected = use_signal(|| None::<usize>);
     let mut locked = use_signal(|| false);
@@ -376,6 +378,10 @@ pub fn QuestionConsole(
     let pinned = sel_now
         .and_then(|i| choices.get(i).cloned().zip(feedbacks.get(i).cloned()))
         .map(|(choice, fb)| (choice.key, choice.label, fb.verdict, fb));
+    // The domain choice id of the selection, threaded up on "continue" so the
+    // parent can replay it through the engine for the cohort payload.
+    let chosen_choice_id: Option<String> =
+        sel_now.and_then(|i| choices.get(i).map(|choice| choice.id.clone()));
 
     rsx! {
         div { class: "console",
@@ -541,7 +547,8 @@ pub fn QuestionConsole(
                             r#type: "button",
                             "data-action": "continue",
                             onclick: move |_| {
-                                on_continue.call(sel_now.and_then(|i| feedbacks.get(i).cloned()));
+                                let feedback = sel_now.and_then(|i| feedbacks.get(i).cloned());
+                                on_continue.call((chosen_choice_id.clone(), feedback));
                             },
                             span { if is_last { "Voir la synthèse" } else { "Question suivante" } }
                             Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
@@ -612,6 +619,237 @@ fn export_script(json: &str) -> String {
          document.body.appendChild(a); a.click(); document.body.removeChild(a); \
          setTimeout(function(){{ URL.revokeObjectURL(url); }}, 0); }})();"
     )
+}
+
+/// Replay the recorded choices onto the real questions and run them through the
+/// engine, then aggregate with `complete_session` — the SAME per-axis levelling
+/// the server uses. The UI never invents its own scoring (ADR 0003); it reuses
+/// the engine so the client-computed `axis_levels` posted to `/v1/cohort` match
+/// exactly what the server-side session path would have produced.
+///
+/// `answers[i]` is the choice for `questions[i]` (`None` = "je ne sais pas",
+/// which submits nothing, so that axis simply has no impact — an honest gap).
+fn axis_levels_from_answers(questions: &[Question], answers: &[Option<String>]) -> Vec<AxisLevel> {
+    let mut state = match start_session("cohort", questions.to_vec()) {
+        Ok(state) => state,
+        Err(_) => return Vec::new(),
+    };
+    for (question, choice) in questions.iter().zip(answers.iter()) {
+        if let Some(choice_id) = choice {
+            let _ = submit_answer(&mut state, &question.id, vec![choice_id.clone()]);
+        }
+    }
+    complete_session(&state).axis_levels
+}
+
+/// The result of the offline-first cohort call. `Offline` is the safe default:
+/// the local synthesis stands on its own, and nothing is lost when the network
+/// (or the backend) is unavailable.
+#[derive(Debug, Clone, PartialEq)]
+enum CohortState {
+    Loading,
+    // Built only by the wasm transport; off-wasm it is still matched by
+    // `CohortPanel` but never constructed, which the host build flags as dead
+    // code — allow it there, it is live in the browser.
+    #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+    Online(Vec<DistributionPosition>),
+    Offline,
+}
+
+/// POST the anonymous per-axis result to `/v1/cohort` and read back the
+/// k-anonymous distribution. Any failure (offline, backend absent, malformed
+/// response) degrades to `Offline` — never an error surfaced to the learner.
+///
+/// wasm-only: the transport lives in the browser. On host/SSR (tests, prerender)
+/// the stub below keeps the summary local, which is exactly the offline path.
+#[cfg(target_arch = "wasm32")]
+async fn fetch_cohort(client_id: Option<String>, axis_levels: Vec<AxisLevel>) -> CohortState {
+    use gloo_net::http::Request;
+
+    #[derive(Serialize)]
+    struct Payload {
+        client_id: Option<String>,
+        axis_levels: Vec<AxisLevel>,
+    }
+    #[derive(Deserialize)]
+    struct Envelope {
+        data: Vec<DistributionPosition>,
+    }
+
+    let payload = Payload {
+        client_id,
+        axis_levels,
+    };
+    let request = match Request::post("/v1/cohort").json(&payload) {
+        Ok(request) => request,
+        Err(_) => return CohortState::Offline,
+    };
+    match request.send().await {
+        Ok(response) if response.ok() => match response.json::<Envelope>().await {
+            Ok(envelope) => CohortState::Online(envelope.data),
+            Err(_) => CohortState::Offline,
+        },
+        _ => CohortState::Offline,
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+async fn fetch_cohort(_client_id: Option<String>, _axis_levels: Vec<AxisLevel>) -> CohortState {
+    CohortState::Offline
+}
+
+/// A stable, opaque idempotency key persisted in `localStorage` so a repeat
+/// visit is not double-counted in the cohort (ADR 0006). It is a random token
+/// only — no PII, no nominative link. `None` lets the server mint one.
+#[cfg(target_arch = "wasm32")]
+async fn stable_client_id() -> Option<String> {
+    const JS: &str = "(function(){ try { var k='raip_cohort_id'; \
+        var v=localStorage.getItem(k); \
+        if(!v){ v=(self.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random(); \
+        localStorage.setItem(k,v); } return v; } catch(e){ return ''; } })()";
+    match document::eval(JS).join::<String>().await {
+        Ok(id) if !id.is_empty() => Some(id),
+        _ => None,
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+async fn stable_client_id() -> Option<String> {
+    None
+}
+
+/// The end-of-parcours screen: the private local synthesis, the anonymous cohort
+/// comparison (fetched once, offline-first), and the export / restart controls.
+#[component]
+fn SummaryStage(
+    summary: SummaryViewModel,
+    axis_levels: Vec<AxisLevel>,
+    on_restart: EventHandler<()>,
+) -> Element {
+    let mut cohort = use_signal(|| CohortState::Loading);
+    let export = export_script(&summary_json(&summary));
+
+    // Fire the offline-first cohort call once, on mount. Skipped entirely when
+    // there is nothing to situate (an all-"idk" parcours).
+    use_future(move || {
+        let axis_levels = axis_levels.clone();
+        async move {
+            if axis_levels.is_empty() {
+                cohort.set(CohortState::Offline);
+                return;
+            }
+            let client_id = stable_client_id().await;
+            cohort.set(fetch_cohort(client_id, axis_levels).await);
+        }
+    });
+
+    rsx! {
+        SummaryPanel { summary }
+        CohortPanel { state: cohort() }
+        div { class: "commit-row",
+            button {
+                class: "idk",
+                r#type: "button",
+                "data-action": "export",
+                onclick: move |_| {
+                    document::eval(&export);
+                },
+                span { "Exporter (JSON)" }
+                Keycap { legend: "E".to_string(), class: "mini".to_string() }
+            }
+            button {
+                class: "validate-btn",
+                r#type: "button",
+                "data-action": "restart",
+                autofocus: true,
+                onclick: move |_| on_restart.call(()),
+                span { "Recommencer" }
+                Keycap { legend: "R".to_string(), class: "mini".to_string() }
+            }
+        }
+    }
+}
+
+/// Renders the anonymous cohort comparison. Loading and offline are quiet,
+/// reassuring states — the local synthesis above already stands alone.
+#[component]
+fn CohortPanel(state: CohortState) -> Element {
+    match state {
+        CohortState::Loading => rsx! {
+            section {
+                class: "cohort-panel",
+                "data-state": "loading",
+                "aria-live": "polite",
+                p { class: "cohort-note", "Comparaison anonyme à la cohorte…" }
+            }
+        },
+        CohortState::Offline => rsx! {
+            section { class: "cohort-panel", "data-state": "offline",
+                p { class: "cohort-note",
+                    "Hors ligne : synthèse locale uniquement. Rien n'a été envoyé."
+                }
+            }
+        },
+        CohortState::Online(positions) => rsx! {
+            section { class: "cohort-panel", "data-state": "online",
+                h2 { class: "cohort-title", "Situez-vous dans la cohorte" }
+                p { class: "cohort-lede",
+                    "Agrégé et anonyme : aucune position nominative, aucun classement."
+                }
+                for position in positions {
+                    CohortAxis { position }
+                }
+            }
+        },
+    }
+}
+
+/// One risk axis: either the withheld notice (cohort below the k-anonymity
+/// threshold) or the distribution across practice bands, with the learner's own
+/// band marked.
+#[component]
+fn CohortAxis(position: DistributionPosition) -> Element {
+    if !position.min_cohort_size_met {
+        return rsx! {
+            div { class: "cohort-axis", "data-withheld": "true",
+                div { class: "cohort-axis-head", "{position.cohort_label}" }
+                p { class: "cohort-withheld",
+                    "Cohorte encore trop petite pour vous situer sans risque de ré-identification. Position masquée (k-anonymat)."
+                }
+            }
+        };
+    }
+    let user_band = position.user_bucket.clone();
+    rsx! {
+        div { class: "cohort-axis",
+            div { class: "cohort-axis-head", "{position.cohort_label}" }
+            div { class: "cohort-bars",
+                for bucket in position.buckets {
+                    {
+                        let is_you = user_band.as_deref() == Some(bucket.label.as_str());
+                        let pct = format!("{:.0}", bucket.percent);
+                        rsx! {
+                            div {
+                                class: if is_you { "cohort-bar you" } else { "cohort-bar" },
+                                "data-you": if is_you { "true" } else { "false" },
+                                span { class: "cohort-bar-label", "{bucket.label}" }
+                                span { class: "cohort-bar-track", aria_hidden: "true",
+                                    span { class: "cohort-bar-fill", style: "inline-size: {pct}%" }
+                                }
+                                span { class: "cohort-bar-pct", "{pct} %" }
+                            }
+                        }
+                    }
+                }
+            }
+            if let Some(band) = user_band {
+                p { class: "cohort-you-note",
+                    "Votre pratique sur cet axe : "
+                    b { "{band}" }
+                }
+            }
+        }
+    }
 }
 
 /// The embedded content corpus (one YAML file per source axis-set). `include_str!`
@@ -1066,5 +1304,71 @@ mod tests {
         let json = summary_json(&summary);
         assert!(!json.contains('\u{2028}'), "raw U+2028 must be escaped");
         assert!(json.contains("\\u2028"));
+    }
+
+    #[test]
+    fn cohort_axis_levels_are_empty_when_all_skipped() {
+        let questions = parcours_questions();
+        let answers = vec![None; questions.len()];
+        assert!(
+            axis_levels_from_answers(&questions, &answers).is_empty(),
+            "an all-idk parcours has no per-axis levels to situate"
+        );
+    }
+
+    #[test]
+    fn cohort_axis_levels_reuse_the_engine_aggregation() {
+        let questions = parcours_questions();
+        assert!(!questions.is_empty());
+        // answer only the first question, with its first choice
+        let mut answers = vec![None; questions.len()];
+        answers[0] = Some(questions[0].choices[0].id.clone());
+
+        let levels = axis_levels_from_answers(&questions, &answers);
+        assert!(
+            !levels.is_empty(),
+            "an answered question yields at least one axis level"
+        );
+        assert!(
+            levels.iter().any(|level| level.axis == questions[0].axis),
+            "the answered question's axis is levelled"
+        );
+
+        // The client payload is byte-for-byte what the server-side session path
+        // computes — the UI reuses the engine, it does not re-score (ADR 0003).
+        let mut state = start_session("cohort-test", questions.clone()).unwrap();
+        submit_answer(
+            &mut state,
+            &questions[0].id,
+            vec![questions[0].choices[0].id.clone()],
+        )
+        .unwrap();
+        assert_eq!(levels, complete_session(&state).axis_levels);
+    }
+
+    #[test]
+    fn summary_stage_renders_local_synthesis_and_cohort_region() {
+        // The signal/future props must be built inside the Dioxus runtime, so
+        // the stage is rendered through a harness component.
+        #[component]
+        fn Harness() -> Element {
+            let summary = build_summary(&[("Confidentialité", MotifKind::Shield, None)]);
+            rsx! {
+                SummaryStage {
+                    summary,
+                    axis_levels: Vec::new(),
+                    on_restart: move |_| {},
+                }
+            }
+        }
+        let html = dioxus_ssr::render_element(rsx! { Harness {} });
+        // the private local synthesis stands on its own
+        assert!(html.contains("summary-panel"));
+        assert!(html.contains("Synthèse privée"));
+        // the anonymous cohort region is present (offline-first placeholder)
+        assert!(html.contains("cohort-panel"));
+        // export + restart controls survive the extraction into SummaryStage
+        assert!(html.contains("data-action=\"export\""));
+        assert!(html.contains("data-action=\"restart\""));
     }
 }
