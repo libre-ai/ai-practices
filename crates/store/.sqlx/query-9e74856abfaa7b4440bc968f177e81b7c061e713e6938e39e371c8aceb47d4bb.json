@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select level from anonymous_session_axes where axis = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "level",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "9e74856abfaa7b4440bc968f177e81b7c061e713e6938e39e371c8aceb47d4bb"
+}

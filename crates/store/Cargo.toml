@@ -1,0 +1,17 @@
+[package]
+name = "rumble-ai-practices-store"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+# Persistence for the anonymous cohort (ADR 0006). Compile-time-checked SQL via
+# sqlx; the k-anonymity + retention logic lives in `session::cohort` (pure).
+rumble-ai-practices-domain.workspace = true
+rumble-ai-practices-session.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true

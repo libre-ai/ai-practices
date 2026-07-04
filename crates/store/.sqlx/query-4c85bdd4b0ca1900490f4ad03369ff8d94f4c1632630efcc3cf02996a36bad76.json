@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "insert into cohort_access_audit (accessed_at, axis, cohort_size, threshold_met) values ($1, $2, $3, $4)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8",
+        "Text",
+        "Int4",
+        "Bool"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4c85bdd4b0ca1900490f4ad03369ff8d94f4c1632630efcc3cf02996a36bad76"
+}

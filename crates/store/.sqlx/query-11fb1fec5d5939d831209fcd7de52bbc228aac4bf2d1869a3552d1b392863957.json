@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "delete from anonymous_sessions where completed_at < $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "11fb1fec5d5939d831209fcd7de52bbc228aac4bf2d1869a3552d1b392863957"
+}

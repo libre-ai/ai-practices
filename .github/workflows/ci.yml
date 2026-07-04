@@ -11,11 +11,29 @@ permissions:
 
 env:
   RUSTFLAGS: "-D warnings"
+  # Compile the sqlx query! macros from the committed .sqlx cache (no DB needed
+  # at build); the store's #[sqlx::test] tests connect at runtime via DATABASE_URL.
+  SQLX_OFFLINE: "true"
+  DATABASE_URL: "postgres://postgres:postgres@localhost:5432/rai_ci"
 
 jobs:
   rust:
     name: Rust quality gates
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rai_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
@@ -29,4 +47,6 @@ jobs:
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
       - name: Test
+        # #[sqlx::test] creates ephemeral databases off DATABASE_URL and applies
+        # crates/store/migrations automatically.
         run: cargo test --workspace --all-targets
