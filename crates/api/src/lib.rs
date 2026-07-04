@@ -1,11 +1,15 @@
 //! Thin Axum API adapter for the validated Rust core.
+//!
+//! Two router modes:
+//! - `router_with_state`: API-only (/healthz, /readyz, /v1/*)
+//! - `router_with_static`: API + static web bundle + SPA fallback (for single-origin serving)
 
 use axum::extract::{DefaultBodyLimit, Path, State};
 use axum::http::header::CONTENT_TYPE;
 use axum::http::{HeaderName, HeaderValue, Request, StatusCode};
 use axum::middleware::{self, Next};
-use axum::response::{Html, IntoResponse, Response};
-use axum::routing::{get, post};
+use axum::response::{IntoResponse, Response};
+use axum::routing::{any, get, post};
 use axum::{Json, Router};
 use rumble_ai_practices_domain::{
     AnswerEvaluation, AxisLevel, DistributionPosition, EvaluationLevel, FeedbackCard, Interaction,
@@ -16,11 +20,11 @@ use rumble_ai_practices_session::{
     SessionError, SessionState, complete_session, start_session, submit_answer,
 };
 use rumble_ai_practices_store::{self as store, AxisOutcome};
-use rumble_ai_practices_web::render_app_html;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use std::collections::BTreeMap;
 use std::net::SocketAddr;
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
@@ -96,9 +100,14 @@ fn now_epoch_secs() -> i64 {
         .unwrap_or(0)
 }
 
-pub async fn serve(addr: SocketAddr, questions: Vec<Question>) -> std::io::Result<()> {
+pub async fn serve(
+    addr: SocketAddr,
+    questions: Vec<Question>,
+    web_root: PathBuf,
+) -> std::io::Result<()> {
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, router(questions)).await
+    let state = ApiState::new(questions);
+    axum::serve(listener, router_with_static(state, web_root)).await
 }
 
 /// Serve with a cohort store: persists completed anonymous results and runs the
@@ -107,14 +116,12 @@ pub async fn serve_with_store(
     addr: SocketAddr,
     questions: Vec<Question>,
     pool: PgPool,
+    web_root: PathBuf,
 ) -> std::io::Result<()> {
     spawn_retention(pool.clone(), 6 * 60 * 60);
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(
-        listener,
-        router_with_state(ApiState::with_store(questions, pool)),
-    )
-    .await
+    let state = ApiState::with_store(questions, pool);
+    axum::serve(listener, router_with_static(state, web_root)).await
 }
 
 /// Background retention purge (ADR 0006): drops anonymous sessions past the
@@ -129,17 +136,11 @@ fn spawn_retention(pool: PgPool, interval_secs: u64) {
     });
 }
 
-pub fn router(questions: Vec<Question>) -> Router {
-    router_with_state(ApiState::new(questions))
-}
-
-pub fn router_with_state(state: ApiState) -> Router {
+/// The API surface (health + `/v1/*`), without transport layers — shared by the
+/// API-only router and the single-origin router so the route set can never drift
+/// between them.
+fn api_routes(state: ApiState) -> Router {
     Router::new()
-        .route("/", get(index))
-        .route("/app.js", get(app_js))
-        .route("/assets/icon.svg", get(icon_svg))
-        .route("/manifest.webmanifest", get(manifest))
-        .route("/sw.js", get(service_worker))
         .route("/healthz", get(healthz))
         .route("/readyz", get(readyz))
         .route("/v1/catalog", get(catalog))
@@ -153,9 +154,56 @@ pub fn router_with_state(state: ApiState) -> Router {
         // offline-first: the client runs the parcours locally and posts only its
         // anonymous result here to be situated against the cohort (ADR 0006).
         .route("/v1/cohort", post(cohort_position))
+        .with_state(state)
+}
+
+/// API-only router (no static serving) — used by the unit tests and any
+/// API-only deployment.
+pub fn router_with_state(state: ApiState) -> Router {
+    api_routes(state)
         .layer(DefaultBodyLimit::max(16 * 1024))
         .layer(middleware::from_fn(security_headers))
-        .with_state(state)
+}
+
+/// Single-origin router: the API surface plus the dx-built web bundle served
+/// from `web_root`, with an SPA fallback to `index.html` for client-side routes.
+/// Unknown `/v1/*` paths still 404 — they must never resolve to the SPA shell.
+pub fn router_with_static(state: ApiState, web_root: PathBuf) -> Router {
+    use tower_http::services::{ServeDir, ServeFile};
+
+    // Static files, falling back to index.html for client-side routes.
+    let static_service =
+        ServeDir::new(&web_root).fallback(ServeFile::new(web_root.join("index.html")));
+    // Unknown API paths must 404 (for any method), not fall through to the SPA
+    // shell — otherwise a typo'd endpoint would return 200 + index.html.
+    let fallback = Router::new()
+        .route("/v1/{*path}", any(api_404))
+        .fallback_service(static_service);
+
+    api_routes(state)
+        .route("/sw.js", get(service_worker_js))
+        .fallback_service(fallback)
+        .layer(DefaultBodyLimit::max(16 * 1024))
+        .layer(middleware::from_fn(security_headers))
+}
+
+/// 404 for unmatched `/v1/*` requests (keeps them off the SPA fallback).
+async fn api_404() -> (StatusCode, &'static str) {
+    (StatusCode::NOT_FOUND, "Not Found")
+}
+
+/// The service worker, served at the site root with `Service-Worker-Allowed: /`
+/// so its scope covers the whole app (dx otherwise emits it as a hashed asset,
+/// which cannot control the root scope).
+async fn service_worker_js() -> impl IntoResponse {
+    (
+        [(CONTENT_TYPE, "text/javascript; charset=utf-8")],
+        [(
+            HeaderName::from_static("service-worker-allowed"),
+            HeaderValue::from_static("/"),
+        )],
+        include_str!("../../../apps/web/assets/sw.js"),
+    )
 }
 
 fn cleanup_sessions(sessions: &mut BTreeMap<String, StoredSession>) {
@@ -179,6 +227,9 @@ fn enforce_session_limit(sessions: &mut BTreeMap<String, StoredSession>) {
 async fn security_headers(request: Request<axum::body::Body>, next: Next) -> Response {
     let mut response = next.run(request).await;
     let headers = response.headers_mut();
+    // CSP: script-src 'self' only. Wasm instantiation via ES module does not require
+    // 'wasm-unsafe-eval' in dx 0.7.9 (uses native instantiation). If a runtime CSP
+    // violation is observed, add it then (not speculatively).
     headers.insert(
         HeaderName::from_static("content-security-policy"),
         HeaderValue::from_static("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"),
@@ -201,96 +252,6 @@ async fn security_headers(request: Request<axum::body::Body>, next: Next) -> Res
     );
     response
 }
-
-async fn index() -> Html<String> {
-    Html(index_html())
-}
-
-fn index_html() -> String {
-    format!(
-        r##"<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#111827">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
-  <title>Rumble AI Practices</title>
-</head>
-<body>
-  <div id="app">{}</div>
-  <script src="/app.js" defer></script>
-</body>
-</html>"##,
-        render_app_html()
-    )
-}
-
-async fn app_js() -> impl IntoResponse {
-    ([(CONTENT_TYPE, "text/javascript; charset=utf-8")], APP_JS)
-}
-
-const APP_JS: &str = r#"if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => undefined);
-  });
-}"#;
-
-async fn manifest() -> impl IntoResponse {
-    ([(CONTENT_TYPE, "application/manifest+json")], MANIFEST)
-}
-
-const MANIFEST: &str = r##"{
-  "name": "Rumble AI Practices",
-  "short_name": "AI Practices",
-  "description": "Diagnostic pédagogique souverain des pratiques IA.",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#111827",
-  "icons": [
-    {
-      "src": "/assets/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
-}"##;
-
-async fn service_worker() -> impl IntoResponse {
-    (
-        [(CONTENT_TYPE, "text/javascript; charset=utf-8")],
-        SERVICE_WORKER,
-    )
-}
-
-const SERVICE_WORKER: &str = r#"const CACHE = 'rumble-ai-practices-shell-v1';
-const ASSETS = ['/', '/app.js', '/manifest.webmanifest', '/assets/icon.svg'];
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
-});
-self.addEventListener('activate', event => {
-  event.waitUntil(self.clients.claim());
-});
-self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  if (event.request.method !== 'GET' || url.pathname.startsWith('/v1/')) return;
-  event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request)));
-});"#;
-
-async fn icon_svg() -> impl IntoResponse {
-    ([(CONTENT_TYPE, "image/svg+xml; charset=utf-8")], ICON_SVG)
-}
-
-const ICON_SVG: &str = r##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Rumble AI Practices">
-  <rect width="128" height="128" rx="28" fill="#111827"/>
-  <path d="M30 78c12-28 24-42 36-42 14 0 22 11 32 35" fill="none" stroke="#93c5fd" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="46" cy="84" r="8" fill="#f9fafb"/>
-  <circle cx="82" cy="84" r="8" fill="#f9fafb"/>
-</svg>"##;
 
 async fn healthz() -> Json<ApiEnvelope<HealthStatus>> {
     Json(ApiEnvelope::new(health_status()))
@@ -671,74 +632,35 @@ mod tests {
         RiskAxis,
     };
     use serde_json::Value;
+    use std::sync::atomic::AtomicUsize;
     use tower::ServiceExt;
+
+    static TEMP_DIR_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
     #[test]
     fn health_is_ok() {
         assert_eq!(health_status().status, "ok");
     }
 
-    #[tokio::test]
-    async fn serves_installable_pwa_shell_with_security_headers() {
-        let response = router(vec![question()])
-            .oneshot(
-                Request::builder()
-                    .method(Method::GET)
-                    .uri("/")
-                    .body(Body::empty())
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
-        assert_eq!(response.status(), StatusCode::OK);
-        assert!(response.headers().contains_key("content-security-policy"));
-        assert_eq!(
-            response.headers().get("x-content-type-options").unwrap(),
-            "nosniff"
-        );
-        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
-        let html = String::from_utf8(body.to_vec()).unwrap();
-        assert!(html.contains("manifest.webmanifest"));
-        assert!(html.contains("/app.js"));
+    /// Create a temporary webroot with an index.html fixture for SPA fallback testing.
+    fn temp_webroot() -> PathBuf {
+        use std::sync::atomic::Ordering;
+        let idx = TEMP_DIR_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let webroot = std::env::temp_dir().join(format!("raip-test-{}", idx));
+        let _ = std::fs::remove_dir_all(&webroot);
+        std::fs::create_dir_all(&webroot).expect("failed to create temp webroot");
+        std::fs::write(
+            webroot.join("index.html"),
+            "<!doctype html><title>spa-fixture</title>",
+        )
+        .expect("failed to write fixture index.html");
+        webroot
     }
 
     #[tokio::test]
-    async fn exposes_manifest_service_worker_and_readyz() {
-        let app = router(vec![question()]);
-        let manifest = app
-            .clone()
-            .oneshot(
-                Request::builder()
-                    .method(Method::GET)
-                    .uri("/manifest.webmanifest")
-                    .body(Body::empty())
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
-        assert_eq!(manifest.status(), StatusCode::OK);
-        assert_eq!(
-            manifest.headers().get(CONTENT_TYPE).unwrap(),
-            "application/manifest+json"
-        );
-        let manifest_json: Value =
-            serde_json::from_slice(&to_bytes(manifest.into_body(), usize::MAX).await.unwrap())
-                .unwrap();
-        assert_eq!(manifest_json["display"], "standalone");
-
-        let sw = app
-            .clone()
-            .oneshot(
-                Request::builder()
-                    .method(Method::GET)
-                    .uri("/sw.js")
-                    .body(Body::empty())
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
-        assert_eq!(sw.status(), StatusCode::OK);
-
+    async fn api_routes_are_healthy() {
+        let state = ApiState::new(vec![question()]);
+        let app = router_with_state(state);
         let ready = app
             .oneshot(
                 Request::builder()
@@ -754,8 +676,165 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn security_headers_applied_to_api() {
+        let state = ApiState::new(vec![question()]);
+        let app = router_with_state(state);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri("/healthz")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert!(response.headers().contains_key("content-security-policy"));
+        assert_eq!(
+            response.headers().get("x-content-type-options").unwrap(),
+            "nosniff"
+        );
+    }
+
+    #[tokio::test]
+    async fn service_worker_served_at_root_with_scope_header() {
+        let state = ApiState::new(vec![question()]);
+        let webroot = temp_webroot();
+        let app = router_with_static(state, webroot);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri("/sw.js")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            response.headers().get("content-type").unwrap(),
+            "text/javascript; charset=utf-8"
+        );
+        assert_eq!(
+            response.headers().get("service-worker-allowed").unwrap(),
+            "/"
+        );
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        assert!(!body.is_empty());
+    }
+
+    #[tokio::test]
+    async fn spa_fallback_serves_index_for_unknown_path() {
+        let state = ApiState::new(vec![question()]);
+        let webroot = temp_webroot();
+        let app = router_with_static(state, webroot);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri("/some/client/route")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        let html = String::from_utf8(body.to_vec()).unwrap();
+        assert!(html.contains("spa-fixture"));
+    }
+
+    #[tokio::test]
+    async fn api_routes_win_over_spa_fallback() {
+        let state = ApiState::new(vec![question()]);
+        let webroot = temp_webroot();
+        let app = router_with_static(state, webroot);
+
+        // /v1/* routes should return API responses, not index.html
+        let catalog_response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri("/v1/catalog")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(catalog_response.status(), StatusCode::OK);
+        let json = response_json(catalog_response).await;
+        assert!(json["data"]["question_count"].is_u64());
+
+        // /healthz should also be API, not fallback
+        let health_response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri("/healthz")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(health_response.status(), StatusCode::OK);
+        assert_eq!(response_json(health_response).await["data"]["status"], "ok");
+
+        // invalid /v1 routes still 404 — and must NOT be the SPA shell (status
+        // alone is insufficient: a broken catch-all could 404 for another reason
+        // while the body leaked index.html).
+        let invalid_v1_response = app
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri("/v1/nope")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(invalid_v1_response.status(), StatusCode::NOT_FOUND);
+        let body = to_bytes(invalid_v1_response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert!(
+            !String::from_utf8_lossy(&body).contains("spa-fixture"),
+            "an unknown /v1 path must 404, never resolve to the SPA shell"
+        );
+    }
+
+    #[tokio::test]
+    async fn spa_fallback_without_index_returns_not_found_not_stale_ok() {
+        // Guard the incomplete-bundle case at the API layer too: with no
+        // index.html the SPA fallback must NOT serve a stale 200 — it 404s. (The
+        // CLI fails fast before serving; this pins the server's own degradation.)
+        use std::sync::atomic::Ordering;
+        let idx = TEMP_DIR_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let webroot = std::env::temp_dir().join(format!("raip-test-noindex-{idx}"));
+        let _ = std::fs::remove_dir_all(&webroot);
+        std::fs::create_dir_all(&webroot).unwrap();
+        // deliberately no index.html written
+        let app = router_with_static(ApiState::new(vec![question()]), webroot);
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(Method::GET)
+                    .uri("/some/client/route")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_ne!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
     async fn api_flow_does_not_expose_answer_metadata_in_next_question() {
-        let app = router(vec![question()]);
+        let state = ApiState::new(vec![question()]);
+        let app = router_with_state(state);
 
         let create_response = app
             .clone()
@@ -795,7 +874,8 @@ mod tests {
 
     #[tokio::test]
     async fn api_flow_submits_answer_and_returns_summary() {
-        let app = router(vec![question()]);
+        let state = ApiState::new(vec![question()]);
+        let app = router_with_state(state);
         let create_response = app
             .clone()
             .oneshot(
@@ -1087,7 +1167,8 @@ mod tests {
 
     #[tokio::test]
     async fn cohort_endpoint_rejects_empty_axis_levels() {
-        let app = router(vec![question()]); // no store: input is validated first
+        let state = ApiState::new(vec![question()]); // no store: input is validated first
+        let app = router_with_state(state);
         let resp = post_cohort(&app, r#"{"axis_levels":[]}"#).await;
         assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
     }
