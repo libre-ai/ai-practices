@@ -56,7 +56,7 @@ enum Command {
         #[arg(long)]
         out: Option<PathBuf>,
     },
-    /// Serve the MVP HTTP API.
+    /// Serve the single-origin deployable: API + static web bundle.
     Serve {
         #[arg(long, default_value = "content/questions")]
         content: PathBuf,
@@ -64,6 +64,11 @@ enum Command {
         media: PathBuf,
         #[arg(long, default_value = "127.0.0.1:3000")]
         bind: SocketAddr,
+        #[arg(
+            long,
+            default_value = "target/dx/rumble-ai-practices-web-app/release/web/public"
+        )]
+        web_root: PathBuf,
     },
 }
 
@@ -100,7 +105,8 @@ async fn run() -> Result<()> {
             content,
             media,
             bind,
-        } => serve_cmd(&content, &media, bind).await,
+            web_root,
+        } => serve_cmd(&content, &media, bind, &web_root).await,
     }
 }
 
@@ -148,15 +154,44 @@ fn run_session_cmd(content: &Path, media: &Path, fixture: &Path, out: Option<&Pa
     write_or_print(out, &summary)
 }
 
-async fn serve_cmd(content: &Path, media: &Path, bind: SocketAddr) -> Result<()> {
+async fn serve_cmd(content: &Path, media: &Path, bind: SocketAddr, web_root: &Path) -> Result<()> {
     let loaded =
         validate_content(content, media).context("failed to validate content before serve")?;
     if !loaded.report.is_success() {
         print_json(&loaded.report)?;
         bail!("refusing to serve invalid content")
     }
+
+    if !web_root.is_dir() {
+        eprintln!(
+            "error: web bundle directory not found: {}",
+            web_root.display()
+        );
+        eprintln!("Build the Dioxus web bundle first:");
+        eprintln!("  cargo install dioxus-cli --version 0.7.9 --locked");
+        eprintln!("  dx build --platform web --release");
+        bail!("web bundle not found at {}", web_root.display())
+    }
+
+    // The SPA fallback serves `index.html` for every client-side route, so a
+    // present-but-incomplete bundle (dir exists, index missing) would start fine
+    // and then 404 every navigation. Fail fast at startup instead.
+    let index_html = web_root.join("index.html");
+    if !index_html.is_file() {
+        eprintln!(
+            "error: web bundle is incomplete — missing {}",
+            index_html.display()
+        );
+        eprintln!("Re-run: dx build --platform web --release");
+        bail!(
+            "web bundle incomplete: missing index.html at {}",
+            index_html.display()
+        )
+    }
+
     eprintln!("serving rumble-ai-practices on http://{bind}");
-    serve(bind, loaded.questions)
+    eprintln!("serving static bundle from {}", web_root.display());
+    serve(bind, loaded.questions, web_root.to_path_buf())
         .await
         .context("API server failed")
 }
