@@ -155,7 +155,7 @@ pub fn App() -> Element {
 
     rsx! {
         div { class: "app-root", "data-theme": "{theme_attr}",
-            div { class: "app-shell",
+            main { class: "app-shell",
                 header { class: "app-mast",
                     span { class: "brandmark", "rumble" b { "·" } "ai" b { "·" } "practices" }
                     button {
