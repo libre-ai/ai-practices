@@ -1,10 +1,22 @@
 # rumble-ai-practices
 
-> **Rumble Officialized Product**: This is a Rumble-tier product with official governance. Documentation is intentionally in French to reflect the product's primary audience and strategic positioning.
+**Couche** : Rumble
+**Rôle** : entraînement professionnel aux pratiques IA, scénarios et feedback sourcé
+**deployment_class** : product-linkable
+**Maturité** : dojo — PWA/Rust qui tourne ; moteur de session provisoire à documenter comme tel
+**Place dans la chaîne DoD** : produit un cas réel pour Portal/Dioxus, Wrench evidence et contenus gouvernés, sans revendiquer runtime partagé fini.
+**Doctrine** : produit pédagogique audité ; pas de notation RH, pas de génération non revue.
+**Souveraineté** : licences MIT/Apache/MPL compatibles ; pas d’AGPL/SSPL dans la chaîne versionnée.
 
-**Layer:** Rumble — Product  
-**Role:** multi-plateforme d'entraînement aux pratiques professionnelles de l'IA  
-**Mission:** aider des collaborateurs à renforcer leurs réflexes IA par des scénarios réalistes, sourcés, non binaires et audités contre les biais.
+## Ce que ça fait
+
+Fait jouer des scénarios professionnels d’usage de l’IA avec feedback, sources, biais et RGPD. L’état actuel est un produit dojo qui tourne, avec API/PWA et corpus, mais la convergence Portal/session doit rester explicite.
+
+## Où ça se branche
+
+- Amont : corpus versionné `content/`, ADRs produit, patterns Dioxus/Portal.
+- Aval : utilisateurs/apprenants, preuves Wrench futures, pression sur Portal et contrats de session.
+- Contrats/preuves : schemas YAML/JSON, CLI d’audit, PWA, endpoint cohort anonyme.
 
 ---
 
