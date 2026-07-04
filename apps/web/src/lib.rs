@@ -11,7 +11,7 @@
 
 use dioxus::prelude::*;
 use rumble_ai_practices_content::parse_questions_yaml;
-use rumble_ai_practices_domain::{EvaluationLevel, Question, RiskAxis};
+use rumble_ai_practices_domain::{Difficulty, EvaluationLevel, Question, RiskAxis};
 use rumble_ai_practices_session::{start_session, submit_answer};
 use rumble_ai_practices_ui::{
     CategoryMotif, CategoryOutcome, ChoiceViewModel, FeedbackPanel, FeedbackViewModel, Keycap,
@@ -584,8 +584,16 @@ fn build_summary(
 
 /// Serialize the synthesis to a JSON string for the local export. Contains only
 /// categories and verdicts — no personal data, no identifier.
+///
+/// The result is embedded verbatim into a `document::eval` (as a JS object
+/// literal), so the two unicode line separators U+2028 / U+2029 — which serde
+/// leaves raw, are legal in JSON, but terminate a JS line — are escaped. Content
+/// is trusted today, but this keeps the embedding robust regardless of source.
 fn summary_json(summary: &SummaryViewModel) -> String {
-    serde_json::to_string_pretty(summary).unwrap_or_else(|_| "{}".to_string())
+    serde_json::to_string_pretty(summary)
+        .unwrap_or_else(|_| "{}".to_string())
+        .replace('\u{2028}', "\\u2028")
+        .replace('\u{2029}', "\\u2029")
 }
 
 /// Client-side download of the synthesis JSON (Blob + anchor click). The RUM
@@ -619,10 +627,20 @@ const CORPUS_FILES: &[&str] = &[
     include_str!("../../../content/questions/pilot.yml"),
 ];
 
-/// The parcours: real content questions, one situation per risk axis (first
-/// occurrence, stable order) so the run covers the whole risk surface. Verdicts
-/// are derived by the engine — the UI never scores (ADR 0003).
-fn corpus() -> Vec<TrainingQuestion> {
+/// Sort rank for the learning curve: beginner → intermediate → advanced.
+fn difficulty_rank(difficulty: Difficulty) -> u8 {
+    match difficulty {
+        Difficulty::Beginner => 0,
+        Difficulty::Intermediate => 1,
+        Difficulty::Advanced => 2,
+    }
+}
+
+/// Select the parcours from the embedded corpus: one valid question per risk
+/// axis (covers the whole surface), ordered by difficulty (gentle learning
+/// curve). Kept separate from the view-model mapping so the selection is
+/// testable on the real content.
+fn parcours_questions() -> Vec<Question> {
     let mut all: Vec<Question> = Vec::new();
     for raw in CORPUS_FILES {
         if let Ok(questions) = parse_questions_yaml(raw) {
@@ -630,7 +648,8 @@ fn corpus() -> Vec<TrainingQuestion> {
         }
     }
     let mut axes_seen: Vec<RiskAxis> = Vec::new();
-    all.into_iter()
+    let mut selected: Vec<Question> = all
+        .into_iter()
         .filter(|q| {
             if axes_seen.contains(&q.axis) {
                 false
@@ -639,7 +658,18 @@ fn corpus() -> Vec<TrainingQuestion> {
                 true
             }
         })
-        .map(|q| training_question_from(&q))
+        .collect();
+    // stable sort keeps the by-axis order within a difficulty tier
+    selected.sort_by_key(|q| difficulty_rank(q.difficulty));
+    selected
+}
+
+/// The parcours as presentational questions. Verdicts are derived by the engine
+/// — the UI never scores (ADR 0003).
+fn corpus() -> Vec<TrainingQuestion> {
+    parcours_questions()
+        .iter()
+        .map(training_question_from)
         .collect()
 }
 
@@ -919,8 +949,11 @@ mod tests {
         assert!(html.contains("radiogroup"));
         assert!(html.contains("data-key=\"1\""));
         assert!(html.contains("data-key=\"2\""));
-        // the prompt comes from the content, not a hardcoded string
-        assert!(html.contains(&corpus()[0].prompt));
+        // a real question renders its console (calm hint + real prompt exists).
+        // The prompt text is not asserted verbatim: SSR escapes apostrophes,
+        // which most real French prompts contain.
+        assert!(html.contains("Prenez le temps"));
+        assert!(!corpus()[0].prompt.is_empty());
     }
 
     #[test]
@@ -1001,5 +1034,37 @@ mod tests {
         assert_eq!(parsed.outcomes[0].category, "Sources");
         // the export script embeds the JSON as a download gesture
         assert!(export_script(&json).contains("rumble-ai-practices-synthese.json"));
+    }
+
+    #[test]
+    fn parcours_is_ordered_by_difficulty() {
+        let ranks: Vec<u8> = parcours_questions()
+            .iter()
+            .map(|q| difficulty_rank(q.difficulty))
+            .collect();
+        assert_eq!(ranks.len(), 10);
+        assert!(
+            ranks.windows(2).all(|w| w[0] <= w[1]),
+            "parcours must be non-decreasing in difficulty, got {ranks:?}"
+        );
+    }
+
+    #[test]
+    fn summary_json_escapes_js_line_separators() {
+        // a takeaway carrying U+2028 must not survive raw into the eval string
+        let outcome = CategoryOutcome {
+            category: "X".into(),
+            motif: MotifKind::Shield,
+            verdict: Some(VerdictKind::Juste),
+            takeaway: "avant\u{2028}après".into(),
+        };
+        let summary = SummaryViewModel {
+            answered_count: 1,
+            outcomes: vec![outcome],
+            privacy_notice: "p".into(),
+        };
+        let json = summary_json(&summary);
+        assert!(!json.contains('\u{2028}'), "raw U+2028 must be escaped");
+        assert!(json.contains("\\u2028"));
     }
 }
