@@ -678,7 +678,7 @@ body {
   gap: 10px;
   align-items: center;
   background: var(--color-accent);
-  color: var(--color-ink);
+  color: var(--color-accent-ink);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-cap);
   padding: 11px 20px;
@@ -691,7 +691,7 @@ body {
 }
 .validate-btn .cap {
   --cap: color-mix(in oklab, var(--color-accent) 100%, black 18%);
-  color: var(--color-ink);
+  color: var(--color-accent-ink);
 }
 .validate-btn:hover {
   filter: brightness(1.06);

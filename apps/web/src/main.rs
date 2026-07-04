@@ -11,8 +11,14 @@ mod web_app {
     use dioxus::prelude::*;
     use rumble_ai_practices_web::App;
 
-    const TOKENS_CSS: Asset = asset!("/assets/tokens.css");
-    const STYLES_CSS: Asset = asset!("/assets/styles.css");
+    const TOKENS_CSS: Asset = asset!(
+        "/assets/tokens.css",
+        AssetOptions::css().with_static_head(true)
+    );
+    const STYLES_CSS: Asset = asset!(
+        "/assets/styles.css",
+        AssetOptions::css().with_static_head(true)
+    );
     const MANIFEST: Asset = asset!("/assets/manifest.json");
     const ICON: Asset = asset!("/assets/icon.svg");
 
