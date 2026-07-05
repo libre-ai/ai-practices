@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "select choice_id, count(*) as \"count!\" from anonymous_question_answers where question_id = $1 group by choice_id",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "choice_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "count!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      null
+    ]
+  },
+  "hash": "4d56e8311067d30bb066383c0a50f335e6473d6c167bfa85aad5ce62daf62df2"
+}

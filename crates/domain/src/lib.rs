@@ -358,6 +358,26 @@ pub struct DistributionBucket {
     pub percent: f64,
 }
 
+/// One choice's share of the answers to a question — the vitrine "% des autres".
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QuestionChoiceShare {
+    pub choice_id: String,
+    pub percent: f64,
+}
+
+/// The anonymous distribution of answers for one question, gated by k-anonymity:
+/// below the threshold the shares are withheld (`min_cohort_size_met = false`),
+/// exactly like `DistributionPosition`, so a small cohort can't be de-anonymised.
+/// `total` is a bare aggregate count (no per-person data), safe to expose.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QuestionDistribution {
+    pub question_id: String,
+    pub min_cohort_size_met: bool,
+    pub total: u32,
+    #[serde(default)]
+    pub shares: Vec<QuestionChoiceShare>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ModuleRef {
     pub id: String,

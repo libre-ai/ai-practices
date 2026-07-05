@@ -12,7 +12,8 @@
 use dioxus::prelude::*;
 use rumble_ai_practices_content::parse_questions_yaml;
 use rumble_ai_practices_domain::{
-    AxisLevel, Difficulty, DistributionPosition, EvaluationLevel, Question, RiskAxis,
+    AxisLevel, Difficulty, DistributionPosition, EvaluationLevel, Question, QuestionDistribution,
+    RiskAxis,
 };
 use rumble_ai_practices_session::{complete_session, start_session, submit_answer};
 use rumble_ai_practices_ui::{
@@ -364,6 +365,8 @@ pub fn QuestionConsole(
     // "je ne sais pas" is a real, honest answer: it locks with no verdict and
     // reveals the reflex to know, rather than silently clearing the selection.
     let mut idk = use_signal(|| false);
+    // the anonymous "% des autres" for this question, fetched once on lock
+    let mut dist = use_signal(|| QuestionDistState::Loading);
 
     let choices = question.choices.clone();
     // the reflex to surface when the learner opts out of guessing
@@ -422,6 +425,25 @@ pub fn QuestionConsole(
     // parent can replay it through the engine for the cohort payload.
     let chosen_choice_id: Option<String> =
         sel_now.and_then(|i| choices.get(i).map(|choice| choice.id.clone()));
+
+    // On lock with a real verdict, record the answer and read back the anonymous
+    // "% des autres" (wasm-only, offline-first: any failure just shows nothing). A
+    // re-judge overwrites this client's vote server-side — it never double-counts.
+    let question_id = question.id.clone();
+    {
+        let chosen = chosen_choice_id.clone();
+        use_effect(move || {
+            if locked()
+                && let Some(choice_id) = chosen.clone()
+            {
+                let question_id = question_id.clone();
+                spawn(async move {
+                    let client_id = stable_client_id().await;
+                    dist.set(post_question_answer(question_id, client_id, choice_id).await);
+                });
+            }
+        });
+    }
 
     rsx! {
         div { class: "console",
@@ -566,6 +588,11 @@ pub fn QuestionConsole(
                                 }
                             }
                             FeedbackPanel { feedback: fb }
+                            QuestionShare {
+                                state: dist(),
+                                choices: choices.clone(),
+                                chosen_id: chosen_choice_id.clone(),
+                            }
                         },
                         (false, None) => rsx! {},
                     }
@@ -763,6 +790,127 @@ async fn stable_client_id() -> Option<String> {
 #[cfg(not(target_arch = "wasm32"))]
 async fn stable_client_id() -> Option<String> {
     None
+}
+
+/// The offline-first result of the per-question "% des autres" call. `Offline`
+/// (network/backend absent) and the below-k case render as nothing — the verdict
+/// already stands on its own; the distribution is a bonus when it is available.
+#[derive(Debug, Clone, PartialEq)]
+enum QuestionDistState {
+    Loading,
+    // built only by the wasm transport; the host stub always yields `Offline`.
+    #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+    Ready(QuestionDistribution),
+    Offline,
+}
+
+/// The client's verdict on one question, posted for the anonymous tally. Carries
+/// the opaque `raip_cohort_id` (idempotency key, no PII) and the chosen choice id.
+/// Constructed only by the wasm transport; dead on the host/SSR build.
+#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+#[derive(Debug, Clone, Serialize)]
+struct QuestionAnswerPayload {
+    client_id: Option<String>,
+    choice_id: String,
+}
+
+/// The API envelope read back (`{ data: {...} }`); `meta` is ignored.
+/// Deserialized only by the wasm transport; dead on the host/SSR build.
+#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+#[derive(Debug, Clone, Deserialize)]
+struct QuestionDistEnvelope {
+    data: QuestionDistribution,
+}
+
+/// POST the verdict to `/v1/questions/{id}/answers` and read back the k-anonymous
+/// distribution. Any failure degrades to `Offline` — never surfaced to the learner.
+#[cfg(target_arch = "wasm32")]
+async fn post_question_answer(
+    question_id: String,
+    client_id: Option<String>,
+    choice_id: String,
+) -> QuestionDistState {
+    use gloo_net::http::Request;
+
+    let payload = QuestionAnswerPayload {
+        client_id,
+        choice_id,
+    };
+    let url = format!("/v1/questions/{question_id}/answers");
+    let request = match Request::post(&url).json(&payload) {
+        Ok(request) => request,
+        Err(_) => return QuestionDistState::Offline,
+    };
+    match request.send().await {
+        Ok(response) if response.ok() => match response.json::<QuestionDistEnvelope>().await {
+            Ok(envelope) => QuestionDistState::Ready(envelope.data),
+            Err(_) => QuestionDistState::Offline,
+        },
+        _ => QuestionDistState::Offline,
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+async fn post_question_answer(
+    _question_id: String,
+    _client_id: Option<String>,
+    _choice_id: String,
+) -> QuestionDistState {
+    QuestionDistState::Offline
+}
+
+/// The anonymous "% des autres" panel shown under the verdict: how the cohort
+/// judged the same situation, the learner's own choice marked. Withheld below the
+/// k-anonymity threshold (nothing rather than a de-anonymisable sliver); silent
+/// while loading or offline — the verdict already stands alone.
+#[component]
+fn QuestionShare(
+    state: QuestionDistState,
+    choices: Vec<ChoiceViewModel>,
+    chosen_id: Option<String>,
+) -> Element {
+    let QuestionDistState::Ready(dist) = state else {
+        return rsx! {};
+    };
+    if !dist.min_cohort_size_met {
+        return rsx! {
+            p { class: "share-note",
+                "Encore peu de monde a jugé cette situation — reviens plus tard pour te situer."
+            }
+        };
+    }
+    let label_for = move |choice_id: &str| {
+        choices
+            .iter()
+            .find(|c| c.id == choice_id)
+            .map(|c| c.label.clone())
+            .unwrap_or_else(|| choice_id.to_string())
+    };
+    rsx! {
+        section { class: "share-panel", "aria-live": "polite",
+            p { class: "share-title", "Comment les autres ont jugé cette situation" }
+            div { class: "cohort-bars",
+                for share in dist.shares {
+                    {
+                        let is_you = chosen_id.as_deref() == Some(share.choice_id.as_str());
+                        let pct = format!("{:.0}", share.percent);
+                        let label = label_for(&share.choice_id);
+                        rsx! {
+                            div {
+                                class: if is_you { "cohort-bar you" } else { "cohort-bar" },
+                                "data-you": if is_you { "true" } else { "false" },
+                                span { class: "cohort-bar-label", "{label}" }
+                                span { class: "cohort-bar-track", aria_hidden: "true",
+                                    span { class: "cohort-bar-fill", style: "inline-size: {pct}%" }
+                                }
+                                span { class: "cohort-bar-pct", "{pct} %" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /// The end-of-parcours screen: the private local synthesis, the anonymous cohort

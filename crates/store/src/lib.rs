@@ -6,7 +6,10 @@
 //! user data). The schema holds **no nominative field**: a session is an opaque
 //! id and its per-axis practice levels.
 
-use rumble_ai_practices_domain::{AxisLevel, DistributionPosition, PracticeLevel, RiskAxis};
+use rumble_ai_practices_domain::{
+    AxisLevel, DistributionPosition, PracticeLevel, QuestionChoiceShare, QuestionDistribution,
+    RiskAxis,
+};
 use rumble_ai_practices_session::cohort;
 use sqlx::PgPool;
 
@@ -111,21 +114,29 @@ pub async fn cohort_levels(
     Ok(rows.iter().filter_map(|raw| level_from_db(raw)).collect())
 }
 
-/// Purge sessions past the retention window; returns the number deleted. The
-/// cutoff mirrors `cohort::is_expired` (strictly older than the window).
+/// Purge everything past the retention window — anonymous sessions and the
+/// per-question tally — and return the total rows deleted. The cutoff mirrors
+/// `cohort::is_expired` (strictly older than the window).
 pub async fn purge_expired(
     pool: &PgPool,
     now: i64,
     retention_days: i64,
 ) -> Result<u64, StoreError> {
     let cutoff = now.saturating_sub(retention_days.saturating_mul(86_400));
-    let result = sqlx::query!(
+    let sessions = sqlx::query!(
         "delete from anonymous_sessions where completed_at < $1",
         cutoff,
     )
     .execute(pool)
     .await?;
-    Ok(result.rows_affected())
+    // the per-question "% des autres" tally follows the same retention window
+    let answers = sqlx::query!(
+        "delete from anonymous_question_answers where created_at < $1",
+        cutoff,
+    )
+    .execute(pool)
+    .await?;
+    Ok(sessions.rows_affected() + answers.rows_affected())
 }
 
 /// Compute the k-anonymous distribution for an axis from the stored cohort, and
@@ -171,6 +182,85 @@ pub async fn distribution(
     .await?;
 
     Ok(position)
+}
+
+/// Record one client's answer to one question. Integrity-first: a client counts
+/// once per question (primary key), and a re-judge overwrites its choice rather
+/// than inflating the tally. `client_id` is the opaque `raip_cohort_id` —
+/// pseudonymous, never nominative (ADR 0006), and this table is never joined to
+/// the cohort tables.
+pub async fn record_question_answer(
+    pool: &PgPool,
+    client_id: &str,
+    question_id: &str,
+    choice_id: &str,
+    now: i64,
+) -> Result<(), StoreError> {
+    sqlx::query!(
+        "insert into anonymous_question_answers (client_id, question_id, choice_id, created_at) \
+         values ($1, $2, $3, $4) \
+         on conflict (client_id, question_id) \
+         do update set choice_id = excluded.choice_id, created_at = excluded.created_at",
+        client_id,
+        question_id,
+        choice_id,
+        now,
+    )
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+/// The k-anonymous distribution of answers for one question — the vitrine "% des
+/// autres" — plus an access audit (event only, no user data). Below k the shares
+/// are withheld so a small cohort can't be de-anonymised, mirroring `distribution`
+/// for the cohort. `k` is the caller's threshold (`cohort::DEFAULT_MIN_COHORT`).
+pub async fn question_distribution(
+    pool: &PgPool,
+    question_id: &str,
+    k: usize,
+    now: i64,
+) -> Result<QuestionDistribution, StoreError> {
+    let rows = sqlx::query!(
+        "select choice_id, count(*) as \"count!\" from anonymous_question_answers \
+         where question_id = $1 group by choice_id",
+        question_id,
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let total: i64 = rows.iter().map(|r| r.count).sum();
+    let met = total as usize >= k;
+
+    // withheld below k: reveal shares only when the cohort is large enough
+    let shares = if met {
+        rows.iter()
+            .map(|r| QuestionChoiceShare {
+                choice_id: r.choice_id.clone(),
+                percent: (r.count as f64) * 100.0 / (total as f64),
+            })
+            .collect()
+    } else {
+        Vec::new()
+    };
+
+    sqlx::query!(
+        "insert into question_access_audit (accessed_at, question_id, cohort_size, threshold_met) \
+         values ($1, $2, $3, $4)",
+        now,
+        question_id,
+        total as i32,
+        met,
+    )
+    .execute(pool)
+    .await?;
+
+    Ok(QuestionDistribution {
+        question_id: question_id.to_string(),
+        min_cohort_size_met: met,
+        total: total as u32,
+        shares,
+    })
 }
 
 #[cfg(test)]
@@ -273,6 +363,95 @@ mod tests {
         let sum: f64 = d.buckets.iter().map(|b| b.percent).sum();
         assert!((sum - 100.0).abs() < 1e-9);
         assert_eq!(d.user_bucket.as_deref(), Some("autonomie prudente"));
+    }
+
+    #[sqlx::test]
+    async fn question_distribution_withholds_below_k_and_audits(pool: PgPool) {
+        // k-1 distinct clients answer the same question -> withheld
+        for i in 0..(DEFAULT_MIN_COHORT - 1) {
+            record_question_answer(&pool, &format!("c{i}"), "q-x", "a", 1000)
+                .await
+                .unwrap();
+        }
+        let d = question_distribution(&pool, "q-x", DEFAULT_MIN_COHORT, 2000)
+            .await
+            .unwrap();
+        assert!(!d.min_cohort_size_met);
+        assert!(d.shares.is_empty());
+        assert_eq!(d.total, (DEFAULT_MIN_COHORT - 1) as u32);
+        // the access was audited, with the withheld flag
+        let (size, met): (i32, bool) = sqlx::query_as(
+            "select cohort_size, threshold_met from question_access_audit order by id desc limit 1",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(size, (DEFAULT_MIN_COHORT - 1) as i32);
+        assert!(!met);
+    }
+
+    #[sqlx::test]
+    async fn question_distribution_exposes_shares_at_k(pool: PgPool) {
+        // k clients: k-1 pick "a", 1 picks "b"
+        for i in 0..(DEFAULT_MIN_COHORT - 1) {
+            record_question_answer(&pool, &format!("a{i}"), "q-y", "a", 1000)
+                .await
+                .unwrap();
+        }
+        record_question_answer(&pool, "b0", "q-y", "b", 1000)
+            .await
+            .unwrap();
+        let d = question_distribution(&pool, "q-y", DEFAULT_MIN_COHORT, 2000)
+            .await
+            .unwrap();
+        assert!(d.min_cohort_size_met);
+        assert_eq!(d.total, DEFAULT_MIN_COHORT as u32);
+        let sum: f64 = d.shares.iter().map(|s| s.percent).sum();
+        assert!((sum - 100.0).abs() < 1e-9, "shares sum to 100%");
+        let a = d.shares.iter().find(|s| s.choice_id == "a").unwrap();
+        let expected = (DEFAULT_MIN_COHORT - 1) as f64 * 100.0 / DEFAULT_MIN_COHORT as f64;
+        assert!((a.percent - expected).abs() < 1e-9);
+    }
+
+    #[sqlx::test]
+    async fn re_judge_overwrites_choice_without_inflating(pool: PgPool) {
+        // integrity: same client answers "a" then re-judges "b" — one row, choice "b"
+        record_question_answer(&pool, "c", "q-z", "a", 1000)
+            .await
+            .unwrap();
+        record_question_answer(&pool, "c", "q-z", "b", 1500)
+            .await
+            .unwrap();
+        let (count, choice): (i64, String) = sqlx::query_as(
+            "select count(*), max(choice_id) from anonymous_question_answers where question_id = 'q-z'",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(count, 1, "one client counts once per question");
+        assert_eq!(choice, "b", "the latest judgement wins");
+    }
+
+    #[sqlx::test]
+    async fn purge_removes_expired_question_answers(pool: PgPool) {
+        let now = 1_000_000i64;
+        let window = DEFAULT_RETENTION_DAYS * 86_400;
+        // one expired answer + one recent, on the same question
+        record_question_answer(&pool, "old", "q", "a", now - window - 10)
+            .await
+            .unwrap();
+        record_question_answer(&pool, "new", "q", "a", now)
+            .await
+            .unwrap();
+        purge_expired(&pool, now, DEFAULT_RETENTION_DAYS)
+            .await
+            .unwrap();
+        let remaining: i64 =
+            sqlx::query_scalar("select count(*) from anonymous_question_answers")
+                .fetch_one(&pool)
+                .await
+                .unwrap();
+        assert_eq!(remaining, 1, "only the recent answer survives the purge");
     }
 
     #[sqlx::test]

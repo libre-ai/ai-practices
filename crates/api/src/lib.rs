@@ -13,7 +13,7 @@ use axum::routing::{any, get, post};
 use axum::{Json, Router};
 use rumble_ai_practices_domain::{
     AnswerEvaluation, AxisLevel, DistributionPosition, EvaluationLevel, FeedbackCard, Interaction,
-    Question, QuestionId, ScenarioContext, SessionSummary, SourceRef,
+    Question, QuestionDistribution, QuestionId, ScenarioContext, SessionSummary, SourceRef,
 };
 use rumble_ai_practices_session::cohort::{DEFAULT_MIN_COHORT, DEFAULT_RETENTION_DAYS};
 use rumble_ai_practices_session::{
@@ -154,6 +154,12 @@ fn api_routes(state: ApiState) -> Router {
         // offline-first: the client runs the parcours locally and posts only its
         // anonymous result here to be situated against the cohort (ADR 0006).
         .route("/v1/cohort", post(cohort_position))
+        // per-question "% des autres": the client posts its verdict and reads back
+        // the k-anonymous distribution (ADR 0006 — anonymous, integrity-first).
+        .route(
+            "/v1/questions/{question_id}/answers",
+            post(question_answer),
+        )
         .with_state(state)
 }
 
@@ -431,6 +437,48 @@ async fn cohort_position(
         .unwrap_or_else(|| Uuid::new_v4().to_string());
     let positions = enrich_cohort(pool, &anon_id, &request.axis_levels).await?;
     Ok(Json(ApiEnvelope::new(positions)))
+}
+
+/// A client's verdict on one question, for the anonymous "% des autres" tally.
+/// `client_id` is the opaque idempotency key (the same `raip_cohort_id` the
+/// cohort uses) so a client counts once per question; never nominative (ADR 0006).
+#[derive(Debug, Clone, Deserialize)]
+pub struct QuestionAnswerRequest {
+    #[serde(default)]
+    pub client_id: Option<String>,
+    pub choice_id: String,
+}
+
+/// Record one verdict and read back the k-anonymous distribution for that
+/// question. Integrity-first: a client counts once per question (a re-judge
+/// overwrites its choice); below k the shares are withheld. Offline-first on the
+/// client — any failure simply means no "% des autres" is shown.
+async fn question_answer(
+    State(state): State<ApiState>,
+    Path(question_id): Path<String>,
+    Json(request): Json<QuestionAnswerRequest>,
+) -> Result<Json<ApiEnvelope<QuestionDistribution>>, ApiError> {
+    if question_id.trim().is_empty() {
+        return Err(ApiError::bad_request("question_id must not be empty"));
+    }
+    if request.choice_id.trim().is_empty() {
+        return Err(ApiError::bad_request("choice_id must not be empty"));
+    }
+    let Some(pool) = &state.store else {
+        return Err(ApiError::unavailable("cohort backend not configured"));
+    };
+    let now = now_epoch_secs();
+    let client_id = request
+        .client_id
+        .filter(|id| !id.trim().is_empty())
+        .unwrap_or_else(|| Uuid::new_v4().to_string());
+    store::record_question_answer(pool, &client_id, &question_id, &request.choice_id, now)
+        .await
+        .map_err(ApiError::internal)?;
+    let distribution = store::question_distribution(pool, &question_id, DEFAULT_MIN_COHORT, now)
+        .await
+        .map_err(ApiError::internal)?;
+    Ok(Json(ApiEnvelope::new(distribution)))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -1136,6 +1184,64 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(count, 1);
+    }
+
+    // ---- per-question distribution endpoint (POST /v1/questions/{id}/answers) ----
+
+    async fn post_question_answer(app: &Router, qid: &str, body: &str) -> axum::response::Response {
+        app.clone()
+            .oneshot(
+                Request::builder()
+                    .method(Method::POST)
+                    .uri(format!("/v1/questions/{qid}/answers"))
+                    .header("content-type", "application/json")
+                    .body(Body::from(body.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap()
+    }
+
+    #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    async fn question_answers_withhold_below_k_and_count_once(pool: PgPool) {
+        let app = router_with_state(ApiState::with_store(vec![question()], pool.clone()));
+        let resp =
+            post_question_answer(&app, "q-1", r#"{"client_id":"c1","choice_id":"a"}"#).await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        let json = response_json(resp).await;
+        // cohort of 1 < k -> shares withheld
+        assert_eq!(json["data"]["min_cohort_size_met"], false);
+        assert_eq!(json["data"]["total"], 1);
+        assert!(json["data"]["shares"].as_array().unwrap().is_empty());
+
+        // same client re-judging is idempotent: still one row for the question
+        let _ = post_question_answer(&app, "q-1", r#"{"client_id":"c1","choice_id":"b"}"#).await;
+        let count: i64 = sqlx::query_scalar(
+            "select count(*) from anonymous_question_answers where question_id = 'q-1'",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+        assert_eq!(count, 1);
+    }
+
+    #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    async fn question_answers_expose_shares_at_k(pool: PgPool) {
+        let app = router_with_state(ApiState::with_store(vec![question()], pool.clone()));
+        let k = rumble_ai_practices_session::cohort::DEFAULT_MIN_COHORT;
+        // k distinct clients answer the same question -> shares revealed
+        for i in 0..k {
+            let body = format!(r#"{{"client_id":"c{i}","choice_id":"a"}}"#);
+            let resp = post_question_answer(&app, "q-2", &body).await;
+            assert_eq!(resp.status(), StatusCode::OK);
+        }
+        let resp =
+            post_question_answer(&app, "q-2", r#"{"client_id":"cX","choice_id":"a"}"#).await;
+        let json = response_json(resp).await;
+        assert_eq!(json["data"]["min_cohort_size_met"], true);
+        let shares = json["data"]["shares"].as_array().unwrap();
+        let sum: f64 = shares.iter().map(|s| s["percent"].as_f64().unwrap()).sum();
+        assert!((sum - 100.0).abs() < 1e-9);
     }
 
     #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
