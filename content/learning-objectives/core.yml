@@ -1,0 +1,60 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: lo-understand-ai-output-beginner
+    status: draft
+    competency_id: comp-understand-ai-output
+    level: awareness
+    concept_ids: [concept-ai-output-not-proof]
+    risk_ids: [risk-critical-omission]
+    observable_outcome: L'utilisateur identifie qu'une réponse IA plausible doit être vérifiée avant usage à enjeu.
+  - id: lo-protect-data-guided
+    status: draft
+    competency_id: comp-protect-data
+    level: guided
+    concept_ids: [concept-personal-data, concept-data-minimization]
+    risk_ids: [risk-pii-leak, risk-secret-leakage]
+    observable_outcome: L'utilisateur refuse d'envoyer des données sensibles à un outil non autorisé.
+  - id: lo-check-source-guided
+    status: draft
+    competency_id: comp-check-source
+    level: guided
+    concept_ids: [concept-source-verification, concept-primary-source]
+    risk_ids: [risk-hallucinated-source, risk-misattribution]
+    observable_outcome: L'utilisateur vérifie une source primaire avant de réutiliser un claim.
+  - id: lo-frame-task-guided
+    status: draft
+    competency_id: comp-frame-task
+    level: guided
+    concept_ids: [concept-task-framing, concept-safe-context]
+    risk_ids: [risk-confidential-document-leak]
+    observable_outcome: L'utilisateur reformule une demande IA sans exposer de données non nécessaires.
+  - id: lo-rag-source-intermediate
+    status: draft
+    competency_id: comp-check-source
+    level: autonomous
+    concept_ids: [concept-rag, concept-groundedness]
+    risk_ids: [risk-obsolete-context, risk-misattribution]
+    observable_outcome: L'utilisateur vérifie fraîcheur, pertinence et attribution d'une réponse RAG.
+  - id: lo-agent-permission-advanced
+    status: draft
+    competency_id: comp-secure-agent-tools
+    level: autonomous
+    concept_ids: [concept-agent, concept-least-privilege]
+    risk_ids: [risk-excessive-agent-permission, risk-unsafe-action-automation]
+    observable_outcome: L'utilisateur limite les permissions d'un agent et exige validation avant action externe.
+  - id: lo-bias-media-guided
+    status: draft
+    competency_id: comp-handle-bias
+    level: guided
+    concept_ids: [concept-bias, concept-synthetic-media]
+    risk_ids: [risk-bias-stereotype, risk-synthetic-human-media]
+    observable_outcome: L'utilisateur demande une revue biais/provenance avant usage d'un média IA sensible.
+  - id: lo-no-rh-scoring-awareness
+    status: draft
+    competency_id: comp-human-accountability
+    level: awareness
+    concept_ids: [concept-training-not-rh-evaluation]
+    risk_ids: [risk-rh-scoring]
+    observable_outcome: L'utilisateur identifie qu'un score de formation ne doit pas devenir un classement RH nominatif.

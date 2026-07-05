@@ -1,0 +1,45 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: path-ai-practices-basics
+    status: draft
+    label: Réflexes IA essentiels
+    target_level: beginner
+    objectives:
+      - lo-understand-ai-output-beginner
+      - lo-protect-data-guided
+      - lo-check-source-guided
+    remediation_for: [hallucination, privacy_rgpd, source_verification]
+  - id: path-data-and-privacy
+    status: draft
+    label: Données, confidentialité et RGPD
+    target_level: intermediate
+    objectives:
+      - lo-protect-data-guided
+      - lo-frame-task-guided
+    remediation_for: [privacy_rgpd, data_confidentiality, security]
+  - id: path-sources-and-reliability
+    status: draft
+    label: Sources, hallucinations et fiabilité
+    target_level: intermediate
+    objectives:
+      - lo-check-source-guided
+      - lo-rag-source-intermediate
+    remediation_for: [source_verification, hallucination]
+  - id: path-security-and-agents
+    status: draft
+    label: Sécurité, RAG et agents
+    target_level: advanced
+    objectives:
+      - lo-agent-permission-advanced
+      - lo-rag-source-intermediate
+    remediation_for: [security, human_responsibility]
+  - id: path-bias-media-responsibility
+    status: draft
+    label: Biais, médias synthétiques et responsabilité
+    target_level: intermediate
+    objectives:
+      - lo-bias-media-guided
+      - lo-no-rh-scoring-awareness
+    remediation_for: [bias_fairness, media_synthetic, business_context]

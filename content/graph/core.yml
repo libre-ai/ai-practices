@@ -1,0 +1,30 @@
+version: 1
+status: draft
+locale: fr-FR
+nodes:
+  - { id: concept-ai-output-not-proof, type: Concept }
+  - { id: concept-source-verification, type: Concept }
+  - { id: concept-data-minimization, type: Concept }
+  - { id: concept-rag, type: Concept }
+  - { id: concept-agent, type: Concept }
+  - { id: comp-check-source, type: Competency }
+  - { id: comp-protect-data, type: Competency }
+  - { id: comp-secure-agent-tools, type: Competency }
+  - { id: risk-hallucinated-source, type: Risk }
+  - { id: risk-pii-leak, type: Risk }
+  - { id: risk-excessive-agent-permission, type: Risk }
+edges:
+  - { from: source-nist-ai-rmf-1-0, type: evidences, to: claim-ai-output-not-proof }
+  - { from: source-eu-gdpr-2016-679, type: evidences, to: claim-data-minimization-before-ai }
+  - { from: source-lewis-rag-2020, type: evidences, to: claim-rag-does-not-guarantee-truth }
+  - { from: concept-ai-output-not-proof, type: supports_competency, to: comp-understand-ai-output }
+  - { from: concept-source-verification, type: supports_competency, to: comp-check-source }
+  - { from: concept-source-verification, type: mitigates, to: risk-hallucinated-source }
+  - { from: concept-data-minimization, type: mitigates, to: risk-pii-leak }
+  - { from: concept-rag, type: creates_risk, to: risk-misattribution }
+  - { from: concept-agent, type: creates_risk, to: risk-excessive-agent-permission }
+  - { from: concept-least-privilege, type: mitigates, to: risk-excessive-agent-permission }
+  - { from: lo-check-source-guided, type: targets, to: comp-check-source }
+  - { from: lo-protect-data-guided, type: targets, to: comp-protect-data }
+  - { from: path-ai-practices-basics, type: remediates, to: risk-hallucinated-source }
+  - { from: path-data-and-privacy, type: remediates, to: risk-pii-leak }

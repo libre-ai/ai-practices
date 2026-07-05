@@ -1,0 +1,556 @@
+- id: q-seed-data-minimization-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Réduire les données avant de demander une synthèse
+  axis: privacy_rgpd
+  difficulty: beginner
+  intent: Faire appliquer la minimisation des données avant l'usage d'un assistant IA sur un contenu contenant des informations personnelles.
+  context:
+    role: chargé de support
+    scenario: Vous voulez faire résumer des retours utilisateurs par un assistant IA. Le fichier contient des adresses e-mail et des détails de situation personnelle fictifs.
+  prompt: Quelle est la meilleure action avant l'envoi ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: minimize_and_authorized_tool
+      label: Retirer les données personnelles non nécessaires et utiliser uniquement un outil autorisé.
+      score: 1.0
+      feedback: Correct. La minimisation réduit le risque et l'outil autorisé permet d'encadrer le traitement.
+    - id: send_because_feedback
+      label: Envoyer le fichier tel quel car ce sont seulement des retours utilisateurs.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Des retours utilisateurs peuvent contenir des données personnelles et ne doivent pas être exposés sans cadre.
+    - id: remove_names_only
+      label: Supprimer seulement les noms puis envoyer le reste.
+      score: -0.5
+      severity: medium
+      feedback: Partiel. Retirer les noms ne suffit pas si d'autres éléments permettent d'identifier une personne.
+  expected_reasoning:
+    - Minimiser les données avant tout traitement IA.
+    - Vérifier l'outil autorisé et la finalité.
+  risks:
+    - risk-pii-leak
+    - risk-confidential-document-leak
+  sources:
+    - id: source-eu-gdpr-2016-679
+      label: RGPD — principes de minimisation et finalité
+      url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+      type: law
+    - id: source-cnil-ai
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: "Draft corpus seed. Liens conceptuels prévus: concept-data-minimization, comp-protect-data, lo-protect-data-guided."
+
+- id: q-seed-source-verification-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Une source citée doit être ouverte
+  axis: source_verification
+  difficulty: beginner
+  intent: Montrer qu'une citation fournie par IA doit être vérifiée dans la source primaire avant d'être reprise.
+  context:
+    role: chargé de veille
+    scenario: Une IA fournit une affirmation chiffrée avec un lien vers un rapport public.
+  prompt: Que faites-vous avant d'insérer l'affirmation dans votre note ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: open_primary_source
+      label: Ouvrir la source primaire et vérifier que le passage soutient bien l'affirmation.
+      score: 1.0
+      feedback: Correct. Une source citée peut exister sans soutenir le claim exact.
+    - id: trust_because_link
+      label: Faire confiance parce que le lien existe.
+      score: -1.0
+      severity: high
+      feedback: Risqué. L'existence d'un lien ne prouve ni la pertinence ni l'exactitude de l'affirmation.
+    - id: ask_ai_if_sure
+      label: Demander à la même IA si elle est certaine.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Une confirmation par le même système n'est pas une vérification indépendante.
+  expected_reasoning:
+    - Une citation affichée n'est pas une preuve.
+    - Le passage source doit soutenir le claim.
+  risks:
+    - risk-hallucinated-source
+    - risk-misattribution
+  sources:
+    - id: source-nist-ai-rmf-1-0
+      label: NIST AI Risk Management Framework
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: "Draft corpus seed. Liens conceptuels prévus: concept-source-verification, comp-check-source."
+
+- id: q-seed-rag-freshness-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Une réponse RAG peut citer une procédure obsolète
+  axis: source_verification
+  difficulty: intermediate
+  intent: Faire vérifier la date et la version d'une source récupérée par un système RAG avant application.
+  context:
+    role: responsable opérations
+    scenario: L'assistant interne répond à partir d'une procédure retrouvée dans le drive. La procédure citée date d'il y a trois ans.
+  prompt: Quelle vérification est prioritaire ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: check_current_version
+      label: Vérifier qu'il s'agit de la version actuelle de la procédure avant de l'appliquer.
+      score: 1.0
+      feedback: Correct. Le RAG peut retrouver un document réel mais obsolète ; la version et la date comptent.
+    - id: trust_internal_rag
+      label: Appliquer la réponse car l'assistant est interne.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Interne ne signifie pas automatiquement à jour, autorisé ou complet.
+    - id: ask_for_more_sources
+      label: Demander plus de sources sans vérifier la version.
+      score: -0.2
+      severity: low
+      feedback: Partiel. Plus de sources peut aider, mais la priorité est de vérifier la version applicable.
+  expected_reasoning:
+    - Une source récupérée peut être obsolète.
+    - La procédure applicable dépend de la version en vigueur.
+  risks:
+    - risk-obsolete-context
+    - risk-misattribution
+  sources:
+    - id: source-lewis-rag-2020
+      label: Lewis et al. — Retrieval-Augmented Generation
+      url: https://arxiv.org/abs/2005.11401
+      type: documentation
+    - id: source-nist-ai-rmf-1-0
+      label: NIST AI Risk Management Framework
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: "Draft corpus seed. Liens conceptuels prévus: concept-rag, concept-groundedness, lo-rag-source-intermediate."
+
+- id: q-seed-agent-permission-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Un agent qui peut envoyer des messages doit être limité
+  axis: security
+  difficulty: advanced
+  intent: Faire appliquer le moindre privilège et la validation humaine avant une action externe d'un agent IA.
+  context:
+    role: chef de projet
+    scenario: Vous configurez un agent IA pour préparer des réponses à des partenaires. L'outil propose aussi d'envoyer automatiquement les messages.
+  prompt: Quelle configuration est la plus sûre ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: draft_only_with_human_approval
+      label: Limiter l'agent à la préparation de brouillons et exiger une validation humaine avant tout envoi.
+      score: 1.0
+      feedback: Correct. Une action externe doit rester sous contrôle humain avec permissions minimales.
+    - id: allow_auto_send
+      label: Autoriser l'envoi automatique pour gagner du temps.
+      score: -1.5
+      severity: high
+      feedback: Risqué. L'agent pourrait envoyer une information incorrecte, sensible ou non validée.
+    - id: give_full_mailbox_access
+      label: Donner accès complet à la boîte mail pour améliorer le contexte.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Le contexte ne justifie pas des permissions larges ; appliquer le moindre privilège.
+  expected_reasoning:
+    - Un agent avec outil peut produire des effets externes.
+    - Les permissions doivent être limitées et les actions validées.
+  risks:
+    - risk-excessive-agent-permission
+    - risk-unsafe-action-automation
+  sources:
+    - id: source-owasp-llm-top10
+      label: OWASP Top 10 for LLM Applications
+      url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+      type: public_guidance
+    - id: source-mitre-atlas
+      label: MITRE ATLAS
+      url: https://atlas.mitre.org/
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: "Draft corpus seed. Liens conceptuels prévus: concept-agent, concept-least-privilege, comp-secure-agent-tools."
+
+- id: q-seed-bias-media-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Une image IA de personnes n'est pas une décoration neutre
+  axis: media_synthetic
+  difficulty: intermediate
+  intent: Faire reconnaître qu'un média synthétique représentant des personnes nécessite une justification, une provenance et une revue biais.
+  context:
+    role: communicant interne
+    scenario: Pour illustrer une campagne sur l'IA, un générateur propose une image réaliste de collaborateurs fictifs autour d'une table.
+  prompt: Que faut-il faire avant d'utiliser cette image ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: avoid_or_audit
+      label: Éviter l'image humaine réaliste ou documenter sa provenance et la faire auditer pour les biais.
+      score: 1.0
+      feedback: Correct. Un média synthétique humain peut créer confusion, stéréotypes ou problèmes de consentement perçu.
+    - id: use_because_fictional
+      label: L'utiliser librement car les personnes sont fictives.
+      score: -1.0
+      severity: high
+      feedback: "Risqué. Fictif ne signifie pas neutre : représentation, provenance et effet sur le public doivent être examinés."
+    - id: crop_faces
+      label: Recadrer légèrement les visages et publier.
+      score: -0.5
+      severity: medium
+      feedback: Partiel. Recadrer ne règle pas la provenance ni le risque de représentation biaisée.
+  expected_reasoning:
+    - Les médias synthétiques humains demandent une justification et une revue.
+    - La représentation peut être biaisée même si les personnes sont fictives.
+  risks:
+    - risk-synthetic-human-media
+    - risk-bias-stereotype
+  sources:
+    - id: source-nist-ai-rmf-1-0
+      label: NIST AI Risk Management Framework
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Draft corpus seed. À relire avec la grille média avant passage review.
+
+- id: q-seed-no-rh-scoring-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Un score de formation n'est pas un classement RH
+  axis: business_context
+  difficulty: beginner
+  intent: Empêcher la transformation d'un résultat pédagogique en classement nominatif ou usage RH implicite.
+  context:
+    role: responsable formation
+    scenario: Après un parcours IA, un manager demande la liste nominative des personnes ayant obtenu les scores les plus bas.
+  prompt: Quelle réponse respecte la finalité pédagogique ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: provide_aggregated_axes
+      label: Refuser le classement nominatif et fournir seulement des agrégats par axe si les seuils de confidentialité sont respectés.
+      score: 1.0
+      feedback: Correct. Le parcours sert la progression ; les résultats organisationnels doivent rester agrégés et non disciplinaires.
+    - id: send_low_scores
+      label: Envoyer la liste des scores faibles pour action managériale.
+      score: -2.0
+      severity: critical
+      feedback: À bloquer. Cela transforme un outil pédagogique en évaluation RH nominative.
+    - id: send_if_manager_promises
+      label: Envoyer la liste si le manager promet de ne pas sanctionner.
+      score: -1.0
+      severity: high
+      feedback: Risqué. La finalité et la minimisation ne reposent pas sur une promesse informelle.
+  expected_reasoning:
+    - Le scoring est pédagogique et privé.
+    - Les agrégats organisationnels doivent éviter la réidentification et l'usage RH.
+  risks:
+    - risk-rh-scoring
+  sources:
+    - id: source-nist-ai-rmf-1-0
+      label: NIST AI Risk Management Framework
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Draft corpus seed. À relier aux ADR no-RH-scoring.
+
+- id: q-seed-confidential-brouillon-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Un brouillon destiné au public peut rester confidentiel
+  axis: data_confidentiality
+  difficulty: beginner
+  intent: Faire vérifier le contenu réel d'un brouillon avant tout usage IA, même si le document est destiné à publication.
+  context:
+    role: rédacteur produit
+    scenario: Vous voulez faire relire par un assistant IA externe un brouillon d'article qui sera publié plus tard. Le fichier peut contenir commentaires, noms de projets internes et métadonnées.
+  prompt: Quelle est la bonne démarche avant l'envoi ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: inspect_and_sanitize
+      label: Vérifier le contenu réel, retirer les éléments internes et utiliser seulement un outil autorisé.
+      score: 1.0
+      feedback: Correct. L'intention de publication ne garantit pas que le brouillon actuel soit dépourvu d'informations internes.
+    - id: send_because_future_public
+      label: Envoyer directement car l'article sera public.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Un brouillon peut contenir commentaires, métadonnées ou informations de roadmap.
+    - id: rename_file_public
+      label: Renommer le fichier en public puis l'envoyer.
+      score: -0.5
+      severity: medium
+      feedback: Insuffisant. Le nom du fichier ne change pas la sensibilité du contenu réel.
+  expected_reasoning:
+    - La sensibilité dépend du contenu réel, pas de l'intention future.
+    - Les métadonnées et commentaires doivent être vérifiés.
+  risks:
+    - risk-confidential-document-leak
+    - risk-secret-leakage
+  sources:
+    - id: source-internal-data-classification-policy
+      label: Politique interne de classification des données
+      url: internal://data-classification
+      type: internal_policy
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: Draft corpus seed. Source interne placeholder à remplacer avant review.
+
+- id: q-seed-hallucination-recent-event-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Un ton assuré ne prouve pas l'actualité d'une information
+  axis: hallucination
+  difficulty: beginner
+  intent: Faire vérifier l'actualité d'une réponse IA lorsque l'information peut avoir changé récemment.
+  context:
+    role: analyste métier
+    scenario: Une IA répond avec assurance sur une règle très récente et donne plusieurs détails, mais vous ne savez pas si son accès aux informations est à jour.
+  prompt: Quelle attitude adopter avant de réutiliser la réponse ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: verify_current_source
+      label: Vérifier dans une source officielle ou à jour avant de réutiliser l'information.
+      score: 1.0
+      feedback: Correct. Un ton assuré ne prouve ni l'actualité ni l'exactitude d'une réponse.
+    - id: trust_confident_details
+      label: Faire confiance car la réponse est détaillée et confiante.
+      score: -1.0
+      severity: high
+      feedback: Risqué. La précision du style peut masquer une information obsolète ou inventée.
+    - id: ask_same_ai_again
+      label: Demander à la même IA de confirmer et s'arrêter là.
+      score: -0.5
+      severity: medium
+      feedback: Partiel. Une confirmation par le même système ne remplace pas une source à jour.
+  expected_reasoning:
+    - L'actualité d'une information dépend de sources à jour.
+    - La confiance apparente d'une réponse ne vaut pas preuve.
+  risks:
+    - risk-obsolete-context
+    - risk-critical-omission
+  sources:
+    - id: source-nist-ai-rmf-1-0
+      label: NIST AI Risk Management Framework
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: "Draft corpus seed. Liens conceptuels prévus: concept-overconfidence, comp-detect-hallucination."
+
+- id: q-seed-prompt-safe-context-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Donner du contexte sans exposer le client
+  axis: prompt_practice
+  difficulty: intermediate
+  intent: Faire formuler une demande IA utile en retirant les informations sensibles non nécessaires.
+  context:
+    role: consultant
+    scenario: Vous voulez demander à une IA de reformuler une synthèse de réunion client. Le texte contient noms, montants et détails contractuels fictifs mais sensibles.
+  prompt: Comment cadrer la demande ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: abstract_sensitive_context
+      label: Retirer ou généraliser les éléments sensibles, puis donner seulement le contexte nécessaire à la reformulation.
+      score: 1.0
+      feedback: Correct. Un bon cadrage donne assez de contexte pour la tâche sans exposer des données inutiles.
+    - id: paste_full_transcript
+      label: Coller toute la synthèse pour que l'IA comprenne mieux.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Plus de contexte peut améliorer la réponse mais augmente l'exposition de données sensibles.
+    - id: remove_prompt_details
+      label: Ne donner aucun contexte et demander une reformulation générique.
+      score: 0.0
+      severity: low
+      feedback: Peu utile. Réduire le contexte protège les données, mais il faut conserver les contraintes non sensibles nécessaires à la tâche.
+  expected_reasoning:
+    - Le contexte fourni doit être utile et minimisé.
+    - Les données sensibles non nécessaires doivent être retirées ou généralisées.
+  risks:
+    - risk-confidential-document-leak
+    - risk-pii-leak
+  sources:
+    - id: source-cnil-ai
+      label: CNIL — Intelligence artificielle et protection des données
+      url: https://www.cnil.fr/fr/intelligence-artificielle
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: "Draft corpus seed. Liens conceptuels prévus: concept-task-framing, concept-safe-context, comp-frame-task."
+
+- id: q-seed-human-review-decision-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Une décision à impact ne se délègue pas à l'IA seule
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: Maintenir une revue humaine compétente lorsqu'une sortie IA influence une décision à impact.
+  context:
+    role: responsable de service
+    scenario: Une IA classe des demandes fictives par priorité et recommande d'en refuser certaines. Ces refus pourraient avoir un impact important pour les personnes concernées.
+  prompt: Quelle est la conduite responsable ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: human_review_before_decision
+      label: Utiliser la sortie comme aide, puis faire une revue humaine compétente avant toute décision.
+      score: 1.0
+      feedback: Correct. Une décision à impact exige supervision, justification et possibilité de contester ou corriger.
+    - id: automate_refusals
+      label: Appliquer automatiquement les refus recommandés par l'IA.
+      score: -1.5
+      severity: high
+      feedback: Risqué. La sortie IA peut être erronée, biaisée ou incomplète et ne doit pas porter seule la décision.
+    - id: hide_ai_influence
+      label: Ne pas mentionner l'utilisation de l'IA pour éviter d'inquiéter.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Masquer l'usage de l'IA nuit à la traçabilité et à la responsabilité.
+  expected_reasoning:
+    - L'IA peut assister mais pas assumer seule une décision à impact.
+    - La revue humaine doit être réelle, compétente et documentée.
+  risks:
+    - risk-unsafe-action-automation
+    - risk-critical-omission
+  sources:
+    - id: source-nist-ai-rmf-1-0
+      label: NIST AI Risk Management Framework
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+    - id: source-eu-ai-act-2024-1689
+      label: Règlement (UE) 2024/1689 — AI Act
+      url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+      type: law
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Draft corpus seed. À relire juridiquement selon cas d'usage exact.
+
+- id: q-seed-bias-stereotype-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Un exemple généré peut renforcer un stéréotype
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: Faire détecter un biais de représentation dans des exemples ou personas générés par IA.
+  context:
+    role: concepteur formation
+    scenario: Une IA génère des exemples de métiers pour une formation. Les rôles techniques sont tous associés à des hommes et les rôles d'assistance à des femmes.
+  prompt: Que faire avant d'utiliser ces exemples ?
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: review_and_rebalance
+      label: Identifier le stéréotype, rééquilibrer les exemples et faire relire si nécessaire.
+      score: 1.0
+      feedback: Correct. Les exemples pédagogiques doivent éviter de renforcer des associations stéréotypées.
+    - id: keep_because_generated
+      label: Les conserver car ils ont été générés automatiquement et ne visent personne.
+      score: -1.0
+      severity: high
+      feedback: Risqué. Un contenu généré peut reproduire ou amplifier des biais même sans intention explicite.
+    - id: randomize_names_only
+      label: Changer seulement les prénoms sans revoir les rôles.
+      score: -0.5
+      severity: medium
+      feedback: Partiel. Modifier les prénoms ne corrige pas l'association stéréotypée entre rôles et groupes.
+  expected_reasoning:
+    - Les exemples générés doivent être relus sous l'angle des représentations.
+    - La correction doit agir sur la structure du stéréotype, pas seulement les labels.
+  risks:
+    - risk-bias-stereotype
+  sources:
+    - id: source-bender-stochastic-parrots-2021
+      label: Bender et al. — On the Dangers of Stochastic Parrots
+      url: https://doi.org/10.1145/3442188.3445922
+      type: documentation
+    - id: source-nist-ai-rmf-1-0
+      label: NIST AI Risk Management Framework
+      url: https://www.nist.gov/itl/ai-risk-management-framework
+      type: public_guidance
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: medium
+    notes: Draft corpus seed. À relire avec la grille biais avant passage review.
