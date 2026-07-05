@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposée — en attente de ratification. **Étend ADR 0006** (cohorte k-anonyme) de la granularité **par-axe** à la granularité **par-item**. Hérite de tous les invariants de 0006.
+Acceptée. **Étend ADR 0006** (cohorte k-anonyme) de la granularité **par-axe** à la granularité **par-item**. Hérite de tous les invariants de 0006.
 
 ## Contexte
 

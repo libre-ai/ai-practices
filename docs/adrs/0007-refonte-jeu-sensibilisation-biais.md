@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposée — en attente de ratification. **Supersède** le cadre « augment » du plan `2026-07-drill-formats.md` et **amende la posture d'affichage** d'ADR 0003 (autorise un positionnement anonyme non-compétitif).
+Acceptée. **Supersède** le cadre « augment » du plan `2026-07-drill-formats.md` et **amende la posture d'affichage** d'ADR 0003 (autorise un positionnement anonyme non-compétitif).
 
 ## Contexte
 

@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposée — en attente de ratification. **Amende ADR 0004** (revue biais médias) pour le cas d'usage « analyse de biais » du jeu de sensibilisation (ADR 0007).
+Acceptée. **Amende ADR 0004** (revue biais médias) pour le cas d'usage « analyse de biais » du jeu de sensibilisation (ADR 0007).
 
 ## Contexte
 
