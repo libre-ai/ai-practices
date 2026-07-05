@@ -155,8 +155,11 @@ fn validate_choice_count(question: &Question, actual: usize) -> Result<(), Sessi
         .interaction
         .min_choices
         .unwrap_or(default_min as u32) as usize;
+    // A media review is a single verdict on the media (biased/authentic/…),
+    // so it is single-select by default like SingleChoice. Authors may still
+    // widen it with an explicit max_choices.
     let default_max = match question.interaction.kind {
-        InteractionType::SingleChoice => 1,
+        InteractionType::SingleChoice | InteractionType::MediaReview => 1,
         _ => question.choices.len(),
     };
     let max = question
@@ -356,6 +359,69 @@ mod tests {
         )
         .unwrap();
         assert_eq!(evaluation.level, EvaluationLevel::Correct);
+    }
+
+    fn media_review_question() -> Question {
+        let mut q = question();
+        q.id = QuestionId::parse("q-media-001").unwrap();
+        q.interaction = Interaction {
+            kind: InteractionType::MediaReview,
+            min_choices: None,
+            max_choices: None,
+        };
+        q.media = vec!["asset.webp".into()];
+        q.choices = vec![
+            Choice {
+                id: "biased".into(),
+                label: "Biaisé".into(),
+                score: 1.0,
+                severity: None,
+                feedback: "Vu.".into(),
+            },
+            Choice {
+                id: "neutral".into(),
+                label: "Neutre".into(),
+                score: -1.0,
+                severity: None,
+                feedback: "Le piège.".into(),
+            },
+            Choice {
+                id: "unsure".into(),
+                label: "Incertain".into(),
+                score: 0.0,
+                severity: None,
+                feedback: "Nuance.".into(),
+            },
+        ];
+        q
+    }
+
+    #[test]
+    fn media_review_defaults_to_single_verdict() {
+        // A media review is one verdict on the media: with no explicit
+        // max_choices, selecting several choices must be rejected.
+        let mut state = start_session("s1", vec![media_review_question()]).unwrap();
+        let result = submit_answer(
+            &mut state,
+            &QuestionId::parse("q-media-001").unwrap(),
+            vec!["biased".into(), "neutral".into()],
+        );
+        assert!(matches!(
+            result,
+            Err(SessionError::TooManyChoices { max: 1, .. })
+        ));
+    }
+
+    #[test]
+    fn media_review_single_verdict_scores_correct() {
+        let mut state = start_session("s1", vec![media_review_question()]).unwrap();
+        let eval = submit_answer(
+            &mut state,
+            &QuestionId::parse("q-media-001").unwrap(),
+            vec!["biased".into()],
+        )
+        .unwrap();
+        assert_eq!(eval.level, EvaluationLevel::Correct);
     }
 
     #[test]
