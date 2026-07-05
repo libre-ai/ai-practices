@@ -3,27 +3,32 @@ import { readFileSync } from "node:fs";
 
 // End-to-end for the reflex parcours. These reproduce the manual browser checks
 // (reactivity, keyboard, in-place reveal, idk, export) as CI-gateable tests.
+//
+// "Jeu en avant": there is no blocking onboarding gate anymore. The first
+// situation is judgeable the instant the page loads — the manifesto thesis sits
+// above it and its facts sit below as reachable context, never a wall. So every
+// flow starts by interacting with situation 1 directly, not by clicking a start.
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".intro-title")).toBeVisible();
 });
 
-test("opens on the onboarding gate, not a question", async ({ page }) => {
-  await expect(page.locator(".intro-title")).toContainText("Entraînez vos réflexes");
-  await expect(page.getByText("Pas une évaluation RH")).toBeVisible();
-  await expect(page.locator('[role="radiogroup"]')).toHaveCount(0);
-});
-
-test("Enter launches the parcours from the menu", async ({ page }) => {
-  await page.locator('[data-action="start"]').focus();
-  await page.keyboard.press("Enter");
+test("opens on the manifesto with a playable first situation (jeu en avant)", async ({
+  page,
+}) => {
+  // the thesis meets you at the door…
+  await expect(page.locator(".intro-title")).toContainText("Aucune image générée");
+  // …and the first situation is immediately judgeable — no blocking gate
   await expect(page.locator('.console [role="radiogroup"]')).toBeVisible();
   await expect(page.locator(".q-count")).toHaveText(/^1 \/ \d+$/);
+  // the positioning stands below as reachable context, not a wall
+  await expect(page.getByText("jamais un classement")).toBeVisible();
 });
 
-test("one-gesture touch validates in place, without scrolling the page", async ({ page }) => {
-  await page.locator('[data-action="start"]').click();
+test("the first situation validates in place, without scrolling the page", async ({
+  page,
+}) => {
   const before = await page.evaluate(() => window.scrollY);
   const c2 = page.locator('.choice[data-key="2"]');
   await c2.click(); // first tap selects
@@ -36,7 +41,6 @@ test("one-gesture touch validates in place, without scrolling the page", async (
 });
 
 test("keyboard: a number selects, Enter validates then continues", async ({ page }) => {
-  await page.locator('[data-action="start"]').click();
   await page.keyboard.press("2");
   await expect(page.locator('.choice[data-key="2"].sel')).toBeVisible();
   await page.keyboard.press("Enter"); // validate
@@ -45,9 +49,9 @@ test("keyboard: a number selects, Enter validates then continues", async ({ page
   await expect(page.locator(".q-count")).toHaveText(/^2 \/ \d+$/);
 });
 
-// Answer every question (pick choice 2, one-gesture validate) up to the summary.
+// Answer every situation (pick choice 2, one-gesture validate) up to the summary.
+// Situation 1 is already on screen (jeu en avant), so no start click is needed.
 async function completeParcours(page: import("@playwright/test").Page): Promise<number> {
-  await page.locator('[data-action="start"]').click();
   const label = await page.locator(".q-count").first().textContent();
   const total = Number((label ?? "").split("/")[1].trim());
   for (let i = 0; i < total; i++) {
@@ -60,7 +64,6 @@ async function completeParcours(page: import("@playwright/test").Page): Promise<
 }
 
 test('"je ne sais pas" (Space) is an honest submission with guidance', async ({ page }) => {
-  await page.locator('[data-action="start"]').click();
   await page.keyboard.press(" ");
   const panel = page.locator('.feedback-panel[data-verdict="idk"]');
   await expect(panel).toContainText("Réponse non tranchée");
@@ -73,7 +76,9 @@ test("full parcours reaches a per-category synthesis; R restarts", async ({ page
   await expect(page.locator(".summary-row")).toHaveCount(total);
   await expect(page.locator(".summary-panel")).toContainText("Aucun classement nominatif");
   await page.keyboard.press("r");
+  // restart returns to the door: the manifesto thesis and a fresh situation 1
   await expect(page.locator(".intro-title")).toBeVisible();
+  await expect(page.locator(".q-count")).toHaveText(/^1 \/ \d+$/);
 });
 
 test("local export downloads the synthesis as JSON", async ({ page }) => {

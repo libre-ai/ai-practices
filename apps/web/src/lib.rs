@@ -2,8 +2,8 @@
 //!
 //! A reflex is a keystroke, but a responsible decision takes a beat: the keycap
 //! actuation is deliberately calm (UX direction a). The flow is a short parcours
-//! — onboarding gate → one situation per risk axis → private synthesis — so the learner can see
-//! which reflexes to reinforce.
+//! — a situation to judge on arrival (jeu en avant) → one per risk axis →
+//! private synthesis — so the learner can see which reflexes to reinforce.
 //!
 //! This crate stays presentational: verdicts are DATA (`FeedbackViewModel`),
 //! never computed in the browser (ADR 0003). The corpus is the real content
@@ -94,7 +94,8 @@ impl TrainingQuestion {
 /// Where the learner is in the parcours.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Stage {
-    Intro,
+    /// The door: manifesto thesis + the first situation judged in place.
+    Landing,
     Question(usize),
     Summary,
 }
@@ -131,7 +132,7 @@ const GLOBAL_KEYS_JS: &str = "if (!window.__raipKeys) { window.__raipKeys = true
 pub fn App() -> Element {
     // theme: None = follow OS; Some("dark"|"light") = explicit toggle.
     let mut theme = use_signal(|| None::<&'static str>);
-    let mut stage = use_signal(|| Stage::Intro);
+    let mut stage = use_signal(|| Stage::Landing);
     // recorded answers: (category, motif, chosen feedback | None for "idk").
     let mut results = use_signal(Vec::<(&'static str, MotifKind, Option<FeedbackViewModel>)>::new);
     // The chosen choice id per answered question, in parcours order (`None` = "je
@@ -174,18 +175,43 @@ pub fn App() -> Element {
                 }
 
                 match stage() {
-                    Stage::Intro => rsx! {
-                        IntroGate {
-                            total,
-                            on_start: move |_| {
-                                // guard: never enter a question if the corpus failed
-                                // to load (empty) — avoids an out-of-bounds access.
-                                if total > 0 {
-                                    results.write().clear();
-                                    answers.write().clear();
-                                    stage.set(Stage::Question(0));
+                    Stage::Landing => match corpus.first() {
+                        // fail-closed: the corpus could not load — the manifesto and
+                        // its notice stand, but there is no situation to judge and
+                        // nothing starts.
+                        None => rsx! {
+                            Landing {
+                                total,
+                                teaser: None,
+                                teaser_feedbacks: Vec::new(),
+                                on_teaser_continue: move |_| {},
+                            }
+                        },
+                        // Jeu en avant: the first situation is judged in place, at the
+                        // door. Judging it IS the start — it records the answer and
+                        // flows into the parcours (no gate, no wall).
+                        Some(q) => {
+                            let category = q.category;
+                            let motif = q.motif;
+                            rsx! {
+                                Landing {
+                                    total,
+                                    teaser: Some(q.view_model(1, total)),
+                                    teaser_feedbacks: q.feedbacks.clone(),
+                                    on_teaser_continue: move |(choice_id, feedback): (
+                                        Option<String>,
+                                        Option<FeedbackViewModel>,
+                                    )| {
+                                        results.write().push((category, motif, feedback));
+                                        answers.write().push(choice_id);
+                                        if total > 1 {
+                                            stage.set(Stage::Question(1));
+                                        } else {
+                                            stage.set(Stage::Summary);
+                                        }
+                                    },
                                 }
-                            },
+                            }
                         }
                     },
                     // `get` (not indexing) so a corpus/index mismatch degrades to
@@ -232,7 +258,7 @@ pub fn App() -> Element {
                                 on_restart: move |_| {
                                     results.write().clear();
                                     answers.write().clear();
-                                    stage.set(Stage::Intro);
+                                    stage.set(Stage::Landing);
                                 },
                             }
                         }
@@ -243,49 +269,63 @@ pub fn App() -> Element {
     }
 }
 
-/// The onboarding gate the UX spec requires: objective, "not an HR evaluation",
-/// duration, data collected, and how to leave. Nothing starts before it.
+/// The door: the manifesto thesis, then the first situation judged in place.
+/// "Jeu en avant" (vitrine decision) retires the blocking onboarding gate — the
+/// déclic the manifesto promises happens immediately, and the manifesto itself
+/// becomes reachable context below, no longer a wall. Fail-closed: with no
+/// teaser (empty corpus) it shows the thesis and an unavailable notice only.
 #[component]
-fn IntroGate(total: usize, on_start: EventHandler<()>) -> Element {
+fn Landing(
+    total: usize,
+    teaser: Option<QuestionViewModel>,
+    teaser_feedbacks: Vec<FeedbackViewModel>,
+    on_teaser_continue: EventHandler<(Option<String>, Option<FeedbackViewModel>)>,
+) -> Element {
     rsx! {
-        section { class: "intro-gate",
-            p { class: "intro-eyebrow", "Sensibilisation · biais de l'IA" }
-            h1 { class: "intro-title", "Aucune image générée n'est neutre." }
-            p { class: "intro-lede",
-                "Une IA ne « photographie » pas le réel : elle en tire une version parmi une infinité. Ce choix statistique est toujours un biais — même quand l'image paraît positive ou « diverse »."
-            }
-            ul { class: "intro-facts",
-                li {
-                    span { class: "intro-k", "Le déclic" }
-                    span { "un prompt en apparence neutre, un résultat biaisé. Ici, on apprend à le voir — surtout là où il se cache." }
-                }
-                li {
-                    span { class: "intro-k", "La thèse" }
-                    span { "le problème n'est pas l'humain : le vrai danger, c'est la fausse confiance dans l'outil — et c'est à l'entreprise de l'encadrer." }
-                }
-                li {
-                    span { class: "intro-k", "La session" }
-                    span { "{total} situations à juger · rejouable · rien de nominatif" }
-                }
-                li {
-                    span { class: "intro-k", "Le positionnement" }
-                    span { "anonyme et solidaire — jamais un classement : « tu n'es pas seul à t'être fait avoir »" }
+        section { class: "landing",
+            header { class: "landing-hero",
+                p { class: "intro-eyebrow", "Sensibilisation · biais de l'IA" }
+                h1 { class: "intro-title", "Aucune image générée n'est neutre." }
+                p { class: "intro-lede",
+                    "Une IA ne « photographie » pas le réel : elle en tire une version parmi une infinité. Ce choix statistique est toujours un biais — même quand l'image paraît positive ou « diverse »."
                 }
             }
-            if total == 0 {
-                // fail-closed: the corpus could not be loaded — never offer to start
-                p { class: "intro-unavailable",
-                    "Contenu momentanément indisponible. Réessayez plus tard."
-                }
-            } else {
-                button {
-                    class: "validate-btn intro-start",
-                    r#type: "button",
-                    "data-action": "start",
-                    autofocus: true,
-                    onclick: move |_| on_start.call(()),
-                    span { "Commencer" }
-                    Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
+            match teaser {
+                // a single fixed teaser (corpus[0]), so no `key:` reset is needed
+                Some(question) => rsx! {
+                    p { class: "landing-cue", "Le déclic, tout de suite — juge cette première situation." }
+                    QuestionConsole {
+                        question,
+                        feedbacks: teaser_feedbacks,
+                        is_last: false,
+                        on_continue: move |payload| on_teaser_continue.call(payload),
+                    }
+                },
+                None => rsx! {
+                    p { class: "intro-unavailable",
+                        "Contenu momentanément indisponible. Réessayez plus tard."
+                    }
+                },
+            }
+            section { class: "landing-manifesto",
+                h2 { class: "landing-manifesto-title", "Pourquoi ce drill" }
+                ul { class: "intro-facts",
+                    li {
+                        span { class: "intro-k", "Le déclic" }
+                        span { "un prompt en apparence neutre, un résultat biaisé. Ici, on apprend à le voir — surtout là où il se cache." }
+                    }
+                    li {
+                        span { class: "intro-k", "La thèse" }
+                        span { "le problème n'est pas l'humain : le vrai danger, c'est la fausse confiance dans l'outil — et c'est à l'entreprise de l'encadrer." }
+                    }
+                    li {
+                        span { class: "intro-k", "La session" }
+                        span { "{total} situations à juger · rejouable · rien de nominatif" }
+                    }
+                    li {
+                        span { class: "intro-k", "Le positionnement" }
+                        span { "anonyme et solidaire — jamais un classement : « tu n'es pas seul à t'être fait avoir »" }
+                    }
                 }
             }
         }
@@ -1132,15 +1172,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn opens_on_the_onboarding_gate_not_a_question() {
+    fn opens_on_the_manifesto_with_a_playable_teaser() {
         let html = dioxus_ssr::render_element(rsx! { App {} });
-        // the manifesto gate: everything is biased, non-competitive, with a start
+        // the manifesto thesis meets the learner at the door…
         assert!(html.contains("Aucune image générée"));
         assert!(html.contains("jamais un classement"));
-        assert!(html.contains("Commencer"));
-        // the question is not shown before the gate
-        assert!(!html.contains("radiogroup"));
-        // no numeric scoring ever
+        // …but the first situation is playable right there (jeu en avant): the
+        // blocking gate is gone, so the teaser radiogroup is present immediately.
+        assert!(html.contains("radiogroup"));
+        // no numeric scoring ever (ADR 0003)
         assert!(!html.contains("score_delta"));
         assert!(!html.contains("axis_impacts"));
     }
@@ -1169,15 +1209,24 @@ mod tests {
     }
 
     #[test]
-    fn intro_gate_is_fail_closed_on_empty_corpus() {
+    fn landing_is_fail_closed_on_empty_corpus() {
         #[component]
         fn Harness() -> Element {
-            rsx! { IntroGate { total: 0, on_start: move |_| {} } }
+            rsx! {
+                Landing {
+                    total: 0,
+                    teaser: None,
+                    teaser_feedbacks: Vec::new(),
+                    on_teaser_continue: move |_| {},
+                }
+            }
         }
         let html = dioxus_ssr::render_element(rsx! { Harness {} });
-        // no way to start, and an explicit unavailable notice
+        // no situation to judge, an explicit unavailable notice, no radiogroup…
         assert!(html.contains("indisponible"));
-        assert!(!html.contains("data-action=\"start\""));
+        assert!(!html.contains("radiogroup"));
+        // …and the manifesto thesis still stands at the door
+        assert!(html.contains("Aucune image générée"));
     }
 
     #[test]

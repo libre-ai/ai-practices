@@ -494,6 +494,44 @@ body {
   padding: 14px 16px;
   margin: 0;
 }
+
+/* ---------- landing (jeu en avant): the manifesto door, then a live situation ---------- */
+.landing {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+/* the thesis at the door: hero sits on the board ground, no card — one calm
+ * breath before the situation, not a wall to click past */
+.landing-hero .intro-lede {
+  margin-bottom: 0;
+}
+/* the cue that hands the learner straight into judging */
+.landing-cue {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0;
+}
+/* the manifesto is now reachable context below the situation, not a gate before
+ * it — set apart by a quiet rule, never competing with the drill */
+.landing-manifesto {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-lg);
+  margin-top: var(--spacing-sm);
+}
+.landing-manifesto-title {
+  font-family: var(--font-family-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--spacing-md);
+}
+.landing-manifesto .intro-facts {
+  margin-bottom: 0;
+}
 .q-meta {
   display: flex;
   flex-wrap: wrap;
