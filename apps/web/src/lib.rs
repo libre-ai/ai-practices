@@ -249,27 +249,27 @@ pub fn App() -> Element {
 fn IntroGate(total: usize, on_start: EventHandler<()>) -> Element {
     rsx! {
         section { class: "intro-gate",
-            p { class: "intro-eyebrow", "Entraînement libre" }
-            h1 { class: "intro-title", "Entraînez vos réflexes face à l'IA" }
+            p { class: "intro-eyebrow", "Sensibilisation · biais de l'IA" }
+            h1 { class: "intro-title", "Aucune image générée n'est neutre." }
             p { class: "intro-lede",
-                "Pas une évaluation RH, pas un classement. Dans une situation concrète, quel est le comportement responsable ?"
+                "Une IA ne « photographie » pas le réel : elle en tire une version parmi une infinité. Ce choix statistique est toujours un biais — même quand l'image paraît positive ou « diverse »."
             }
             ul { class: "intro-facts",
                 li {
-                    span { class: "intro-k", "Durée" }
-                    span { "≈ 6–8 min · {total} situations · une par risque" }
+                    span { class: "intro-k", "Le déclic" }
+                    span { "un prompt en apparence neutre, un résultat biaisé. Ici, on apprend à le voir — surtout là où il se cache." }
                 }
                 li {
-                    span { class: "intro-k", "Données" }
-                    span { "vos réponses et verdicts, par catégorie — rien de nominatif" }
+                    span { class: "intro-k", "La thèse" }
+                    span { "le problème n'est pas l'humain : le vrai danger, c'est la fausse confiance dans l'outil — et c'est à l'entreprise de l'encadrer." }
                 }
                 li {
-                    span { class: "intro-k", "Confidentialité" }
-                    span { "analyse anonymisée, exportable en local, zéro traceur externe" }
+                    span { class: "intro-k", "La session" }
+                    span { "{total} situations à juger · rejouable · rien de nominatif" }
                 }
                 li {
-                    span { class: "intro-k", "Liberté" }
-                    span { "rejouable à volonté — rejouer ne dégrade jamais votre progression" }
+                    span { class: "intro-k", "Le positionnement" }
+                    span { "anonyme et solidaire — jamais un classement : « tu n'es pas seul à t'être fait avoir »" }
                 }
             }
             if total == 0 {
@@ -284,7 +284,7 @@ fn IntroGate(total: usize, on_start: EventHandler<()>) -> Element {
                     "data-action": "start",
                     autofocus: true,
                     onclick: move |_| on_start.call(()),
-                    span { "Démarrer" }
+                    span { "Commencer" }
                     Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
                 }
             }
@@ -1134,10 +1134,10 @@ mod tests {
     #[test]
     fn opens_on_the_onboarding_gate_not_a_question() {
         let html = dioxus_ssr::render_element(rsx! { App {} });
-        // the gate states objective, not-HR, duration, data, freedom
-        assert!(html.contains("Entraînez vos réflexes"));
-        assert!(html.contains("Pas une évaluation RH"));
-        assert!(html.contains("Démarrer"));
+        // the manifesto gate: everything is biased, non-competitive, with a start
+        assert!(html.contains("Aucune image générée"));
+        assert!(html.contains("jamais un classement"));
+        assert!(html.contains("Commencer"));
         // the question is not shown before the gate
         assert!(!html.contains("radiogroup"));
         // no numeric scoring ever
