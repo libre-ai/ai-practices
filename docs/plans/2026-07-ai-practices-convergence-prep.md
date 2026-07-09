@@ -34,6 +34,26 @@ risks:
 evidence_expectations: "each increment green CI + commands below prove gates; no claim without exit command output"
 ```
 
+## Status Note
+
+**2026-07-09 — Phase C Audit (no increment started yet)**
+
+Hygiene audit in progress. Standing findings the plan already covers:
+
+1. **I1 blocker (session-store shim not marked frozen in code)**: `crates/api/src/lib.rs` lacks the FROZEN SHIM documentation comment. ADR 0005 not yet created. CI guard for websocket/presence not yet wired. This is the prerequisite for all downstream increments.
+
+2. **I2 blocker (portal-forge pipeline unproven)**: `apps/web/assets/tokens.css` and `crates/ui/assets/tokens.css` are two independent copies without a freshness proof tied to portal-forge generation. The plan's `scripts/portal-tokens-sync.sh` smoke check exists in design but not yet committed. This is marked PROVISIONAL in the plan with risk R1; no CI gate active.
+
+3. **Delivered work awaiting arbitration**:
+   - Keycap PWA + 4-platform builds parked on `feat/keycap-design-app` (no PR yet)
+   - Prototype consolidation on `feat/consolidate-prototype` (no PR yet)
+   - Slice B cohort online on `slice-b-cohort-online` (no PR yet)
+   - All three branches await **DC-10 per-item arbitration** before integration; DC-10 forum resolves priority + sequencing.
+
+Next step: Resolve DC-10 arbitration to unblock either (a) I1 start, or (b) keycap/consolidate/slice-B integration prep. Until arbitration, ai-practices-convergence-prep holds at phase C (audit + planning; no execution).
+
+---
+
 ## Context
 
 The `rumble-ai-practices` repo implements the first Rumble product vertical: a sovereign pedagogical AI practices diagnostic (multiplatform Rust core + Dioxus PWA). Currently in early official product state.
@@ -69,6 +89,7 @@ End state verified by:
 **Prerequisite:** None.
 
 **Files:**
+
 - `crates/api/src/lib.rs` (head comment)
 - `docs/adrs/0005-session-engine-provisional-until-lm-convergence.md` (new)
 - `.github/workflows/ci.yml` (new guard step)
@@ -76,6 +97,7 @@ End state verified by:
 **Work:**
 
 1. Add a documentation comment block at the top of `crates/api/src/lib.rs` (after line 1):
+
    ```rust
    //! ## FROZEN SHIM — ADR 0005
    //!
@@ -105,6 +127,7 @@ End state verified by:
    ```
 
 **Exit gates:**
+
 - `cargo fmt --all --check` ✓
 - `cargo check --workspace --all-targets` ✓
 - `cargo test --workspace --all-targets` ✓
@@ -119,6 +142,7 @@ End state verified by:
 **Prerequisite:** I1 (governance context).
 
 **Files:**
+
 - `scripts/portal-tokens-sync.sh` (new, executable)
 - `.github/workflows/ci.yml` (new gate step with explicit PROVISIONAL note)
 - `apps/web/assets/tokens.css` (verified but NOT regenerated; contract only)
@@ -126,22 +150,23 @@ End state verified by:
 **Work:**
 
 1. Create `scripts/portal-tokens-sync.sh`:
+
    ```bash
    #!/usr/bin/env bash
    set -euo pipefail
    # PROVISIONAL SMOKE CHECK: Portal-forge integration API not yet published
    # This script verifies CSS variable CONTRACT ONLY, not pipeline freshness.
-   # 
+   #
    # Contract: tokens.css must declare all required CSS variables matching portal contract.
    # Freshness: portal-forge will publish JSON generation API; CI will call it to regenerate.
    # Status: AWAITING portal-forge.rs generation endpoint. Once published, CI will wire:
    #   1. portal-forge generates design tokens JSON from DTCG source
    #   2. Portal contract defines token export format (portal.contrast_report.v0.1)
    #   3. This script converts Portal JSON to CSS variables (matching apps/web/assets/tokens.css)
-   # 
+   #
    # TODAY: This script proves the CSS contract is intact; does NOT prove pipeline regeneration.
    # Risk R1 mitigation is INCOMPLETE until portal-forge API lands. See ADR 0005.
-   
+
    REPO_ROOT=$(git rev-parse --show-toplevel)
    TOKENS_CSS="$REPO_ROOT/apps/web/assets/tokens.css"
    TOKENS_EXPECTED_VARS=(
@@ -168,7 +193,7 @@ End state verified by:
      "--spacing-xl"
      "--spacing-xs"
    )
-   
+
    # Verify all expected CSS variables are defined
    for var in "${TOKENS_EXPECTED_VARS[@]}"; do
      if ! grep -q "^\s*$var:" "$TOKENS_CSS"; then
@@ -176,12 +201,13 @@ End state verified by:
        exit 1
      fi
    done
-   
+
    echo "✓ Portal tokens contract verified (PROVISIONAL): CSS variable signatures intact"
    echo "  NOTE: This proves contract readiness, NOT pipeline freshness. Regeneration proof deferred until portal-forge API is published."
    ```
 
 2. Add CI gate in `.github/workflows/ci.yml` (append before `- name: Test`):
+
    ```yaml
    - name: Verify Portal tokens contract (pipeline readiness — PROVISIONAL)
      run: bash scripts/portal-tokens-sync.sh
@@ -194,6 +220,7 @@ End state verified by:
    Should print: `✓ Portal tokens contract verified (PROVISIONAL): CSS variable signatures intact`
 
 **Exit gates:**
+
 - `bash scripts/portal-tokens-sync.sh` outputs ✓ success message with PROVISIONAL acknowledgment
 - `cargo fmt --all --check` ✓
 - `cargo check --workspace --all-targets` ✓
@@ -210,14 +237,17 @@ End state verified by:
 **Work:**
 
 1. **Pre-flight probe (local verification before merge):**
+
    ```bash
    # Run this locally before submitting I3 PR to ensure code compiles today
    rustup target add wasm32-unknown-unknown
    cargo check --target wasm32-unknown-unknown --package rumble-ai-practices-web --features web
    ```
+
    If this fails, stop and debug before I3 merge. Do not allow CI to break.
 
 2. Add WASM32 check in `.github/workflows/ci.yml` (after `- name: Clippy`, before `- name: Test`):
+
    ```yaml
    - name: WASM32 target check (per ADR 0002:29)
      run: |
@@ -226,6 +256,7 @@ End state verified by:
    ```
 
 3. Add WASM32 size budget check in `.github/workflows/ci.yml` (after WASM32 check):
+
    ```yaml
    - name: WASM32 size budget verification (ADR 0002 + target-version.md)
      run: |
@@ -242,25 +273,26 @@ End state verified by:
    ```
 
 4. Create `tests/smoke.rs` (integration test for API + PWA contract):
+
    ```rust
    //! Smoke test: verify API routes and PWA shell render without panic.
    use rumble_ai_practices_api::router;
    use rumble_ai_practices_domain::QuestionId;
-   
+
    #[tokio::test]
    async fn smoke_api_routes_exist() {
        // Minimal fixture to prove API router is healthy
        let questions = vec![];
        let r = router(questions);
-       
+
        // Router construction must not panic; routes registered.
        assert_eq!(r.routes().iter().count() > 0, true, "router has routes");
    }
-   
+
    #[tokio::test]
    async fn smoke_session_lifecycle() {
        use rumble_ai_practices_session::start_session;
-       
+
        // Prove local session engine doesn't panic on empty input
        let result = start_session("test-session", vec![]);
        assert!(result.is_err(), "empty session rejected by design");
@@ -274,10 +306,12 @@ End state verified by:
    ```
 
 **Files:**
+
 - `.github/workflows/ci.yml` (new wasm32 + size budget + e2e steps)
 - `tests/smoke.rs` (new e2e fixture)
 
 **Exit gates:**
+
 - **Before merge:** `cargo check --target wasm32-unknown-unknown --package rumble-ai-practices-web --features web` ✓ (local pre-flight passes)
 - `rustup target add wasm32-unknown-unknown` ✓
 - `cargo check --target wasm32-unknown-unknown --package rumble-ai-practices-web --features web` ✓ (CI gate, no compile error)
@@ -294,6 +328,7 @@ End state verified by:
 **Prerequisite:** I1, I2, I3 (gates must be green; scoring module needs to pass all tests).
 
 **Files:**
+
 - `crates/scoring/Cargo.toml` (new crate)
 - `crates/scoring/src/lib.rs` (new module, extracted from crates/session lines 61-257)
 - `Cargo.toml` (add to workspace members)
@@ -303,6 +338,7 @@ End state verified by:
 **Work:**
 
 1. Create `crates/scoring/Cargo.toml`:
+
    ```toml
    [package]
    name = "rumble-ai-practices-scoring"
@@ -310,7 +346,7 @@ End state verified by:
    edition.workspace = true
    rust-version.workspace = true
    license.workspace = true
-   
+
    [dependencies]
    rumble-ai-practices-domain.workspace = true
    serde.workspace = true
@@ -332,6 +368,7 @@ End state verified by:
    - Tests stay in place (verify smoke test passes with refactored session)
 
 4. Update workspace `Cargo.toml`:
+
    ```toml
    members = [
        "crates/domain",
@@ -355,6 +392,7 @@ End state verified by:
    - For lm: consume this module as `rumble_ai_practices_scoring` via Cargo dep; pass your own session runtime's state + our scoring algo
 
 **Exit gates:**
+
 - `cargo check --workspace --all-targets` ✓ (new crate compiles, no errors)
 - `cargo test --workspace` ✓ (all tests pass, including extracted scoring tests)
 - `cargo clippy --workspace -- -D warnings` ✓
@@ -370,18 +408,20 @@ End state verified by:
 **Prerequisite:** I1, I4 (scoring now lives in its own module; session state is now the adapter's true concern).
 
 **Files:**
+
 - `crates/api/src/lib.rs` (documentation comment update, no logic change)
 - `docs/adrs/0002-stack-rust-dioxus-multiplatform.md` (add note about API role in ADR)
 
 **Work:**
 
 1. Update `crates/api/src/lib.rs` line 1 comment to clarify actual role (not just "thin adapter"):
+
    ```rust
    //! Axum API adapter: HTTP router + session lifecycle manager for the validated Rust core.
    //!
    //! **NOT a thin adapter**: This layer carries session lifecycle responsibility (allocation, TTL cleanup, enforcement).
    //! It is NOT responsible for scoring or business logic; those live in crates/scoring + crates/session.
-   //! 
+   //!
    //! The actual issue: API manages session state (who decides timing, allocation, cleanup) — this is orchestration,
    //! not routing. True business logic (scoring, evaluation rules) lives purely in crates/domain + crates/session + crates/scoring.
    //!
@@ -393,20 +433,22 @@ End state verified by:
 2. Add a new section to `docs/adrs/0002-stack-rust-dioxus-multiplatform.md` (append before "Alternatives"):
    ```markdown
    ## API Layer Clarification (I5)
-   
+
    The `crates/api` HTTP adapter carries two distinct responsibilities:
+
    1. **Router**: declare and mount `/v1/*` endpoints per the public contract.
    2. **Session lifecycle**: allocate IDs, enforce TTL cleanup, limit in-memory store size.
-   
+
    It is **NOT** a business logic layer. Scoring, evaluation, and pedagogical rules live purely in crates/domain + crates/session + crates/scoring.
-   
-   The initial "thin adapter" label obscured that session lifecycle management (item 2) is orchestration, not routing. 
+
+   The initial "thin adapter" label obscured that session lifecycle management (item 2) is orchestration, not routing.
    This distinction matters for swapping transports: if API is replaced by Lambda or gRPC, scoring logic unchanged.
-   
+
    This design allows clean separation: scoring is deterministic + stateless; API carries orchestration + state.
    ```
 
 **Exit gates:**
+
 - `cargo fmt --all --check` ✓
 - `cargo check --workspace --all-targets` ✓
 - `cargo clippy --workspace -- -D warnings` ✓
@@ -420,33 +462,35 @@ End state verified by:
 **Prerequisite:** I1-I5 all merged. lm integration slice must be proven (separate plan).
 
 **Files:**
+
 - `docs/adrs/0005-session-engine-provisional-until-lm-convergence.md` (add convergence section with decision owner)
 - `CONVERGENCE.md` (new, one-page checklist for shim deletion, explicitly notes DA-8 arbitration)
 
 **Work:**
 
 1. Append to `docs/adrs/0005-session-engine-provisional-until-lm-convergence.md`:
+
    ```markdown
    ## Convergence Trigger (Post-MVP)
-   
+
    Delete the local session store when ALL of the following are met:
-   
+
    1. **rumble-lm publishes a proven session runtime**
       - Contract: lm/crates/server exports SessionRuntime trait or service
       - Proof: rumble-lm CI integrates with ai-practices fixtures; full 3-endpoint contract proven
       - Evidence: lm PR merged + tagged v1.0.0+
-   
+
    2. **ai-practices switches to lm session runtime**
       - crates/api refactored: Sessions now proxied to lm HTTP/gRPC endpoint
       - No behavior change from client perspective (same /v1/sessions* routes)
       - Fixtures re-run: verify scores unchanged (regression test)
-   
+
    3. **Local store fully removed**
       - Delete: crates/api/src/lib.rs lines 39-113 (BTreeMap, session mgmt, cleanup)
       - Delete: crates/session/src/lib.rs lines 259-280 (SessionFixture, run_fixture — moved to lm)
       - Keep: scoring logic (crates/scoring + crates/domain)
       - CI: all tests green, no websocket/presence patterns detected
-   
+
    4. **Bounded by wave discipline + decision authority**
       - Big-bang posture: this deletion is a hard block until lm is live.
       - **Decision owner: Constantin Jais + architecture steering (DA-8 arbitration).**
@@ -457,12 +501,12 @@ End state verified by:
 2. Create `CONVERGENCE.md`:
    ```markdown
    # Convergence Checkpoint: lm Session Runtime Integration
-   
+
    The local session store (`crates/api`, `crates/session`) is a **provisional MVP shim** frozen per ADR 0005.
    Replacing it with rumble-lm's persistent session runtime is the final gate before P5 acceptance.
-   
+
    ## Checklist (all must be ✓)
-   
+
    - [ ] rumble-lm publishes session runtime contract (lm ADR 0029 + fixtures)
    - [ ] ai-practices CI passes with lm runtime consumer test (fixture binding)
    - [ ] Scoring module (crates/scoring) proves deterministic with lm's session state
@@ -470,7 +514,7 @@ End state verified by:
    - [ ] /v1/sessions* routes proxy to lm endpoint; behavior unchanged
    - [ ] Regression: session summaries unchanged vs MVP fixtures
    - [ ] All CI gates green; no websocket/presence patterns remain
-   
+
    **Decision makers: Constantin Jais + architecture steering (DA-8 arbitration).**
    **NOT automatic:** Shim deletion requires explicit approval before merge.
    **Timeline:** End of wave 2026-07 (after lm slice is proven).
@@ -478,6 +522,7 @@ End state verified by:
    ```
 
 **Exit gates:**
+
 - `docs/adrs/0005-session-engine-provisional-until-lm-convergence.md` updated + committed with explicit decision owner and DA-8 reference
 - `CONVERGENCE.md` created + linked in README.md, explicitly notes DA-8 arbitration requirement
 - `cargo fmt --all --check` ✓
