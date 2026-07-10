@@ -119,6 +119,10 @@ pub enum ScenarioArtifact {
     Links(Vec<LinkChip>),
     /// A generated image (stylized placeholder + tag). `alt` describes it.
     Image { ai_tag: String, alt: String },
+    /// An actual generated media file to display as a real `<img>` (the drill's
+    /// visual). `alt` describes it; the AI-synthetic disclosure is shown by the
+    /// view (ADR 0004/0008).
+    Generated { src: String, alt: String },
     /// A client ticket whose values are personal data (rendered redacted).
     Ticket(Vec<TicketRow>),
 }
@@ -338,6 +342,12 @@ pub fn ScenarioArtifactView(artifact: ScenarioArtifact) -> Element {
                         }
                     }
                 }
+            }
+        },
+        ScenarioArtifact::Generated { src, alt } => rsx! {
+            figure { class: "imgframe imgframe-media",
+                span { class: "ai-tag", "Image générée par IA" }
+                img { class: "gen-img", src: "{src}", alt: "{alt}", loading: "lazy" }
             }
         },
     }

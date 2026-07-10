@@ -5,13 +5,18 @@ import { readFileSync } from "node:fs";
 // (reactivity, keyboard, in-place reveal, idk, export) as CI-gateable tests.
 
 test.beforeEach(async ({ page }) => {
+  // Deterministic e2e: the app disables its animations under
+  // prefers-reduced-motion (styles.css), which also keeps Playwright's
+  // stability checks from waiting on transient transforms.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.locator(".intro-title")).toBeVisible();
 });
 
 test("opens on the onboarding gate, not a question", async ({ page }) => {
-  await expect(page.locator(".intro-title")).toContainText("Entraînez vos réflexes");
-  await expect(page.getByText("Pas une évaluation RH")).toBeVisible();
+  await expect(page.locator(".intro-title")).toContainText("Aucune image générée n'est neutre.");
+  // « jamais un classement » is the manifesto's non-evaluation promise.
+  await expect(page.getByText("jamais un classement")).toBeVisible();
   await expect(page.locator('[role="radiogroup"]')).toHaveCount(0);
 });
 
@@ -23,16 +28,27 @@ test("Enter launches the parcours from the menu", async ({ page }) => {
 });
 
 test("one-gesture touch validates in place, without scrolling the page", async ({ page }) => {
+  // Measure scroll position after the manifesto gate is visible but before starting.
+  // This captures the scroll position after the gate, which becomes our baseline.
+  await expect(page.locator(".intro-title")).toContainText("Aucune image générée n'est neutre.");
+  const baselineScroll = await page.evaluate(() => window.scrollY);
+
   await page.locator('[data-action="start"]').click();
-  const before = await page.evaluate(() => window.scrollY);
+  await expect(page.locator('.console [role="radiogroup"]')).toBeVisible();
+
   const c2 = page.locator('.choice[data-key="2"]');
+  // The manifesto above lengthens the page: bring the choice into view first
+  // so the measured delta only captures reveal-induced scrolling (the actual
+  // invariant), not Playwright's own scroll-to-click.
+  await c2.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => window.scrollY);
   await c2.click(); // first tap selects
   await expect(page.locator(".choice.sel")).toBeVisible();
   await c2.click(); // second tap on the same choice validates
   await expect(page.locator(".answered")).toBeVisible();
   await expect(page.locator(".pinned .verdict-tag")).toBeVisible();
   const after = await page.evaluate(() => window.scrollY);
-  expect(after).toBe(before); // in-place reveal: no reflow, no scroll
+  expect(after).toBe(before); // in-place reveal: no reflow, no scroll during verdict
 });
 
 test("keyboard: a number selects, Enter validates then continues", async ({ page }) => {
@@ -50,11 +66,16 @@ async function completeParcours(page: import("@playwright/test").Page): Promise<
   await page.locator('[data-action="start"]').click();
   const label = await page.locator(".q-count").first().textContent();
   const total = Number((label ?? "").split("/")[1].trim());
+  // Drive the loop through the app's real keyboard path (select, validate,
+  // continue) — covered by its own spec above. Pointer-driving 50 questions
+  // fought Playwright's actionability checks on mobile (lazy media relayout
+  // between measure and tap); the touch contract keeps its dedicated test.
   for (let i = 0; i < total; i++) {
-    const choice = page.locator('.choice[data-key="2"]');
-    await choice.click();
-    await choice.click();
-    await page.locator('[data-action="continue"]').click();
+    await page.keyboard.press("2");
+    await page.locator('.choice[data-key="2"].sel').waitFor();
+    await page.keyboard.press("Enter"); // validate
+    await page.locator('[data-action="continue"]').waitFor({ state: "visible" });
+    await page.keyboard.press("Enter"); // continue
   }
   return total;
 }
@@ -68,6 +89,7 @@ test('"je ne sais pas" (Space) is an honest submission with guidance', async ({ 
 });
 
 test("full parcours reaches a per-category synthesis; R restarts", async ({ page }) => {
+  test.setTimeout(240_000); // SESSION_SIZE=50 questions on mobile emulation exceeds the 30s default
   const total = await completeParcours(page);
   await expect(page.locator(".summary-panel")).toBeVisible();
   await expect(page.locator(".summary-row")).toHaveCount(total);
@@ -77,6 +99,7 @@ test("full parcours reaches a per-category synthesis; R restarts", async ({ page
 });
 
 test("local export downloads the synthesis as JSON", async ({ page }) => {
+  test.setTimeout(240_000); // SESSION_SIZE=50 questions on mobile emulation exceeds the 30s default
   const total = await completeParcours(page);
   const [download] = await Promise.all([
     page.waitForEvent("download"),

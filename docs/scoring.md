@@ -35,7 +35,7 @@ Le scoring mesure des réflexes pratiques, pas une valeur professionnelle. Il do
 
 ## Meilleur score sans régression
 
-Principe importé du benchmark jeu compétitif de référence (verdict PRENDRE, Famille A) :
+Principe importé du benchmark du jeu compétitif de référence (verdict PRENDRE, Famille A) :
 
 - Rejouer une question ou un parcours **ne fait jamais baisser** le meilleur score affiché.
 - Le meilleur score est un repère pédagogique individuel qui encourage la répétition

@@ -37,7 +37,7 @@ evidence_expectations: "chaque incrément = PR avec exit gates commandés ; aucu
 
 ## Contexte
 
-Une veille externe a restitué les cinq formats de drill de l'jeu compétitif de référence (jeu compétitif de référence)
+Une veille externe a restitué les cinq formats de drill d'un jeu compétitif du marché
 et proposé un « prompt de reconstruction » ciblant Next.js + Prisma + admin CRUD, mécaniques
 compétitives incluses. Ce plan remplace ce prompt : le tri des mécaniques est déjà ratifié
 (`docs/benchmark-jeu-competitif.md`), la stack existe (workspace Rust + Dioxus 0.7), et le

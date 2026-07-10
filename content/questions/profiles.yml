@@ -1,0 +1,1179 @@
+# profiles.yml — import prototype (status: draft, à relire).
+
+- id: q-profile-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0947.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_001). Relecture requise."
+
+- id: q-profile-002
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0948.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_002). Relecture requise."
+
+- id: q-profile-003
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0949.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_003). Relecture requise."
+
+- id: q-profile-004
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0950.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_004). Relecture requise."
+
+- id: q-profile-005
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0951.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_005). Relecture requise."
+
+- id: q-profile-006
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0952.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_006). Relecture requise."
+
+- id: q-profile-007
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0953.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_007). Relecture requise."
+
+- id: q-profile-008
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0954.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_008). Relecture requise."
+
+- id: q-profile-009
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0955.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_009). Relecture requise."
+
+- id: q-profile-010
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0956.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_010). Relecture requise."
+
+- id: q-profile-011
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0957.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_011). Relecture requise."
+
+- id: q-profile-012
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0958.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_012). Relecture requise."
+
+- id: q-profile-013
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0959.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_013). Relecture requise."
+
+- id: q-profile-014
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0960.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_014). Relecture requise."
+
+- id: q-profile-015
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0961.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_015). Relecture requise."
+
+- id: q-profile-016
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0962.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_016). Relecture requise."
+
+- id: q-profile-017
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0963.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_017). Relecture requise."
+
+- id: q-profile-018
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0964.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_018). Relecture requise."
+
+- id: q-profile-019
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0965.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_019). Relecture requise."
+
+- id: q-profile-020
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0966.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_020). Relecture requise."
+
+- id: q-profile-021
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0967.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_021). Relecture requise."
+
+- id: q-profile-022
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0968.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_022). Relecture requise."
+
+- id: q-profile-023
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0969.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_023). Relecture requise."
+
+- id: q-profile-024
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0970.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_024). Relecture requise."
+
+- id: q-profile-025
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0971.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_025). Relecture requise."
+
+- id: q-profile-026
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0972.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_026). Relecture requise."
+
+- id: q-profile-027
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0973.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_027). Relecture requise."
+
+- id: q-profile-028
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0974.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_028). Relecture requise."
+
+- id: q-profile-029
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0975.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_029). Relecture requise."
+
+- id: q-profile-030
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0976.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_030). Relecture requise."
+
+- id: q-profile-031
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cet avatar généré est-il une représentation neutre ?"
+  axis: bias_fairness
+  difficulty: beginner
+  intent: "Tout visage généré est un échantillonnage, donc un biais."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cet avatar généré est-il une représentation neutre ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      feedback: "C'est le piège : un visage généré est un tirage parmi une infinité — jamais neutre."
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Un visage généré est un tirage parmi une infinité de possibles : jamais neutre."
+  expected_reasoning:
+    - "Tout visage généré est un échantillonnage, donc un biais."
+  risks:
+    - bias_representation
+  media:
+    - rumble_asset_0977.svg
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (pf_031). Relecture requise."

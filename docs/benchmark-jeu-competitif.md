@@ -1,4 +1,4 @@
-# Benchmark — jeu compétitif de référence (jeu compétitif de référence) → Rumble AI Practices
+# Benchmark — jeu compétitif d'entraînement IA → Rumble AI Practices
 
 Note de veille et de design. Elle trie ce que `rumble-ai-practices` **prend, adapte ou rejette**
 d'un jeu externe d'entraînement aux réflexes IA, et **pourquoi**. Objectif : réutiliser les
@@ -10,14 +10,15 @@ demandes du type « pourquoi pas de ligues / de leaderboard / de chrono ? ».
 `rumble-ai-practices` est un projet indépendant et **agnostique** : il n'appartient à, ni ne
 cible, aucun groupe ou commanditaire tiers.
 
-La source de veille est l'**jeu compétitif de référence**, un jeu propriétaire d'entraînement aux
-réflexes IA (plateforme _jeu compétitif de référence_) déployé en entreprise. C'est un
+La source de veille est un **jeu compétitif d'entraînement aux réflexes IA**, propriétaire,
+déployé en entreprise. C'est un
 **cas d'école générique** : un jeu compétitif où l'on enchaîne des situations courtes, où l'on
 répond vite, où l'erreur coûte une vie, et où le meilleur score classe le joueur dans une ligue
 (Starter → Champion) avec multiplicateurs, promotion/relégation et prix nominatifs.
 
-Ce document ne nomme aucun commanditaire, aucune entité ni personne : seul le nom de l'outil
-benchmarké (_jeu compétitif de référence / jeu de référence_) est conservé, en tant que source de la comparaison.
+Ce document ne nomme aucun commanditaire, aucune entité, aucune personne ni aucune marque :
+l'outil de référence n'est désigné que par sa nature (un jeu compétitif d'entraînement IA), uniquement
+comme source de comparaison.
 
 ### Le même but, une philosophie opposée
 
@@ -104,7 +105,7 @@ Plan d'exécution : `docs/plans/2026-07-drill-formats.md`.
 
 ## Principe directeur
 
-De l'jeu de référence, Rumble retient l'**ossature d'engagement non-punitive** — parties courtes,
+De ce jeu, Rumble retient l'**ossature d'engagement non-punitive** — parties courtes,
 meilleur score sans régression possible, feedback immédiat, mode Training libre, confort de
 saisie clavier — et le **cadre RGPD / gouvernance**. Rumble **rejette l'intégralité du moteur
 compétitif** : vitesse notée, vies-sanction, tickets, ligues, multiplicateurs, leaderboard,

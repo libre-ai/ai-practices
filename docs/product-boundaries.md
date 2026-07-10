@@ -26,7 +26,7 @@ Il possède l'expérience utilisateur, les scénarios pédagogiques, le feedback
 - Le stockage/provenance générique : candidat Gear.
 - L'évaluation RH des collaborateurs.
 
-### Non-objectifs importés (benchmark jeu compétitif de référence)
+### Non-objectifs importés (benchmark du jeu compétitif de référence)
 
 Mécaniques compétitives explicitement hors produit, par décision de conception
 (`docs/benchmark-jeu-competitif.md`, ADR 0003) :

@@ -370,7 +370,8 @@ mod tests {
         let loaded = validate_content("../../content/questions", "../../content/media")
             .expect("pilot content parses");
         assert!(loaded.report.questions_read >= 5);
-        assert_eq!(loaded.media_reviews.len(), 1);
+        // bias-game corpus: pilot(1) + bias-visual(50) + deepfakes(27) + profiles(31) = 109
+        assert_eq!(loaded.media_reviews.len(), 109);
         assert!(loaded.report.is_success());
     }
 }

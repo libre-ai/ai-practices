@@ -1,0 +1,1216 @@
+# deepfakes.yml — import prototype (status: draft, à relire).
+
+- id: q-deepfake-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0294.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_001). Relecture requise."
+
+- id: q-deepfake-002
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0295.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_002). Relecture requise."
+
+- id: q-deepfake-003
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0296.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_003). Relecture requise."
+
+- id: q-deepfake-004
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0297.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_004). Relecture requise."
+
+- id: q-deepfake-005
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0298.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_005). Relecture requise."
+
+- id: q-deepfake-006
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0299.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_006). Relecture requise."
+
+- id: q-deepfake-007
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0300.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_007). Relecture requise."
+
+- id: q-deepfake-008
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0301.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_008). Relecture requise."
+
+- id: q-deepfake-009
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0302.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_009). Relecture requise."
+
+- id: q-deepfake-010
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0303.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_010). Relecture requise."
+
+- id: q-deepfake-011
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0304.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_011). Relecture requise."
+
+- id: q-deepfake-012
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0305.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_012). Relecture requise."
+
+- id: q-deepfake-013
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0306.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_013). Relecture requise."
+
+- id: q-deepfake-014
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0307.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_014). Relecture requise."
+
+- id: q-deepfake-015
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0308.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_015). Relecture requise."
+
+- id: q-deepfake-016
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0309.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_016). Relecture requise."
+
+- id: q-deepfake-017
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0310.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_017). Relecture requise."
+
+- id: q-deepfake-018
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0311.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_018). Relecture requise."
+
+- id: q-deepfake-019
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0312.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_019). Relecture requise."
+
+- id: q-deepfake-020
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0313.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_020). Relecture requise."
+
+- id: q-deepfake-021
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0314.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_021). Relecture requise."
+
+- id: q-deepfake-022
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0315.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_022). Relecture requise."
+
+- id: q-deepfake-023
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0316.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_023). Relecture requise."
+
+- id: q-deepfake-024
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0317.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_024). Relecture requise."
+
+- id: q-deepfake-025
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0318.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_025). Relecture requise."
+
+- id: q-deepfake-026
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0319.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_026). Relecture requise."
+
+- id: q-deepfake-027
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Cette image est…"
+  axis: media_synthetic
+  difficulty: advanced
+  intent: "Le réalisme perçu n'est pas une preuve d'authenticité."
+  context:
+    role: observateur
+    scenario: "Usage / média IA à juger. Voir énoncé."
+  prompt: "Cette image est…"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: authentique
+      label: "Authentique"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+    - id: genere
+      label: "Générée par IA"
+      score: 1.0
+      feedback: "[brouillon] Corpus 100 % généré par IA. Labels réels à confirmer à la main."
+    - id: manipule
+      label: "Manipulée"
+      score: -0.5
+      severity: medium
+      feedback: "La vérification de source prime sur les indices visuels : le réalisme n'atteste rien."
+  expected_reasoning:
+    - "Le réalisme perçu n'est pas une preuve d'authenticité."
+  risks:
+    - deepfake_confusion
+    - misinformation
+  media:
+    - rumble_asset_0320.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (df_027). Relecture requise."

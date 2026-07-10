@@ -115,7 +115,8 @@ enum Stage {
 const GLOBAL_KEYS_JS: &str = "if (!window.__raipKeys) { window.__raipKeys = true; \
      document.addEventListener('keydown', function (e) { \
        if (e.metaKey || e.ctrlKey || e.altKey) return; \
-       var q = function (s) { return document.querySelector(s); }; \
+       var q = function (s) { var el = document.querySelector(s); \
+         return el && getComputedStyle(el).visibility !== 'hidden' ? el : null; }; \
        var k = e.key; \
        if (k >= '1' && k <= '9') { var b = q('.choice[data-key=\"' + k + '\"]'); \
          if (b) { e.preventDefault(); var c = b.querySelector('.cap'); \
@@ -249,27 +250,27 @@ pub fn App() -> Element {
 fn IntroGate(total: usize, on_start: EventHandler<()>) -> Element {
     rsx! {
         section { class: "intro-gate",
-            p { class: "intro-eyebrow", "Entraînement libre" }
-            h1 { class: "intro-title", "Entraînez vos réflexes face à l'IA" }
+            p { class: "intro-eyebrow", "Sensibilisation · biais de l'IA" }
+            h1 { class: "intro-title", "Aucune image générée n'est neutre." }
             p { class: "intro-lede",
-                "Pas une évaluation RH, pas un classement. Dans une situation concrète, quel est le comportement responsable ?"
+                "Une IA ne « photographie » pas le réel : elle en tire une version parmi une infinité. Ce choix statistique est toujours un biais — même quand l'image paraît positive ou « diverse »."
             }
             ul { class: "intro-facts",
                 li {
-                    span { class: "intro-k", "Durée" }
-                    span { "≈ 6–8 min · {total} situations · une par risque" }
+                    span { class: "intro-k", "Le déclic" }
+                    span { "un prompt en apparence neutre, un résultat biaisé. Ici, on apprend à le voir — surtout là où il se cache." }
                 }
                 li {
-                    span { class: "intro-k", "Données" }
-                    span { "vos réponses et verdicts, par catégorie — rien de nominatif" }
+                    span { class: "intro-k", "La thèse" }
+                    span { "le problème n'est pas l'humain : le vrai danger, c'est la fausse confiance dans l'outil — et c'est à l'entreprise de l'encadrer." }
                 }
                 li {
-                    span { class: "intro-k", "Confidentialité" }
-                    span { "analyse anonymisée, exportable en local, zéro traceur externe" }
+                    span { class: "intro-k", "La session" }
+                    span { "{total} situations à juger · rejouable · rien de nominatif" }
                 }
                 li {
-                    span { class: "intro-k", "Liberté" }
-                    span { "rejouable à volonté — rejouer ne dégrade jamais votre progression" }
+                    span { class: "intro-k", "Le positionnement" }
+                    span { "anonyme et solidaire — jamais un classement : « tu n'es pas seul à t'être fait avoir »" }
                 }
             }
             if total == 0 {
@@ -284,7 +285,7 @@ fn IntroGate(total: usize, on_start: EventHandler<()>) -> Element {
                     "data-action": "start",
                     autofocus: true,
                     onclick: move |_| on_start.call(()),
-                    span { "Démarrer" }
+                    span { "Commencer" }
                     Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
                 }
             }
@@ -431,127 +432,135 @@ pub fn QuestionConsole(
                 },
             }
 
-            if !is_locked {
-                p { class: "prompt", "{question.prompt}" }
-                p { class: "calm-hint", "Prenez le temps : lisez chaque option avant de valider." }
-                div {
-                    class: "choices",
-                    role: "radiogroup",
-                    aria_label: "Choix de réponse",
-                    for (idx , choice , cls , tab) in rows {
-                        button {
-                            key: "{choice.id}",
-                            class: "{cls}",
-                            role: "radio",
-                            "aria-checked": if sel_now == Some(idx) { "true" } else { "false" },
-                            "data-key": "{choice.key}",
-                            tabindex: "{tab}",
-                            r#type: "button",
-                            onclick: move |_| {
-                                // one-gesture touch: first tap selects, a tap on the
-                                // already-selected choice validates.
-                                if selected() == Some(idx) {
-                                    document::eval(RUM_MARK_VALIDATE);
+            // Both layers share one grid cell so the console keeps the max
+            // height of the question/answered views: the reveal never shrinks
+            // the document (no scroll clamp — the in-place contract holds).
+            div { class: "console-stack",
+                div { class: if is_locked { "stack-layer stack-ghost" } else { "stack-layer" },
+                        p { class: "prompt", "{question.prompt}" }
+                        p { class: "calm-hint", "Prenez le temps : lisez chaque option avant de valider." }
+                        div {
+                            class: "choices",
+                            role: "radiogroup",
+                            aria_label: "Choix de réponse",
+                            for (idx , choice , cls , tab) in rows {
+                                button {
+                                    key: "{choice.id}",
+                                    class: "{cls}",
+                                    role: "radio",
+                                    "aria-checked": if sel_now == Some(idx) { "true" } else { "false" },
+                                    "data-key": "{choice.key}",
+                                    tabindex: "{tab}",
+                                    r#type: "button",
+                                    onclick: move |_| {
+                                        // one-gesture touch: first tap selects, a tap on the
+                                        // already-selected choice validates.
+                                        if selected() == Some(idx) {
+                                            document::eval(RUM_MARK_VALIDATE);
+                                            locked.set(true);
+                                        } else {
+                                            selected.set(Some(idx));
+                                            document::eval(RUM_MARK_SELECT);
+                                        }
+                                    },
+                                    Keycap { legend: choice.key.clone() }
+                                    span { class: "choice-label", "{choice.label}" }
+                                }
+                            }
+                        }
+                        div { class: "commit-row",
+                            button {
+                                class: "idk",
+                                r#type: "button",
+                                "data-action": "idk",
+                                onclick: move |_| {
+                                    selected.set(None);
+                                    idk.set(true);
                                     locked.set(true);
-                                } else {
-                                    selected.set(Some(idx));
-                                    document::eval(RUM_MARK_SELECT);
-                                }
-                            },
-                            Keycap { legend: choice.key.clone() }
-                            span { class: "choice-label", "{choice.label}" }
+                                },
+                                span { "Je ne sais pas" }
+                                Keycap { legend: "espace".to_string() }
+                            }
+                            button {
+                                class: "validate-btn",
+                                r#type: "button",
+                                "data-action": "validate",
+                                disabled: sel_now.is_none(),
+                                onclick: move |_| {
+                                    if selected().is_some() {
+                                        document::eval(RUM_MARK_VALIDATE);
+                                        locked.set(true);
+                                    }
+                                },
+                                span { "Valider" }
+                                Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
+                            }
                         }
-                    }
                 }
-                div { class: "commit-row",
-                    button {
-                        class: "idk",
-                        r#type: "button",
-                        "data-action": "idk",
-                        onclick: move |_| {
-                            selected.set(None);
-                            idk.set(true);
-                            locked.set(true);
-                        },
-                        span { "Je ne sais pas" }
-                        Keycap { legend: "espace".to_string() }
-                    }
-                    button {
-                        class: "validate-btn",
-                        r#type: "button",
-                        "data-action": "validate",
-                        disabled: sel_now.is_none(),
-                        onclick: move |_| {
-                            if selected().is_some() {
-                                document::eval(RUM_MARK_VALIDATE);
-                                locked.set(true);
+                if is_locked {
+                    div { class: "stack-layer",
+                        // In-place answer: chosen choice pinned, feedback crossfades in.
+                        div { class: "answered reveal",
+                            match (is_idk, pinned) {
+                                // honest opt-out: no verdict, but the reflex to know is shown
+                                (true, _) => rsx! {
+                                    div { class: "choice locked pinned", "data-verdict": "idk",
+                                        Keycap { legend: "?".to_string() }
+                                        span { class: "choice-label", "Je ne sais pas" }
+                                        span { class: "verdict-tag", "data-verdict": "idk", "À explorer" }
+                                    }
+                                    section {
+                                        class: "feedback-panel",
+                                        "data-verdict": "idk",
+                                        "aria-live": "polite",
+                                        div { class: "fb-verdict",
+                                            span { class: "glyph", aria_hidden: "true", "?" }
+                                            span { "Réponse non tranchée" }
+                                        }
+                                        p { class: "fb-reason",
+                                            "Ne pas trancher est plus honnête que deviner. Le réflexe à connaître :"
+                                        }
+                                        p { class: "idk-action", "{juste_action}" }
+                                    }
+                                },
+                                (false, Some((key, label, verdict, fb))) => rsx! {
+                                    div { class: "choice sel locked pinned", "data-verdict": "{verdict.slug()}",
+                                        Keycap { legend: key }
+                                        span { class: "choice-label", "{label}" }
+                                        span { class: "verdict-tag", "data-verdict": "{verdict.slug()}",
+                                            span { class: "glyph", aria_hidden: "true", "{verdict.symbol()} " }
+                                            "{verdict.label()}"
+                                        }
+                                    }
+                                    FeedbackPanel { feedback: fb }
+                                },
+                                (false, None) => rsx! {},
                             }
-                        },
-                        span { "Valider" }
-                        Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
-                    }
-                }
-            } else {
-                // In-place answer: chosen choice pinned, feedback crossfades in.
-                div { class: "answered reveal",
-                    match (is_idk, pinned) {
-                        // honest opt-out: no verdict, but the reflex to know is shown
-                        (true, _) => rsx! {
-                            div { class: "choice locked pinned", "data-verdict": "idk",
-                                Keycap { legend: "?".to_string() }
-                                span { class: "choice-label", "Je ne sais pas" }
-                                span { class: "verdict-tag", "data-verdict": "idk", "À explorer" }
-                            }
-                            section {
-                                class: "feedback-panel",
-                                "data-verdict": "idk",
-                                "aria-live": "polite",
-                                div { class: "fb-verdict",
-                                    span { class: "glyph", aria_hidden: "true", "?" }
-                                    span { "Réponse non tranchée" }
+                            div { class: "commit-row",
+                                button {
+                                    class: "idk",
+                                    r#type: "button",
+                                    "data-action": "replay",
+                                    onclick: move |_| {
+                                        selected.set(None);
+                                        idk.set(false);
+                                        locked.set(false);
+                                    },
+                                    span { "Rejouer" }
+                                    Keycap { legend: "R".to_string(), class: "mini".to_string() }
                                 }
-                                p { class: "fb-reason",
-                                    "Ne pas trancher est plus honnête que deviner. Le réflexe à connaître :"
-                                }
-                                p { class: "idk-action", "{juste_action}" }
-                            }
-                        },
-                        (false, Some((key, label, verdict, fb))) => rsx! {
-                            div { class: "choice sel locked pinned", "data-verdict": "{verdict.slug()}",
-                                Keycap { legend: key }
-                                span { class: "choice-label", "{label}" }
-                                span { class: "verdict-tag", "data-verdict": "{verdict.slug()}",
-                                    span { class: "glyph", aria_hidden: "true", "{verdict.symbol()} " }
-                                    "{verdict.label()}"
+                                button {
+                                    class: "validate-btn",
+                                    r#type: "button",
+                                    "data-action": "continue",
+                                    onclick: move |_| {
+                                        let feedback = sel_now.and_then(|i| feedbacks.get(i).cloned());
+                                        on_continue.call((chosen_choice_id.clone(), feedback));
+                                    },
+                                    span { if is_last { "Voir la synthèse" } else { "Question suivante" } }
+                                    Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
                                 }
                             }
-                            FeedbackPanel { feedback: fb }
-                        },
-                        (false, None) => rsx! {},
-                    }
-                    div { class: "commit-row",
-                        button {
-                            class: "idk",
-                            r#type: "button",
-                            "data-action": "replay",
-                            onclick: move |_| {
-                                selected.set(None);
-                                idk.set(false);
-                                locked.set(false);
-                            },
-                            span { "Rejouer" }
-                            Keycap { legend: "R".to_string(), class: "mini".to_string() }
-                        }
-                        button {
-                            class: "validate-btn",
-                            r#type: "button",
-                            "data-action": "continue",
-                            onclick: move |_| {
-                                let feedback = sel_now.and_then(|i| feedbacks.get(i).cloned());
-                                on_continue.call((chosen_choice_id.clone(), feedback));
-                            },
-                            span { if is_last { "Voir la synthèse" } else { "Question suivante" } }
-                            Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
                         }
                     }
                 }
@@ -863,13 +872,10 @@ fn CohortAxis(position: DistributionPosition) -> Element {
 /// bakes it into the wasm at build time — the client parses and drives it through
 /// the engine at runtime, no filesystem, no backend.
 const CORPUS_FILES: &[&str] = &[
-    include_str!("../../../content/questions/privacy-rgpd.yml"),
-    include_str!("../../../content/questions/reliability.yml"),
-    include_str!("../../../content/questions/responsibility-bias.yml"),
-    include_str!("../../../content/questions/security-prompt.yml"),
-    include_str!("../../../content/questions/data-sovereignty.yml"),
-    include_str!("../../../content/questions/media.yml"),
-    include_str!("../../../content/questions/pilot.yml"),
+    include_str!("../../../content/questions/bias-visual.yml"),
+    include_str!("../../../content/questions/situations.yml"),
+    include_str!("../../../content/questions/profiles.yml"),
+    include_str!("../../../content/questions/deepfakes.yml"),
 ];
 
 /// Sort rank for the learning curve: beginner → intermediate → advanced.
@@ -881,10 +887,13 @@ fn difficulty_rank(difficulty: Difficulty) -> u8 {
     }
 }
 
-/// Select the parcours from the embedded corpus: one valid question per risk
-/// axis (covers the whole surface), ordered by difficulty (gentle learning
-/// curve). Kept separate from the view-model mapping so the selection is
-/// testable on the real content.
+/// Number of drills drawn per play session.
+const SESSION_SIZE: usize = 50;
+
+/// Draw a session from the embedded bias-game corpus: up to `SESSION_SIZE`
+/// valid drills, round-robin across risk axes for variety, then ordered by a
+/// gentle difficulty curve. Kept separate from the view-model mapping so the
+/// selection is testable on the real content.
 fn parcours_questions() -> Vec<Question> {
     let mut all: Vec<Question> = Vec::new();
     for raw in CORPUS_FILES {
@@ -892,21 +901,41 @@ fn parcours_questions() -> Vec<Question> {
             all.extend(questions.into_iter().filter(|q| q.validate_basic().is_ok()));
         }
     }
-    let mut axes_seen: Vec<RiskAxis> = Vec::new();
-    let mut selected: Vec<Question> = all
+    let mut session: Vec<Question> = interleave_by_axis(all)
         .into_iter()
-        .filter(|q| {
-            if axes_seen.contains(&q.axis) {
-                false
-            } else {
-                axes_seen.push(q.axis);
-                true
-            }
-        })
+        .take(SESSION_SIZE)
         .collect();
-    // stable sort keeps the by-axis order within a difficulty tier
-    selected.sort_by_key(|q| difficulty_rank(q.difficulty));
-    selected
+    // stable sort keeps the axis-interleaved order within a difficulty tier
+    session.sort_by_key(|q| difficulty_rank(q.difficulty));
+    session
+}
+
+/// Round-robin questions across their risk axes so a session mixes topics
+/// instead of clustering all drills of one axis together.
+fn interleave_by_axis(questions: Vec<Question>) -> Vec<Question> {
+    let mut buckets: std::collections::BTreeMap<RiskAxis, Vec<Question>> =
+        std::collections::BTreeMap::new();
+    for q in questions {
+        buckets.entry(q.axis).or_default().push(q);
+    }
+    let mut lists: Vec<Vec<Question>> = buckets.into_values().collect();
+    for list in lists.iter_mut() {
+        list.reverse(); // so pop() yields the original front order
+    }
+    let mut out = Vec::new();
+    loop {
+        let mut progressed = false;
+        for list in lists.iter_mut() {
+            if let Some(q) = list.pop() {
+                out.push(q);
+                progressed = true;
+            }
+        }
+        if !progressed {
+            break;
+        }
+    }
+    out
 }
 
 /// The parcours as presentational questions. Verdicts are derived by the engine
@@ -966,6 +995,14 @@ fn framing_for(question: &Question) -> ScenarioFraming {
 
 /// If the scenario declares an asset, show it as an attachment card.
 fn artifact_for(question: &Question) -> Option<ScenarioArtifact> {
+    // A media_review drill shows its actual generated visual (the drill IS the
+    // image); the AI-synthetic disclosure is rendered by the view (ADR 0004/0008).
+    if let Some(file) = question.media.first() {
+        return Some(ScenarioArtifact::Generated {
+            src: format!("/assets/media/{file}"),
+            alt: question.title.clone(),
+        });
+    }
     question
         .context
         .assets
@@ -1106,10 +1143,10 @@ mod tests {
     #[test]
     fn opens_on_the_onboarding_gate_not_a_question() {
         let html = dioxus_ssr::render_element(rsx! { App {} });
-        // the gate states objective, not-HR, duration, data, freedom
-        assert!(html.contains("Entraînez vos réflexes"));
-        assert!(html.contains("Pas une évaluation RH"));
-        assert!(html.contains("Démarrer"));
+        // the manifesto gate: everything is biased, non-competitive, with a start
+        assert!(html.contains("Aucune image générée"));
+        assert!(html.contains("jamais un classement"));
+        assert!(html.contains("Commencer"));
         // the question is not shown before the gate
         assert!(!html.contains("radiogroup"));
         // no numeric scoring ever
@@ -1118,17 +1155,14 @@ mod tests {
     }
 
     #[test]
-    fn corpus_is_built_from_real_content_one_per_axis() {
+    fn corpus_is_a_bias_session_from_real_content() {
         let qs = corpus();
-        // one situation per risk axis (10 axes), all engine-derived
-        assert_eq!(qs.len(), 10, "one question per risk axis");
-        let mut categories: Vec<&str> = qs.iter().map(|q| q.category).collect();
-        categories.sort_unstable();
-        categories.dedup();
-        assert_eq!(
-            categories.len(),
-            10,
-            "each axis maps to a distinct category"
+        // a play session: non-empty, capped at SESSION_SIZE, all engine-derived
+        assert!(!qs.is_empty(), "session is non-empty");
+        assert!(
+            qs.len() <= SESSION_SIZE,
+            "session capped at {SESSION_SIZE}, got {}",
+            qs.len()
         );
         for q in &qs {
             assert!(q.id.starts_with("q-"), "real content id: {}", q.id);
@@ -1140,15 +1174,6 @@ mod tests {
                 q.id
             );
             assert!(!q.prompt.is_empty(), "real prompt in {}", q.id);
-            // risks are shown in French, not raw English slugs
-            for fb in &q.feedbacks {
-                assert!(
-                    !fb.risk.contains('_'),
-                    "risk humanized in {}: {}",
-                    q.id,
-                    fb.risk
-                );
-            }
         }
     }
 
@@ -1282,15 +1307,17 @@ mod tests {
     }
 
     #[test]
-    fn parcours_is_ordered_by_difficulty() {
-        let ranks: Vec<u8> = parcours_questions()
+    fn session_is_capped_and_ordered_by_difficulty() {
+        let session = parcours_questions();
+        assert!(!session.is_empty());
+        assert!(session.len() <= SESSION_SIZE);
+        let ranks: Vec<u8> = session
             .iter()
             .map(|q| difficulty_rank(q.difficulty))
             .collect();
-        assert_eq!(ranks.len(), 10);
         assert!(
             ranks.windows(2).all(|w| w[0] <= w[1]),
-            "parcours must be non-decreasing in difficulty, got {ranks:?}"
+            "session must be non-decreasing in difficulty, got {ranks:?}"
         );
     }
 

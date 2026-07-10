@@ -1,0 +1,505 @@
+# situations.yml — import prototype (status: draft, à relire).
+
+- id: q-situation-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Un agent IA modifie seul un tableur financier partagé, sans qu'aucun h"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Un agent IA modifie seul un tableur financier partagé, sans qu'aucun humain ne valide avant enregistrement."
+  prompt: "Un agent IA modifie seul un tableur financier partagé, sans qu'aucun humain ne valide avant enregistrement."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: 1.0
+      feedback: "Une action irréversible sur une donnée sensible sans validation humaine (human-in-the-loop) est risquée : une erreur ou une hallucination passe directement en production."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_001). Relecture requise."
+
+- id: q-situation-002
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Un LLM rédige un premier brouillon d'e-mail que l'auteur relit et corr"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Un LLM rédige un premier brouillon d'e-mail que l'auteur relit et corrige avant l'envoi."
+  prompt: "Un LLM rédige un premier brouillon d'e-mail que l'auteur relit et corrige avant l'envoi."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: 1.0
+      feedback: "Usage sain : l'IA accélère, l'humain garde la décision et la responsabilité finale."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_002). Relecture requise."
+
+- id: q-situation-003
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Un outil IA trie les CV reçus et écarte automatiquement une partie des"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Un outil IA trie les CV reçus et écarte automatiquement une partie des candidats, sans revue humaine."
+  prompt: "Un outil IA trie les CV reçus et écarte automatiquement une partie des candidats, sans revue humaine."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: 1.0
+      feedback: "Décision automatisée à fort impact + biais probable des données d'entraînement : risque de discrimination et d'exclusion silencieuse."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_003). Relecture requise."
+
+- id: q-situation-004
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Une IA résume une réunion ; l'organisateur vérifie les points clés ava"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Une IA résume une réunion ; l'organisateur vérifie les points clés avant de diffuser le compte rendu."
+  prompt: "Une IA résume une réunion ; l'organisateur vérifie les points clés avant de diffuser le compte rendu."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: 1.0
+      feedback: "La vérification humaine des points importants couvre le risque d'erreur ou d'omission du résumé."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_004). Relecture requise."
+
+- id: q-situation-005
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Un agent IA envoie directement des e-mails aux clients à partir d'un m"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Un agent IA envoie directement des e-mails aux clients à partir d'un modèle, sans relecture."
+  prompt: "Un agent IA envoie directement des e-mails aux clients à partir d'un modèle, sans relecture."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: surveiller
+      label: "À surveiller"
+      score: 1.0
+      feedback: "À surveiller : le gain est réel, mais un ton inadapté ou une donnée erronée part chez le client sans filet. Un échantillon relu ou une validation par lot réduit le risque."
+    - id: risque
+      label: "Risqué"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_005). Relecture requise."
+
+- id: q-situation-006
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Une équipe reprend telles quelles des visuels générés par IA pour une "
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Une équipe reprend telles quelles des visuels générés par IA pour une campagne, sans vérifier les représentations."
+  prompt: "Une équipe reprend telles quelles des visuels générés par IA pour une campagne, sans vérifier les représentations."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: surveiller
+      label: "À surveiller"
+      score: 1.0
+      feedback: "À surveiller : les visuels générés portent des biais (voir le drill image). Une relecture « qui est représenté, comment ? » évite de diffuser un stéréotype."
+    - id: risque
+      label: "Risqué"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_006). Relecture requise."
+
+- id: q-situation-007
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Un chatbot répond seul à des questions de santé du public, sans garde-"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Un chatbot répond seul à des questions de santé du public, sans garde-fou ni renvoi vers un professionnel."
+  prompt: "Un chatbot répond seul à des questions de santé du public, sans garde-fou ni renvoi vers un professionnel."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: 1.0
+      feedback: "Domaine à fort enjeu : une réponse fausse ou une hallucination peut nuire. Un garde-fou et un renvoi vers un professionnel sont indispensables."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_007). Relecture requise."
+
+- id: q-situation-008
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Une IA propose trois formulations d'un texte ; la personne en choisit "
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Une IA propose trois formulations d'un texte ; la personne en choisit une et l'ajuste."
+  prompt: "Une IA propose trois formulations d'un texte ; la personne en choisit une et l'ajuste."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: 1.0
+      feedback: "L'IA élargit les options, l'humain tranche : la décision reste humaine."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_008). Relecture requise."
+
+- id: q-situation-009
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Un modèle accorde ou refuse seul une demande de crédit, sans explicati"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Un modèle accorde ou refuse seul une demande de crédit, sans explication ni recours."
+  prompt: "Un modèle accorde ou refuse seul une demande de crédit, sans explication ni recours."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: 1.0
+      feedback: "Décision automatisée à impact majeur, sans transparence ni recours : risque juridique (RGPD, art. 22) et éthique."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_009). Relecture requise."
+
+- id: q-situation-010
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Une IA traduit un document interne ; un collègue bilingue relit avant "
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Une IA traduit un document interne ; un collègue bilingue relit avant diffusion."
+  prompt: "Une IA traduit un document interne ; un collègue bilingue relit avant diffusion."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: 1.0
+      feedback: "La relecture humaine couvre les contresens : usage maîtrisé."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_010). Relecture requise."
+
+- id: q-situation-011
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Un agent exécute des actions sur un système de production, déclenchées"
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Un agent exécute des actions sur un système de production, déclenchées par un texte externe non vérifié."
+  prompt: "Un agent exécute des actions sur un système de production, déclenchées par un texte externe non vérifié."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: 1.0
+      feedback: "Surface d'injection de prompt : un contenu externe malveillant peut détourner l'agent. Aucune action sensible ne doit dépendre d'une entrée non vérifiée."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_011). Relecture requise."
+
+- id: q-situation-012
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Une IA suggère des mots-clés sur des photos ; ils sont validés par un "
+  axis: human_responsibility
+  difficulty: intermediate
+  intent: "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  context:
+    role: observateur
+    scenario: "Une IA suggère des mots-clés sur des photos ; ils sont validés par un humain avant publication."
+  prompt: "Une IA suggère des mots-clés sur des photos ; ils sont validés par un humain avant publication."
+  interaction:
+    type: single_choice
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: ok
+      label: "OK"
+      score: 1.0
+      feedback: "Suggestion + validation humaine : l'erreur est rattrapée avant toute conséquence."
+    - id: surveiller
+      label: "À surveiller"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+    - id: risque
+      label: "Risqué"
+      score: -0.5
+      severity: medium
+      feedback: "Ce n'est pas le bon niveau de vigilance ici — relis le scénario."
+  expected_reasoning:
+    - "Un usage IA se juge à l'aune du garde-fou humain et de l'enjeu."
+  risks:
+    - human_oversight
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon prototype (ai_012). Relecture requise."

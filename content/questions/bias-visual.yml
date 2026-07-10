@@ -1,0 +1,2049 @@
+# Axe bias_fairness — biais de représentation des visuels générés (import prototype).
+# Cadre : aucune image générée par IA n'est neutre (tout output = un échantillonnage).
+# Interaction media_review ; la V/F est l'interaction, l'axe fin est dans risks[] (phase B = UI).
+# status: draft — relecture humaine + bias_review média requis avant publication (ADR 0004/0008).
+
+- id: q-biasvisual-001
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un homme africain »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un homme africain ». Média synthétique (voir fiche média)."
+  prompt: "« Rien dans cette image ne pose de problème de représentation. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Elle réduit un homme africain au village, à la hutte et au pagne, torse nu : un exotisme rural qui efface l'Afrique urbaine et contemporaine. « Rien de problématique » est le piège. Biais dominant : Origine / ethnie."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Origine / ethnie."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_origine
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0244.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_001). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-002
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une personne âgée qui utilise un ordinateur »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une personne âgée qui utilise un ordinateur ». Média synthétique (voir fiche média)."
+  prompt: "« Cette image s'appuie sur un stéréotype lié à l'âge. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. La personne âgée perdue devant l'écran rejoue le cliché de l'incompétence numérique des seniors ; l'IA a produit la version la plus stéréotypée. Biais dominant : Âge."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Âge."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_age
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0245.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_002). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-003
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un couple qui mange au fast-food »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un couple qui mange au fast-food ». Média synthétique (voir fiche média)."
+  prompt: "« Associer ce couple au fast-food est une observation neutre. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Lier corpulence et malbouffe est un préjugé grossophobe : on déduit un comportement d'un corps. Le poids ne dit rien des habitudes. Biais dominant : Corpulence."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Corpulence."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_corpulence
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0246.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_003). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-004
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un poste d'accueil »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un poste d'accueil ». Média synthétique (voir fiche média)."
+  prompt: "« Rien ici ne trahit un stéréotype de genre. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "L'accueil incarné par une jeune femme blonde soignée est un stéréotype de genre et d'apparence. Demande « un employé au téléphone » à une IA et regarde son défaut. Biais dominant : Genre."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0247.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_004). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-005
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un homme gay au bureau »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un homme gay au bureau ». Média synthétique (voir fiche média)."
+  prompt: "« Cette image caricature l'orientation par des signes extérieurs. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Réduire un homme gay à une gestuelle « flamboyante » fait de l'orientation un costume — ce n'est pas un style à exhiber. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0248.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_005). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-006
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une personne allemande »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une personne allemande ». Média synthétique (voir fiche média)."
+  prompt: "« Ramener l'Allemagne à la bière et aux lederhosen est un raccourci folklorique. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Ce cliché « carte postale » efface les personnes réelles derrière le folklore régional. Biais dominant : Origine / ethnie."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Origine / ethnie."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_origine
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0249.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_006). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-007
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une personne sans-abri »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une personne sans-abri ». Média synthétique (voir fiche média)."
+  prompt: "« Cette image ajoute un vice supposé à une situation de précarité. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Associer sans-abrisme et alcool stigmatise et masque les causes structurelles de la précarité. Biais dominant : Statut social."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Statut social."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_statut
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0250.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_007). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-008
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un influenceur »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un influenceur ». Média synthétique (voir fiche média)."
+  prompt: "« Réduire une influenceuse à une moue et un selfie caricature un métier genré. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Le travail de création de contenu mérite mieux qu'un cliché superficiel et genré. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0251.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_008). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-009
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une personne italienne »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une personne italienne ». Média synthétique (voir fiche média)."
+  prompt: "« Pizza et gestuelle exubérante enferment l'identité italienne dans une caricature. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Ces raccourcis « nationaux » effacent les personnes réelles derrière le folklore. Biais dominant : Origine / ethnie."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Origine / ethnie."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_origine
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0252.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_009). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-010
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un homme viril »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un homme viril ». Média synthétique (voir fiche média)."
+  prompt: "« La posture « macho » réduit la masculinité à la domination et à la force. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai — un cliché qui enferme aussi les hommes dans un rôle unique. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0253.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_010). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-011
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un scientifique »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un scientifique ». Média synthétique (voir fiche média)."
+  prompt: "« Le savant échevelé est une représentation neutre de la science. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Le « savant fou » présente la science comme dangereuse et asociale, déformant la réalité des métiers scientifiques. Biais dominant : Statut social."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Statut social."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_statut
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0254.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_011). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-012
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une personne mexicaine »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une personne mexicaine ». Média synthétique (voir fiche média)."
+  prompt: "« Réduire la culture mexicaine à un sombrero est un raccourci ethnique. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Un accessoire ne représente pas une culture ; ce raccourci efface la diversité des personnes. Biais dominant : Origine / ethnie."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Origine / ethnie."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_origine
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0255.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_012). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-013
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une femme musulmane »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une femme musulmane ». Média synthétique (voir fiche média)."
+  prompt: "« Cette image reflète fidèlement le quotidien des femmes musulmanes. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Double cliché genre + culturel. « Reflète fidèlement » est le leurre : l'image ne reflète pas le réel, elle en fabrique une version — ici la plus stéréotypée. Biais dominant : Genre."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_origine
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0256.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_013). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-014
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une femme au volant »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une femme au volant ». Média synthétique (voir fiche média)."
+  prompt: "« La « femme au volant » énervée rejoue un sexisme ordinaire. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. La compétence au volant n'a pas de genre ; ce cliché est sans fondement. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0257.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_014). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-015
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un cadre africain »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un cadre africain ». Média synthétique (voir fiche média)."
+  prompt: "« Cette image d'un cadre africain en ville est une représentation neutre. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Elle casse le cliché rural — tant mieux — mais reste UN tirage (cette personne, cette tenue) parmi d'autres. Un contre-stéréotype n'est pas « neutre ». Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_origine
+  media:
+    - rumble_asset_0258.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_015). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-016
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une coureuse »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une coureuse ». Média synthétique (voir fiche média)."
+  prompt: "« En montrant une coureuse ronde, cette image est objective et sans biais. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Elle combat la grossophobie, mais la mettre en avant comme « body positive » est aussi un cadrage choisi. Aucune image n'est « objective ». Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_corpulence
+  media:
+    - rumble_asset_0259.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_016). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-017
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un PDG »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un PDG ». Média synthétique (voir fiche média)."
+  prompt: "« Une dirigeante noire : voici enfin une image non biaisée. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Le contre-stéréotype est précieux, mais l'IA a produit UNE personne précise. « Non biaisée » n'existe pas : c'est un autre choix, pas l'absence de choix. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_genre
+    - bias_origine
+  media:
+    - rumble_asset_0260.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_017). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-018
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un leader »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un leader ». Média synthétique (voir fiche média)."
+  prompt: "« Cette dirigeante au calme incarne une représentation neutre du leadership. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Montrer l'autorité hors des codes masculins est utile — mais « neutre » reste faux : chaque trait (âge, posture, tenue) est un tirage. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_genre
+  media:
+    - rumble_asset_0261.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_018). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-019
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un chirurgien »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un chirurgien ». Média synthétique (voir fiche média)."
+  prompt: "« Cette image d'une chirurgienne est une représentation neutre et objective de la profession. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Le piège. On la lit « diverse donc neutre » ; l'IA a tiré une personne (âge, teint, gravité) parmi une infinité. Un contre-stéréotype est un biais d'échantillonnage, pas son absence. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_genre
+    - bias_origine
+  media:
+    - rumble_asset_0262.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_019). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-020
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un infirmier »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un infirmier ». Média synthétique (voir fiche média)."
+  prompt: "« Un infirmier homme : cette image renverse un stéréotype de genre. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai — le soin n'est pas « féminin ». Mais renverser un stéréotype reste un choix orienté : utile, pas neutre. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0263.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_020). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-021
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une personne en cuisine »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une personne en cuisine ». Média synthétique (voir fiche média)."
+  prompt: "« Une femme en cuisine dans un cadre moderne : cette image est forcément biaisée. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Piège inversé : le biais n'est pas « une femme en cuisine » en soi, mais le cadre qui l'y assigne. Ici le contexte neutre l'évite. Tout dépend du cadrage. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_genre
+  media:
+    - rumble_asset_0264.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_021). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-022
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un cycliste senior »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un cycliste senior ». Média synthétique (voir fiche média)."
+  prompt: "« Un senior à vélo prouve qu'on peut faire des images sans biais. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Belle image d'une vieillesse active — mais elle ne « prouve » aucune absence de biais : c'est une représentation parmi d'autres. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_age
+  media:
+    - rumble_asset_0265.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_022). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-023
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un expert en informatique »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un expert en informatique ». Média synthétique (voir fiche média)."
+  prompt: "« Un senior expert en technologie renverse un cliché lié à l'âge. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai — contredit l'incompétence numérique supposée des seniors. Un contre-cliché reste orienté, mais celui-ci est salutaire. Biais dominant : Âge."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Âge."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_age
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0266.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_023). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-024
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « des adolescents »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « des adolescents ». Média synthétique (voir fiche média)."
+  prompt: "« Des adolescents joyeux : une image neutre et sans stéréotype. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Elle évite le cliché du « jeune à problème » — mais « neutre » reste faux : chaque groupe montré est une sélection. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_age
+  media:
+    - rumble_asset_0267.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_024). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-025
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un chauffeur de poids lourd »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un chauffeur de poids lourd ». Média synthétique (voir fiche média)."
+  prompt: "« Une conductrice de poids lourd casse un stéréotype de métier genré. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai — aucun métier n'est réservé à un genre. Contre-stéréotype assumé, donc orienté, mais juste. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0268.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_025). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-026
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un comité de direction de banque »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un comité de direction de banque ». Média synthétique (voir fiche média)."
+  prompt: "« Ce comité de direction sur-représente un profil unique. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Un comité d'hommes seniors efface femmes, jeunes et minorités — un plafond de verre rendu visible. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_age
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0269.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_026). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-027
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un conseil municipal »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un conseil municipal ». Média synthétique (voir fiche média)."
+  prompt: "« Ce conseil municipal reflète la diversité de la population. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Faux. Un conseil exclusivement masculin ne représente pas celles et ceux qu'il gouverne. La parité est un enjeu démocratique. Biais dominant : Genre."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0270.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_027). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-028
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un comité exécutif »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un comité exécutif ». Média synthétique (voir fiche média)."
+  prompt: "« Cette image sur-représente un profil unique au sommet. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Huit hommes blancs seniors : la composition efface femmes, jeunes et minorités. Biais dominant : Origine / ethnie."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Origine / ethnie."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_origine
+    - bias_genre
+    - bias_age
+  media:
+    - rumble_asset_0271.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_028). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-029
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une équipe de développeurs »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une équipe de développeurs ». Média synthétique (voir fiche média)."
+  prompt: "« Cet open space de développeurs est mixte et équilibré. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Faux. Une équipe entièrement masculine reflète et perpétue le manque de mixité dans la tech. Biais dominant : Genre."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0272.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_029). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-030
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une rédaction »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une rédaction ». Média synthétique (voir fiche média)."
+  prompt: "« Cette rédaction sans femmes appauvrit la pluralité des regards. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. L'absence de femmes réduit la diversité des angles sur l'information. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0273.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_030). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-031
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un cabinet d'avocats »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un cabinet d'avocats ». Média synthétique (voir fiche média)."
+  prompt: "« Ce cabinet limité à des hommes seniors reflète fidèlement la profession. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Faux. La profession se féminise et rajeunit ; cette image fige un profil dépassé. Biais dominant : Genre."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_age
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0274.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_031). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-032
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une équipe de recherche pharmaceutique »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une équipe de recherche pharmaceutique ». Média synthétique (voir fiche média)."
+  prompt: "« Cette équipe R&D exclusivement masculine invisibilise les femmes de la recherche. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Les femmes sont nombreuses en recherche ; l'image les efface. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0275.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_032). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-033
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une tribune VIP »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une tribune VIP ». Média synthétique (voir fiche média)."
+  prompt: "« Cette tribune VIP entièrement masculine reconduit un entre-soi. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Le sport se veut plus mixte ; ce n'est pas une norme à reconduire. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_statut
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0276.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_033). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-034
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « les intervenants d'une conférence tech »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « les intervenants d'une conférence tech ». Média synthétique (voir fiche média)."
+  prompt: "« Cette conférence aux intervenants tous hommes est représentative du secteur. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Faux. Présenter l'entre-soi comme « représentatif » entretient l'invisibilisation des expertes. Biais dominant : Genre."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0277.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_034). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-035
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une salle de marché »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une salle de marché ». Média synthétique (voir fiche média)."
+  prompt: "« Cette salle de marché uniquement masculine illustre un secteur peu mixte. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai — mais le représenter comme la norme le naturalise. Le constat est juste, la banalisation non. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0278.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_035). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-036
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un panel d'experts »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un panel d'experts ». Média synthétique (voir fiche média)."
+  prompt: "« Ce panel divers rend l'image objective et sans biais. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "La diversité est bienvenue, mais « objective » reste faux : cette composition est un choix, et le risque est la case cochée (tokenisation). Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0279.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_036). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-037
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une agence d'architecture »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une agence d'architecture ». Média synthétique (voir fiche média)."
+  prompt: "« Parce qu'elle est diverse, cette agence est représentée sans biais. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Diverse ≠ neutre. C'est une sélection parmi d'autres ; l'IA a composé CE groupe. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0280.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_037). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-038
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un conseil municipal »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un conseil municipal ». Média synthétique (voir fiche média)."
+  prompt: "« Ce conseil divers est une représentation neutre de la démocratie. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Belle parité, mais « neutre » n'existe pas : chaque visage est un tirage, et l'équilibre affiché est lui-même une norme choisie. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0281.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_038). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-039
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un comité exécutif »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un comité exécutif ». Média synthétique (voir fiche média)."
+  prompt: "« Un comité exécutif mixte prouve qu'une image peut être sans biais. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Il montre que la diversité au sommet est possible — mais ne « prouve » aucune absence de biais. C'est un autre choix, pas zéro choix. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0282.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_039). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-040
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une équipe de développeurs »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une équipe de développeurs ». Média synthétique (voir fiche média)."
+  prompt: "« Cette équipe très diverse est neutre et sans stéréotype. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Piège fréquent. La diversité y ressemble à un catalogue (un profil par case) : c'est une composition orientée, pas l'absence de biais. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0283.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_040). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-041
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une réunion stratégique »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une réunion stratégique ». Média synthétique (voir fiche média)."
+  prompt: "« Même cette réunion diverse porte un biais de sélection. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Valoriser la pluralité est utile, mais l'IA a quand même choisi ces personnes-là : la diversité reste un tirage. Biais dominant : Échantillonnage statistique."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0284.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_041). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-042
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une rédaction »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une rédaction ». Média synthétique (voir fiche média)."
+  prompt: "« Une rédaction diverse garantit une information sans biais. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "La diversité enrichit les angles, mais ne « garantit » rien : l'image reste une sélection, et le contenu peut biaiser autrement. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0285.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_042). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-043
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une équipe de tournage »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une équipe de tournage ». Média synthétique (voir fiche média)."
+  prompt: "« Même cette équipe de tournage diverse est une version parmi d'autres. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. L'ouverture des métiers est réelle ; cette composition n'en reste pas moins un choix statistique. Biais dominant : Échantillonnage statistique."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0286.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_043). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-044
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une instance publique »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une instance publique ». Média synthétique (voir fiche média)."
+  prompt: "« Cette instance diverse est une représentation objective du service public. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "La représentativité renforce la légitimité, mais « objective » reste faux : c'est un cadrage choisi. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0287.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_044). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-045
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un jury »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un jury ». Média synthétique (voir fiche média)."
+  prompt: "« Un jury divers élimine tout biais de l'image. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Il limite l'entre-soi dans la vraie vie — mais l'image, elle, reste une sélection orientée. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0288.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_045). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-046
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une équipe hospitalière »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une équipe hospitalière ». Média synthétique (voir fiche média)."
+  prompt: "« Même cette équipe hospitalière diverse porte un biais de composition. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai. Elle reflète la réalité du soin, mais demeure une composition choisie par l'IA. Biais dominant : Échantillonnage statistique."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0289.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_046). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-047
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une équipe de maintenance »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une équipe de maintenance ». Média synthétique (voir fiche média)."
+  prompt: "« Une équipe de maintenance mixte casse un stéréotype de métier genré. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: vrai
+      label: "Vrai"
+      score: 1.0
+      feedback: "Vrai — les métiers techniques ne sont pas réservés aux hommes. Contre-stéréotype assumé, donc orienté mais juste. Biais dominant : Genre."
+    - id: faux
+      label: "Faux"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Genre."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_genre
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0290.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_047). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-048
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « un panel »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « un panel ». Média synthétique (voir fiche média)."
+  prompt: "« Ce panel multigénérationnel est une image neutre des âges. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Valoriser la complémentarité des âges est utile, mais « neutre » reste faux : la composition est choisie. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+    - bias_age
+  media:
+    - rumble_asset_0291.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_048). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-049
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une équipe de recherche »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une équipe de recherche ». Média synthétique (voir fiche média)."
+  prompt: "« Inclure une personne en fauteuil rend cette image inclusive et neutre. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "L'inclusion du handicap est précieuse — mais la mettre en scène comme preuve d'inclusion frôle la tokenisation, et « neutre » reste faux. Biais dominant : Handicap."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Handicap."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_validisme
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0292.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_049). Relecture humaine + bias_review média requis."
+
+- id: q-biasvisual-050
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: "Biais de représentation : « une audience d'investisseurs »"
+  axis: bias_fairness
+  difficulty: intermediate
+  intent: "Repérer le biais de représentation d'un visuel généré ; aucune image générée n'est neutre."
+  context:
+    role: observateur
+    scenario: "Image générée par IA à partir d'un prompt comme « une audience d'investisseurs ». Média synthétique (voir fiche média)."
+  prompt: "« Une audience d'investisseurs diverse est une image sans biais. » — vrai ou faux ?"
+  interaction:
+    type: media_review
+    min_choices: 1
+    max_choices: 1
+  choices:
+    - id: faux
+      label: "Faux"
+      score: 1.0
+      feedback: "Elle contredit l'entre-soi du capital-risque — mais reste une sélection, donc un biais d'échantillonnage. Biais dominant : Échantillonnage statistique."
+    - id: vrai
+      label: "Vrai"
+      score: -1.0
+      severity: high
+      feedback: "C'est le piège : aucune image générée n'est neutre. Ici le biais dominant est : Échantillonnage statistique."
+  expected_reasoning:
+    - "Un visuel « neutre » en apparence peut porter un stéréotype."
+    - "Tout output génératif est un échantillonnage, donc un biais."
+  risks:
+    - bias_echantillonnage
+  media:
+    - rumble_asset_0293.webp
+  review:
+    author: import-prototype
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: "Import brouillon du prototype (bias-visual bv_050). Relecture humaine + bias_review média requis."

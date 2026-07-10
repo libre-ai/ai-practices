@@ -2,7 +2,7 @@
 
 ## Statut
 
-Proposée — en attente de ratification. **Opérationnalise** l'exigence « seuils anti-réidentification » d'**ADR 0003** une fois acceptée.
+Acceptée. **Opérationnalise** l'exigence « seuils anti-réidentification » d'**ADR 0003**.
 
 ## Contexte
 
