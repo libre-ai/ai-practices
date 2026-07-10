@@ -1139,6 +1139,26 @@ body {
   display: block;
   width: 100%;
   max-width: 480px;
+  /* Every bias-game asset is square (verified over the corpus): reserving the
+     box kills the lazy-load layout shift that pushed the continue button
+     under the pointer mid-tap on mobile. */
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
+}
+
+/* In-place reveal contract: question and answered views share one grid cell,
+   so the console height is the max of both and the document never shrinks
+   at validation (no scroll clamp). The hidden layer is out of the a11y tree
+   and unfocusable (visibility: hidden). */
+.console-stack {
+  display: grid;
+}
+.console-stack > .stack-layer {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.console-stack > .stack-ghost {
+  visibility: hidden;
 }

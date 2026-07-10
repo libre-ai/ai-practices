@@ -115,7 +115,8 @@ enum Stage {
 const GLOBAL_KEYS_JS: &str = "if (!window.__raipKeys) { window.__raipKeys = true; \
      document.addEventListener('keydown', function (e) { \
        if (e.metaKey || e.ctrlKey || e.altKey) return; \
-       var q = function (s) { return document.querySelector(s); }; \
+       var q = function (s) { var el = document.querySelector(s); \
+         return el && getComputedStyle(el).visibility !== 'hidden' ? el : null; }; \
        var k = e.key; \
        if (k >= '1' && k <= '9') { var b = q('.choice[data-key=\"' + k + '\"]'); \
          if (b) { e.preventDefault(); var c = b.querySelector('.cap'); \
@@ -431,127 +432,135 @@ pub fn QuestionConsole(
                 },
             }
 
-            if !is_locked {
-                p { class: "prompt", "{question.prompt}" }
-                p { class: "calm-hint", "Prenez le temps : lisez chaque option avant de valider." }
-                div {
-                    class: "choices",
-                    role: "radiogroup",
-                    aria_label: "Choix de réponse",
-                    for (idx , choice , cls , tab) in rows {
-                        button {
-                            key: "{choice.id}",
-                            class: "{cls}",
-                            role: "radio",
-                            "aria-checked": if sel_now == Some(idx) { "true" } else { "false" },
-                            "data-key": "{choice.key}",
-                            tabindex: "{tab}",
-                            r#type: "button",
-                            onclick: move |_| {
-                                // one-gesture touch: first tap selects, a tap on the
-                                // already-selected choice validates.
-                                if selected() == Some(idx) {
-                                    document::eval(RUM_MARK_VALIDATE);
+            // Both layers share one grid cell so the console keeps the max
+            // height of the question/answered views: the reveal never shrinks
+            // the document (no scroll clamp — the in-place contract holds).
+            div { class: "console-stack",
+                div { class: if is_locked { "stack-layer stack-ghost" } else { "stack-layer" },
+                        p { class: "prompt", "{question.prompt}" }
+                        p { class: "calm-hint", "Prenez le temps : lisez chaque option avant de valider." }
+                        div {
+                            class: "choices",
+                            role: "radiogroup",
+                            aria_label: "Choix de réponse",
+                            for (idx , choice , cls , tab) in rows {
+                                button {
+                                    key: "{choice.id}",
+                                    class: "{cls}",
+                                    role: "radio",
+                                    "aria-checked": if sel_now == Some(idx) { "true" } else { "false" },
+                                    "data-key": "{choice.key}",
+                                    tabindex: "{tab}",
+                                    r#type: "button",
+                                    onclick: move |_| {
+                                        // one-gesture touch: first tap selects, a tap on the
+                                        // already-selected choice validates.
+                                        if selected() == Some(idx) {
+                                            document::eval(RUM_MARK_VALIDATE);
+                                            locked.set(true);
+                                        } else {
+                                            selected.set(Some(idx));
+                                            document::eval(RUM_MARK_SELECT);
+                                        }
+                                    },
+                                    Keycap { legend: choice.key.clone() }
+                                    span { class: "choice-label", "{choice.label}" }
+                                }
+                            }
+                        }
+                        div { class: "commit-row",
+                            button {
+                                class: "idk",
+                                r#type: "button",
+                                "data-action": "idk",
+                                onclick: move |_| {
+                                    selected.set(None);
+                                    idk.set(true);
                                     locked.set(true);
-                                } else {
-                                    selected.set(Some(idx));
-                                    document::eval(RUM_MARK_SELECT);
-                                }
-                            },
-                            Keycap { legend: choice.key.clone() }
-                            span { class: "choice-label", "{choice.label}" }
+                                },
+                                span { "Je ne sais pas" }
+                                Keycap { legend: "espace".to_string() }
+                            }
+                            button {
+                                class: "validate-btn",
+                                r#type: "button",
+                                "data-action": "validate",
+                                disabled: sel_now.is_none(),
+                                onclick: move |_| {
+                                    if selected().is_some() {
+                                        document::eval(RUM_MARK_VALIDATE);
+                                        locked.set(true);
+                                    }
+                                },
+                                span { "Valider" }
+                                Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
+                            }
                         }
-                    }
                 }
-                div { class: "commit-row",
-                    button {
-                        class: "idk",
-                        r#type: "button",
-                        "data-action": "idk",
-                        onclick: move |_| {
-                            selected.set(None);
-                            idk.set(true);
-                            locked.set(true);
-                        },
-                        span { "Je ne sais pas" }
-                        Keycap { legend: "espace".to_string() }
-                    }
-                    button {
-                        class: "validate-btn",
-                        r#type: "button",
-                        "data-action": "validate",
-                        disabled: sel_now.is_none(),
-                        onclick: move |_| {
-                            if selected().is_some() {
-                                document::eval(RUM_MARK_VALIDATE);
-                                locked.set(true);
+                if is_locked {
+                    div { class: "stack-layer",
+                        // In-place answer: chosen choice pinned, feedback crossfades in.
+                        div { class: "answered reveal",
+                            match (is_idk, pinned) {
+                                // honest opt-out: no verdict, but the reflex to know is shown
+                                (true, _) => rsx! {
+                                    div { class: "choice locked pinned", "data-verdict": "idk",
+                                        Keycap { legend: "?".to_string() }
+                                        span { class: "choice-label", "Je ne sais pas" }
+                                        span { class: "verdict-tag", "data-verdict": "idk", "À explorer" }
+                                    }
+                                    section {
+                                        class: "feedback-panel",
+                                        "data-verdict": "idk",
+                                        "aria-live": "polite",
+                                        div { class: "fb-verdict",
+                                            span { class: "glyph", aria_hidden: "true", "?" }
+                                            span { "Réponse non tranchée" }
+                                        }
+                                        p { class: "fb-reason",
+                                            "Ne pas trancher est plus honnête que deviner. Le réflexe à connaître :"
+                                        }
+                                        p { class: "idk-action", "{juste_action}" }
+                                    }
+                                },
+                                (false, Some((key, label, verdict, fb))) => rsx! {
+                                    div { class: "choice sel locked pinned", "data-verdict": "{verdict.slug()}",
+                                        Keycap { legend: key }
+                                        span { class: "choice-label", "{label}" }
+                                        span { class: "verdict-tag", "data-verdict": "{verdict.slug()}",
+                                            span { class: "glyph", aria_hidden: "true", "{verdict.symbol()} " }
+                                            "{verdict.label()}"
+                                        }
+                                    }
+                                    FeedbackPanel { feedback: fb }
+                                },
+                                (false, None) => rsx! {},
                             }
-                        },
-                        span { "Valider" }
-                        Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
-                    }
-                }
-            } else {
-                // In-place answer: chosen choice pinned, feedback crossfades in.
-                div { class: "answered reveal",
-                    match (is_idk, pinned) {
-                        // honest opt-out: no verdict, but the reflex to know is shown
-                        (true, _) => rsx! {
-                            div { class: "choice locked pinned", "data-verdict": "idk",
-                                Keycap { legend: "?".to_string() }
-                                span { class: "choice-label", "Je ne sais pas" }
-                                span { class: "verdict-tag", "data-verdict": "idk", "À explorer" }
-                            }
-                            section {
-                                class: "feedback-panel",
-                                "data-verdict": "idk",
-                                "aria-live": "polite",
-                                div { class: "fb-verdict",
-                                    span { class: "glyph", aria_hidden: "true", "?" }
-                                    span { "Réponse non tranchée" }
+                            div { class: "commit-row",
+                                button {
+                                    class: "idk",
+                                    r#type: "button",
+                                    "data-action": "replay",
+                                    onclick: move |_| {
+                                        selected.set(None);
+                                        idk.set(false);
+                                        locked.set(false);
+                                    },
+                                    span { "Rejouer" }
+                                    Keycap { legend: "R".to_string(), class: "mini".to_string() }
                                 }
-                                p { class: "fb-reason",
-                                    "Ne pas trancher est plus honnête que deviner. Le réflexe à connaître :"
-                                }
-                                p { class: "idk-action", "{juste_action}" }
-                            }
-                        },
-                        (false, Some((key, label, verdict, fb))) => rsx! {
-                            div { class: "choice sel locked pinned", "data-verdict": "{verdict.slug()}",
-                                Keycap { legend: key }
-                                span { class: "choice-label", "{label}" }
-                                span { class: "verdict-tag", "data-verdict": "{verdict.slug()}",
-                                    span { class: "glyph", aria_hidden: "true", "{verdict.symbol()} " }
-                                    "{verdict.label()}"
+                                button {
+                                    class: "validate-btn",
+                                    r#type: "button",
+                                    "data-action": "continue",
+                                    onclick: move |_| {
+                                        let feedback = sel_now.and_then(|i| feedbacks.get(i).cloned());
+                                        on_continue.call((chosen_choice_id.clone(), feedback));
+                                    },
+                                    span { if is_last { "Voir la synthèse" } else { "Question suivante" } }
+                                    Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
                                 }
                             }
-                            FeedbackPanel { feedback: fb }
-                        },
-                        (false, None) => rsx! {},
-                    }
-                    div { class: "commit-row",
-                        button {
-                            class: "idk",
-                            r#type: "button",
-                            "data-action": "replay",
-                            onclick: move |_| {
-                                selected.set(None);
-                                idk.set(false);
-                                locked.set(false);
-                            },
-                            span { "Rejouer" }
-                            Keycap { legend: "R".to_string(), class: "mini".to_string() }
-                        }
-                        button {
-                            class: "validate-btn",
-                            r#type: "button",
-                            "data-action": "continue",
-                            onclick: move |_| {
-                                let feedback = sel_now.and_then(|i| feedbacks.get(i).cloned());
-                                on_continue.call((chosen_choice_id.clone(), feedback));
-                            },
-                            span { if is_last { "Voir la synthèse" } else { "Question suivante" } }
-                            Keycap { legend: "⏎".to_string(), class: "mini".to_string() }
                         }
                     }
                 }

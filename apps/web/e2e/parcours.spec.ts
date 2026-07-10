@@ -5,6 +5,10 @@ import { readFileSync } from "node:fs";
 // (reactivity, keyboard, in-place reveal, idk, export) as CI-gateable tests.
 
 test.beforeEach(async ({ page }) => {
+  // Deterministic e2e: the app disables its animations under
+  // prefers-reduced-motion (styles.css), which also keeps Playwright's
+  // stability checks from waiting on transient transforms.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.locator(".intro-title")).toBeVisible();
 });
@@ -62,13 +66,16 @@ async function completeParcours(page: import("@playwright/test").Page): Promise<
   await page.locator('[data-action="start"]').click();
   const label = await page.locator(".q-count").first().textContent();
   const total = Number((label ?? "").split("/")[1].trim());
+  // Drive the loop through the app's real keyboard path (select, validate,
+  // continue) — covered by its own spec above. Pointer-driving 50 questions
+  // fought Playwright's actionability checks on mobile (lazy media relayout
+  // between measure and tap); the touch contract keeps its dedicated test.
   for (let i = 0; i < total; i++) {
-    const choice = page.locator('.choice[data-key="2"]');
-    await choice.click();
-    await choice.click();
-    // Wait for the continue button to appear (verdict rendered) before clicking
+    await page.keyboard.press("2");
+    await page.locator('.choice[data-key="2"].sel').waitFor();
+    await page.keyboard.press("Enter"); // validate
     await page.locator('[data-action="continue"]').waitFor({ state: "visible" });
-    await page.locator('[data-action="continue"]').click();
+    await page.keyboard.press("Enter"); // continue
   }
   return total;
 }
