@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 // binary (same origin as /v1/cohort). Tests the online round-trip (POST to cohort,
 // render distribution) and offline degradation (abort network, graceful fallback).
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, context }) => {
   // The cohort round-trip needs the single-origin binary (same origin as
   // /v1/cohort). The default parcours job serves the app via `dx serve`, which
   // has no API — so skip there and only run when pointed at the binary.
@@ -12,11 +12,19 @@ test.beforeEach(async ({ page }) => {
     !process.env.E2E_BASE_URL,
     "cohort e2e requires the single-origin binary (set E2E_BASE_URL)"
   );
+
+  // Emulate reducedMotion to ensure stable timing during tests
+  await context.emulateMedia({ reducedMotion: "reduce" });
+
   await page.goto("/");
-  await expect(page.locator(".intro-title")).toBeVisible();
+  // Verify manifesto landing gate is visible (from PR #9)
+  await expect(page.locator(".intro-title")).toContainText(
+    "Aucune image générée n'est neutre."
+  );
 });
 
-// Answer every question (pick choice 2, one-gesture validate) up to the summary.
+// Answer every question using keyboard (choice 2 via '2' key, validate via Enter).
+// This is faster than one-gesture clicks (50 questions: ~0.5s vs minutes with page interactions).
 async function completeParcours(
   page: import("@playwright/test").Page
 ): Promise<number> {
@@ -29,10 +37,8 @@ async function completeParcours(
   const label = await counter.textContent();
   const total = Number((label ?? "").split("/")[1].trim());
   for (let i = 0; i < total; i++) {
-    const choice = page.locator('.choice[data-key="2"]');
-    await choice.click();
-    await choice.click();
-    await page.locator('[data-action="continue"]').click();
+    await page.keyboard.press("2"); // select choice 2
+    await page.keyboard.press("Enter"); // validate
   }
   return total;
 }
