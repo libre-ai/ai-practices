@@ -14,7 +14,7 @@ test.beforeEach(async ({ page, context }) => {
   );
 
   // Emulate reducedMotion to ensure stable timing during tests
-  await context.emulateMedia({ reducedMotion: "reduce" });
+  await page.emulateMedia({ reducedMotion: "reduce" });
 
   await page.goto("/");
   // Verify manifesto landing gate is visible (from PR #9)
