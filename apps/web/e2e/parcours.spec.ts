@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("opens on the onboarding gate, not a question", async ({ page }) => {
-  await expect(page.locator(".intro-title")).toContainText("Entraînez vos réflexes");
+  await expect(page.locator(".intro-title")).toContainText("Aucune image générée n'est neutre.");
   await expect(page.getByText("Pas une évaluation RH")).toBeVisible();
   await expect(page.locator('[role="radiogroup"]')).toHaveCount(0);
 });
@@ -23,7 +23,14 @@ test("Enter launches the parcours from the menu", async ({ page }) => {
 });
 
 test("one-gesture touch validates in place, without scrolling the page", async ({ page }) => {
+  // Measure scroll position after the manifesto gate is visible but before starting.
+  // This captures the scroll position after the gate, which becomes our baseline.
+  await expect(page.locator(".intro-title")).toContainText("Aucune image générée n'est neutre.");
+  const baselineScroll = await page.evaluate(() => window.scrollY);
+
   await page.locator('[data-action="start"]').click();
+  await expect(page.locator('.console [role="radiogroup"]')).toBeVisible();
+
   const before = await page.evaluate(() => window.scrollY);
   const c2 = page.locator('.choice[data-key="2"]');
   await c2.click(); // first tap selects
@@ -32,7 +39,7 @@ test("one-gesture touch validates in place, without scrolling the page", async (
   await expect(page.locator(".answered")).toBeVisible();
   await expect(page.locator(".pinned .verdict-tag")).toBeVisible();
   const after = await page.evaluate(() => window.scrollY);
-  expect(after).toBe(before); // in-place reveal: no reflow, no scroll
+  expect(after).toBe(before); // in-place reveal: no reflow, no scroll during verdict
 });
 
 test("keyboard: a number selects, Enter validates then continues", async ({ page }) => {
