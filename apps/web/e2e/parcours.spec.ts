@@ -11,7 +11,8 @@ test.beforeEach(async ({ page }) => {
 
 test("opens on the onboarding gate, not a question", async ({ page }) => {
   await expect(page.locator(".intro-title")).toContainText("Aucune image générée n'est neutre.");
-  await expect(page.getByText("Pas une évaluation RH")).toBeVisible();
+  // « jamais un classement » is the manifesto's non-evaluation promise.
+  await expect(page.getByText("jamais un classement")).toBeVisible();
   await expect(page.locator('[role="radiogroup"]')).toHaveCount(0);
 });
 
@@ -31,8 +32,12 @@ test("one-gesture touch validates in place, without scrolling the page", async (
   await page.locator('[data-action="start"]').click();
   await expect(page.locator('.console [role="radiogroup"]')).toBeVisible();
 
-  const before = await page.evaluate(() => window.scrollY);
   const c2 = page.locator('.choice[data-key="2"]');
+  // The manifesto above lengthens the page: bring the choice into view first
+  // so the measured delta only captures reveal-induced scrolling (the actual
+  // invariant), not Playwright's own scroll-to-click.
+  await c2.scrollIntoViewIfNeeded();
+  const before = await page.evaluate(() => window.scrollY);
   await c2.click(); // first tap selects
   await expect(page.locator(".choice.sel")).toBeVisible();
   await c2.click(); // second tap on the same choice validates
@@ -77,6 +82,7 @@ test('"je ne sais pas" (Space) is an honest submission with guidance', async ({ 
 });
 
 test("full parcours reaches a per-category synthesis; R restarts", async ({ page }) => {
+  test.setTimeout(240_000); // SESSION_SIZE=50 questions on mobile emulation exceeds the 30s default
   const total = await completeParcours(page);
   await expect(page.locator(".summary-panel")).toBeVisible();
   await expect(page.locator(".summary-row")).toHaveCount(total);
@@ -86,6 +92,7 @@ test("full parcours reaches a per-category synthesis; R restarts", async ({ page
 });
 
 test("local export downloads the synthesis as JSON", async ({ page }) => {
+  test.setTimeout(240_000); // SESSION_SIZE=50 questions on mobile emulation exceeds the 30s default
   const total = await completeParcours(page);
   const [download] = await Promise.all([
     page.waitForEvent("download"),
