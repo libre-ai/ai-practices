@@ -1,0 +1,65 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: claim-ai-output-not-proof
+    status: draft
+    statement: Une sortie IA générative doit être traitée comme une proposition à vérifier, pas comme une preuve.
+    scope: usages professionnels généraux
+    source_ids: [source-nist-ai-rmf-1-0, source-bender-stochastic-parrots-2021]
+    confidence: medium
+  - id: claim-citation-not-verification
+    status: draft
+    statement: Une source citée par une IA peut être inventée, mal attribuée ou insuffisante ; elle doit être vérifiée dans la source primaire.
+    scope: contenus avec claims importants
+    source_ids: [source-nist-ai-rmf-1-0]
+    confidence: medium
+  - id: claim-data-minimization-before-ai
+    status: draft
+    statement: Les données personnelles ou sensibles fournies à un système IA doivent être limitées au nécessaire et traitées selon une finalité claire.
+    scope: usages impliquant des données personnelles ou sensibles
+    source_ids: [source-eu-gdpr-2016-679, source-cnil-ai]
+    confidence: medium
+  - id: claim-pseudonymization-not-anonymization
+    status: draft
+    statement: La pseudonymisation ne supprime pas le caractère personnel d'une donnée si une réidentification reste possible.
+    scope: RGPD et préparation de données
+    source_ids: [source-eu-gdpr-2016-679, source-cnil-ai]
+    confidence: medium
+  - id: claim-rag-does-not-guarantee-truth
+    status: draft
+    statement: Le RAG peut améliorer l'ancrage documentaire mais ne garantit pas que la réponse soit vraie, complète ou correctement attribuée.
+    scope: usages RAG en entreprise
+    source_ids: [source-lewis-rag-2020, source-nist-ai-rmf-1-0]
+    confidence: medium
+  - id: claim-agent-permissions-increase-risk
+    status: draft
+    statement: Un agent IA disposant d'outils ou permissions augmente le risque car ses sorties peuvent produire des effets externes.
+    scope: agents et tool calling
+    source_ids: [source-owasp-llm-top10, source-mitre-atlas]
+    confidence: medium
+  - id: claim-indirect-prompt-injection-risk
+    status: draft
+    statement: Une instruction malveillante peut être introduite indirectement par un document, ticket, page web ou email traité par un système IA.
+    scope: RAG, agents et assistants connectés
+    source_ids: [source-owasp-llm-top10]
+    confidence: medium
+  - id: claim-feedback-needs-action
+    status: draft
+    statement: Un feedback pédagogique utile doit indiquer la direction de progression et une action concrète.
+    scope: conception de corrections et remédiations
+    source_ids: [source-hattie-timperley-feedback-2007]
+    confidence: medium
+  - id: claim-retrieval-practice-supports-learning
+    status: draft
+    statement: La pratique de récupération active peut renforcer l'apprentissage lorsqu'elle est accompagnée d'un feedback approprié.
+    scope: entraînement et répétition de réflexes
+    source_ids: [source-roediger-karpicke-2006]
+    confidence: medium
+  - id: claim-no-rh-scoring
+    status: draft
+    statement: Le scoring du produit doit rester pédagogique et ne pas servir à classer ou sanctionner nominativement les collaborateurs.
+    scope: rumble-ai-practices
+    source_ids: [source-internal-data-classification-policy]
+    confidence: low
+    notes: Claim de doctrine produit, à relier aux ADR internes plutôt qu'à une source externe.

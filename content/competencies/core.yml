@@ -1,0 +1,84 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: comp-understand-ai-output
+    status: draft
+    dimension: understand
+    label: Comprendre le statut d'une sortie IA
+    observable_behaviors:
+      awareness: [reconnaît qu'une sortie IA n'est pas une preuve]
+      guided: [vérifie une sortie avant usage dans un cas simple]
+      autonomous: [adapte le niveau de vérification à l'impact]
+  - id: comp-protect-data
+    status: draft
+    dimension: protect
+    label: Protéger données et secrets
+    observable_behaviors:
+      awareness: [identifie PII, secrets ou documents internes]
+      guided: [minimise ou refuse l'envoi à un outil non autorisé]
+      autonomous: [choisit outil, anonymisation ou escalade selon contexte]
+  - id: comp-classify-data-context
+    status: draft
+    dimension: protect
+    label: Identifier la sensibilité d'un contexte de données
+    observable_behaviors:
+      awareness: [repère qu'un brouillon peut contenir données internes]
+      guided: [vérifie classification et métadonnées]
+      autonomous: [documente l'arbitrage de sensibilité]
+  - id: comp-check-source
+    status: draft
+    dimension: verify
+    label: Vérifier une affirmation IA
+    observable_behaviors:
+      awareness: [reconnaît qu'une citation peut être fausse]
+      guided: [remonte à une source primaire]
+      autonomous: [évalue autorité, date, portée et pertinence]
+  - id: comp-detect-hallucination
+    status: draft
+    dimension: verify
+    label: Identifier plausibilité trompeuse
+    observable_behaviors:
+      awareness: [se méfie d'un ton assuré]
+      guided: [vérifie chiffres, dates et références]
+      autonomous: [explique les limites avant publication]
+  - id: comp-frame-task
+    status: draft
+    dimension: frame
+    label: Cadrer une demande IA sans sur-exposer
+    observable_behaviors:
+      awareness: [distingue objectif et données sensibles]
+      guided: [formule contexte utile sans PII inutile]
+      autonomous: [propose une version sûre de la tâche]
+  - id: comp-assess-risk
+    status: draft
+    dimension: judge
+    label: Évaluer le risque d'usage
+    observable_behaviors:
+      awareness: [identifie si le cas est à enjeu]
+      guided: [choisit revue ou outil adapté]
+      autonomous: [arbitre productivité, conformité et responsabilité]
+  - id: comp-secure-agent-tools
+    status: draft
+    dimension: secure
+    label: Encadrer agents et outils
+    observable_behaviors:
+      awareness: [distingue assistant et agent]
+      guided: [limite permissions et demande confirmation]
+      autonomous: [prévoit audit, rollback et escalade]
+  - id: comp-handle-bias
+    status: draft
+    dimension: bias
+    label: Reconnaître biais et représentations
+    observable_behaviors:
+      awareness: [repère stéréotype ou représentation injuste]
+      guided: [propose une alternative moins biaisée]
+      autonomous: [documente impact et revue biais]
+  - id: comp-human-accountability
+    status: draft
+    dimension: account
+    label: Maintenir la responsabilité humaine
+    observable_behaviors:
+      awareness: [refuse une décision sensible automatisée]
+      guided: [demande validation humaine]
+      autonomous: [trace hypothèses, sources et limites]

@@ -1,0 +1,82 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: risk-pii-leak
+    status: draft
+    axis: privacy_rgpd
+    severity_default: high
+    description: Donnée personnelle exposée à un outil IA non autorisé ou non maîtrisé.
+    mitigations: [minimiser, anonymiser réellement si possible, utiliser un outil autorisé, demander DPO si doute]
+  - id: risk-secret-leakage
+    status: draft
+    axis: security
+    severity_default: high
+    description: Secret technique ou métier exposé dans un prompt, fichier, log ou outil.
+    mitigations: [ne pas envoyer, masquer, révoquer si exposé, signaler incident]
+  - id: risk-confidential-document-leak
+    status: draft
+    axis: data_confidentiality
+    severity_default: high
+    description: Document interne, client ou confidentiel transmis sans contrôle.
+    mitigations: [vérifier classification, retirer commentaires et métadonnées, utiliser outil autorisé]
+  - id: risk-hallucinated-source
+    status: draft
+    axis: source_verification
+    severity_default: high
+    description: Source inventée ou non vérifiable utilisée comme preuve.
+    mitigations: [retrouver source primaire, vérifier passage, signaler incertitude]
+  - id: risk-misattribution
+    status: draft
+    axis: source_verification
+    severity_default: medium
+    description: Source réelle citée mais ne soutenant pas le claim.
+    mitigations: [lire source, citer passage pertinent, réduire l'affirmation]
+  - id: risk-obsolete-context
+    status: draft
+    axis: hallucination
+    severity_default: medium
+    description: Réponse fondée sur information périmée ou version obsolète.
+    mitigations: [vérifier date, version et source actuelle]
+  - id: risk-critical-omission
+    status: draft
+    axis: hallucination
+    severity_default: high
+    description: Résumé ou sortie qui omet une information nécessaire à la décision.
+    mitigations: [vérifier document original, demander limites, faire relire]
+  - id: risk-indirect-prompt-injection
+    status: draft
+    axis: security
+    severity_default: high
+    description: Instruction malveillante cachée dans une source traitée par l'IA.
+    mitigations: [traiter documents comme données, isoler, limiter outils]
+  - id: risk-excessive-agent-permission
+    status: draft
+    axis: security
+    severity_default: high
+    description: Agent IA doté de droits trop larges pour la tâche.
+    mitigations: [moindre privilège, confirmation humaine, audit]
+  - id: risk-unsafe-action-automation
+    status: draft
+    axis: human_responsibility
+    severity_default: high
+    description: Action externe ou décision à impact réalisée sans validation humaine.
+    mitigations: [dry-run, approbation, rollback, escalade]
+  - id: risk-bias-stereotype
+    status: draft
+    axis: bias_fairness
+    severity_default: medium
+    description: Scénario ou média renforçant un stéréotype.
+    mitigations: [revue biais, réécriture, alternative non stéréotypée]
+  - id: risk-synthetic-human-media
+    status: draft
+    axis: media_synthetic
+    severity_default: high
+    description: Média IA représentant des humains sans justification, provenance ou audit.
+    mitigations: [éviter, justifier, auditer, signaler]
+  - id: risk-rh-scoring
+    status: draft
+    axis: business_context
+    severity_default: blocker
+    description: Score ou classement utilisé comme évaluation RH nominative.
+    mitigations: [agréger, anonymiser, supprimer export nominatif, documenter finalité pédagogique]

@@ -2,8 +2,18 @@
 
 Cette documentation sert de cahier de passation pour humains et agents d'implémentation légers.
 
+## Programme documentaire exhaustif
+
+Le chantier long de documentation est cadré dans
+[`00-programme/programme-documentaire.md`](00-programme/programme-documentaire.md).
+Les documents `00-programme/` à `07-benchmark/` préparent la base exhaustive
+recherche → modèle de domaine → content factory → produit → contrats. Tant qu'ils
+ne sont pas `stable`, les documents historiques listés ci-dessous restent
+canoniques.
+
 ## Ordre de lecture recommandé
 
+0. [`00-programme/programme-documentaire.md`](00-programme/programme-documentaire.md) — cadrage du chantier documentaire exhaustif.
 1. [`vision.md`](vision.md) — pourquoi le produit existe.
 2. [`cahier-des-charges.md`](cahier-des-charges.md) — comportement attendu.
 3. [`product-boundaries.md`](product-boundaries.md) — ce que le repo possède/refuse.

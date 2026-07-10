@@ -1,0 +1,182 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: concept-ai-output-not-proof
+    status: draft
+    label: Sortie IA non probante
+    domain: genai_foundations
+    level: foundational
+    summary: Une sortie IA est une proposition à vérifier, pas une preuve.
+    risk_axes: [hallucination, source_verification]
+    competencies: [comp-understand-ai-output]
+    claims: [claim-ai-output-not-proof]
+  - id: concept-personal-data
+    status: draft
+    label: Donnée personnelle
+    domain: data_confidentiality
+    level: foundational
+    summary: Information se rapportant à une personne identifiée ou identifiable.
+    risk_axes: [privacy_rgpd]
+    competencies: [comp-protect-data]
+    claims: [claim-data-minimization-before-ai]
+  - id: concept-business-secret
+    status: draft
+    label: Secret métier
+    domain: data_confidentiality
+    level: foundational
+    summary: Information confidentielle commerciale, organisationnelle ou stratégique.
+    risk_axes: [data_confidentiality, security]
+    competencies: [comp-protect-data]
+  - id: concept-data-minimization
+    status: draft
+    label: Minimisation des données
+    domain: data_confidentiality
+    level: applied
+    summary: Limiter les données fournies à ce qui est strictement nécessaire.
+    risk_axes: [privacy_rgpd, data_confidentiality]
+    competencies: [comp-protect-data]
+    claims: [claim-data-minimization-before-ai]
+  - id: concept-pseudonymization
+    status: draft
+    label: Pseudonymisation
+    domain: governance_compliance
+    level: applied
+    summary: Remplacement d'identifiants directs sans supprimer nécessairement le caractère personnel.
+    risk_axes: [privacy_rgpd]
+    competencies: [comp-classify-data-context]
+    claims: [claim-pseudonymization-not-anonymization]
+  - id: concept-source-verification
+    status: draft
+    label: Vérification des sources
+    domain: source_reliability
+    level: foundational
+    summary: Contrôler qu'un claim est soutenu par une source pertinente.
+    risk_axes: [source_verification]
+    competencies: [comp-check-source]
+    claims: [claim-citation-not-verification]
+  - id: concept-primary-source
+    status: draft
+    label: Source primaire
+    domain: source_reliability
+    level: foundational
+    summary: Document original ou autorité de référence à privilégier pour vérifier un claim.
+    risk_axes: [source_verification]
+    competencies: [comp-check-source]
+  - id: concept-citation-not-proof
+    status: draft
+    label: Citation non probante
+    domain: source_reliability
+    level: applied
+    summary: Une citation affichée ne prouve pas que le claim est vrai ou correctement attribué.
+    risk_axes: [source_verification, hallucination]
+    competencies: [comp-check-source]
+    claims: [claim-citation-not-verification]
+  - id: concept-hallucinated-source
+    status: draft
+    label: Source inventée
+    domain: hallucination_uncertainty
+    level: applied
+    summary: Référence inexistante ou non vérifiable produite comme source.
+    risk_axes: [source_verification, hallucination]
+    competencies: [comp-detect-hallucination]
+  - id: concept-overconfidence
+    status: draft
+    label: Surconfiance de sortie
+    domain: hallucination_uncertainty
+    level: foundational
+    summary: Présentation d'une réponse incertaine avec un style trop assuré.
+    risk_axes: [hallucination]
+    competencies: [comp-detect-hallucination]
+  - id: concept-task-framing
+    status: draft
+    label: Cadrage de tâche
+    domain: prompt_practice
+    level: applied
+    summary: Définir objectif, contexte utile, contraintes et format sans sur-exposer.
+    risk_axes: [prompt_practice, data_confidentiality]
+    competencies: [comp-frame-task]
+  - id: concept-safe-context
+    status: draft
+    label: Contexte sûr
+    domain: prompt_practice
+    level: applied
+    summary: Contexte utile à la tâche mais dépourvu de données non nécessaires ou sensibles.
+    risk_axes: [prompt_practice, privacy_rgpd]
+    competencies: [comp-frame-task, comp-protect-data]
+  - id: concept-rag
+    status: draft
+    label: RAG
+    domain: rag_knowledge
+    level: applied
+    summary: Architecture combinant récupération documentaire et génération.
+    risk_axes: [source_verification, hallucination]
+    competencies: [comp-check-source]
+    claims: [claim-rag-does-not-guarantee-truth]
+  - id: concept-groundedness
+    status: draft
+    label: Groundedness
+    domain: rag_knowledge
+    level: advanced
+    summary: Degré d'ancrage d'une réponse dans les sources fournies.
+    risk_axes: [source_verification]
+    competencies: [comp-check-source]
+  - id: concept-indirect-prompt-injection
+    status: draft
+    label: Prompt injection indirecte
+    domain: ai_security
+    level: advanced
+    summary: Instruction malveillante cachée dans une source externe traitée par l'IA.
+    risk_axes: [security]
+    competencies: [comp-secure-agent-tools]
+    claims: [claim-indirect-prompt-injection-risk]
+  - id: concept-agent
+    status: draft
+    label: Agent IA
+    domain: agents_tools
+    level: applied
+    summary: Système qui peut enchaîner actions, outils ou décisions avec un modèle IA.
+    risk_axes: [security, human_responsibility]
+    competencies: [comp-secure-agent-tools]
+    claims: [claim-agent-permissions-increase-risk]
+  - id: concept-least-privilege
+    status: draft
+    label: Moindre privilège
+    domain: agents_tools
+    level: applied
+    summary: Donner à un agent uniquement les droits nécessaires à sa tâche.
+    risk_axes: [security]
+    competencies: [comp-secure-agent-tools]
+  - id: concept-bias
+    status: draft
+    label: Biais
+    domain: bias_fairness
+    level: foundational
+    summary: Écart systématique pouvant produire une représentation ou décision injuste.
+    risk_axes: [bias_fairness]
+    competencies: [comp-handle-bias]
+  - id: concept-synthetic-media
+    status: draft
+    label: Média synthétique
+    domain: synthetic_media
+    level: applied
+    summary: Média généré ou modifié par IA, nécessitant provenance et revue selon usage.
+    risk_axes: [media_synthetic, bias_fairness]
+    competencies: [comp-handle-bias]
+  - id: concept-human-accountability
+    status: draft
+    label: Responsabilité humaine
+    domain: human_responsibility
+    level: foundational
+    summary: Maintien d'une personne responsable de la décision, validation et documentation.
+    risk_axes: [human_responsibility]
+    competencies: [comp-human-accountability]
+  - id: concept-training-not-rh-evaluation
+    status: draft
+    label: Formation non RH
+    domain: business_context
+    level: governance
+    summary: Le parcours sert l'apprentissage, pas le classement ou la sanction individuelle.
+    risk_axes: [business_context, privacy_rgpd]
+    competencies: [comp-human-accountability]
+    claims: [claim-no-rh-scoring]

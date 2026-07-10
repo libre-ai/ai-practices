@@ -1,0 +1,1967 @@
+[
+  {
+    "id": "q-batch-confidential-metadata-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Les métadonnées d'un document peuvent révéler l'interne",
+    "axis": "data_confidentiality",
+    "difficulty": "beginner",
+    "intent": "Faire vérifier les métadonnées et commentaires d'un document avant usage IA externe.",
+    "context": {
+      "role": "rédacteur produit",
+      "scenario": "Vous voulez faire résumer un document destiné à être partagé plus tard. Le fichier contient encore commentaires, auteurs, chemins internes et historique de version."
+    },
+    "prompt": "Que devez-vous faire avant de l'envoyer à un assistant IA ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "inspect_metadata",
+        "label": "Inspecter le contenu, commentaires et métadonnées, puis retirer ce qui n'est pas partageable.",
+        "score": 1.0,
+        "feedback": "Correct. La sensibilité peut venir des métadonnées et commentaires, pas seulement du texte visible."
+      },
+      {
+        "id": "send_visible_text",
+        "label": "L'envoyer car le texte principal ne contient rien de confidentiel.",
+        "score": -1.0,
+        "feedback": "Risqué. Les informations internes peuvent se trouver dans les commentaires, métadonnées ou versions.",
+        "severity": "high"
+      },
+      {
+        "id": "rename_file",
+        "label": "Renommer le fichier avant envoi.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Le nom du fichier ne modifie pas le contenu ni ses métadonnées.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "La sensibilité dépend du contenu complet du fichier.",
+      "Les métadonnées doivent être vérifiées avant partage."
+    ],
+    "risks": [
+      "risk-confidential-document-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-internal-data-classification-policy",
+        "label": "Politique interne de classification des données",
+        "url": "internal://data-classification",
+        "type": "internal_policy"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-metadata-sensitivity, concept-internal-document."
+    }
+  },
+  {
+    "id": "q-batch-code-secret-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un extrait de code peut contenir un secret",
+    "axis": "security",
+    "difficulty": "beginner",
+    "intent": "Faire reconnaître qu'un extrait de code ou log doit être vérifié avant d'être envoyé à un assistant IA.",
+    "context": {
+      "role": "développeur",
+      "scenario": "Vous voulez demander à une IA d'expliquer une erreur. L'extrait contient une variable ressemblant à une clé API fictive."
+    },
+    "prompt": "Quelle est la première action sûre ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "remove_secret",
+        "label": "Retirer ou remplacer tout secret avant d'utiliser l'assistant, puis vérifier avec un outil autorisé.",
+        "score": 1.0,
+        "feedback": "Correct. Un secret technique ne doit pas être exposé dans un prompt ou un log."
+      },
+      {
+        "id": "send_for_debug",
+        "label": "Envoyer tel quel pour obtenir une aide plus précise.",
+        "score": -1.5,
+        "feedback": "À éviter. La précision du diagnostic ne justifie pas l'exposition d'un secret.",
+        "severity": "critical"
+      },
+      {
+        "id": "ask_ai_to_ignore",
+        "label": "Ajouter au prompt que la clé ne doit pas être mémorisée.",
+        "score": -1.0,
+        "feedback": "Risqué. Une instruction ne garantit pas la confidentialité du secret transmis.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Les secrets doivent être retirés avant tout usage IA.",
+      "Une instruction de confidentialité dans le prompt ne suffit pas."
+    ],
+    "risks": [
+      "risk-secret-leakage"
+    ],
+    "sources": [
+      {
+        "id": "source-owasp-llm-top10",
+        "label": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-mitre-atlas",
+        "label": "MITRE ATLAS",
+        "url": "https://atlas.mitre.org/",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-secret-in-code, concept-log-sensitivity."
+    }
+  },
+  {
+    "id": "q-batch-pseudonymization-quasi-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Des quasi-identifiants peuvent réidentifier",
+    "axis": "privacy_rgpd",
+    "difficulty": "intermediate",
+    "intent": "Distinguer pseudonymisation et anonymisation dans un jeu de données destiné à une analyse IA.",
+    "context": {
+      "role": "analyste données",
+      "scenario": "Un fichier remplace les noms par des identifiants, mais conserve âge précis, ville, métier rare et historique d'interactions."
+    },
+    "prompt": "Peut-on le considérer comme anonyme ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "not_anonymous",
+        "label": "Non, car la combinaison de quasi-identifiants peut encore permettre une réidentification.",
+        "score": 1.0,
+        "feedback": "Correct. La pseudonymisation ne supprime pas le risque si des personnes restent identifiables par recoupement."
+      },
+      {
+        "id": "anonymous_no_names",
+        "label": "Oui, car les noms directs ont été retirés.",
+        "score": -1.0,
+        "feedback": "Risqué. Retirer les noms ne suffit pas à anonymiser un jeu de données.",
+        "severity": "high"
+      },
+      {
+        "id": "send_if_small",
+        "label": "Oui si le fichier contient peu de lignes.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Un faible volume peut au contraire faciliter la réidentification.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Les quasi-identifiants combinés peuvent réidentifier.",
+      "La pseudonymisation reste un traitement de données personnelles."
+    ],
+    "risks": [
+      "risk-pii-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-eu-gdpr-2016-679",
+        "label": "Règlement (UE) 2016/679 — RGPD",
+        "url": "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679",
+        "type": "law"
+      },
+      {
+        "id": "source-cnil-ai",
+        "label": "CNIL — Intelligence artificielle et protection des données",
+        "url": "https://www.cnil.fr/fr/intelligence-artificielle",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-quasi-identifier, concept-pseudonymization."
+    }
+  },
+  {
+    "id": "q-batch-free-service-reuse-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un service gratuit peut réutiliser les saisies",
+    "axis": "privacy_rgpd",
+    "difficulty": "intermediate",
+    "intent": "Faire vérifier conditions de réutilisation et finalité avant usage d'un service IA gratuit avec données de tiers.",
+    "context": {
+      "role": "chargé de relation usager",
+      "scenario": "Un service IA gratuit indique pouvoir réutiliser les contenus saisis. Un collègue veut y coller des demandes d'usagers fictives mais détaillées."
+    },
+    "prompt": "Quelle réponse est appropriée ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "block_and_check_terms",
+        "label": "Bloquer l'usage et vérifier finalité, conditions et outil autorisé avant tout traitement.",
+        "score": 1.0,
+        "feedback": "Correct. Les données de tiers exigent un cadre clair de finalité, réutilisation et sous-traitance."
+      },
+      {
+        "id": "use_because_free",
+        "label": "Utiliser le service car il est gratuit et rapide.",
+        "score": -1.5,
+        "feedback": "Risqué. La gratuité ne justifie pas la réutilisation non maîtrisée de données personnelles.",
+        "severity": "high"
+      },
+      {
+        "id": "remove_names_only",
+        "label": "Retirer les noms et conserver les détails pour obtenir une meilleure réponse.",
+        "score": -0.5,
+        "feedback": "Partiel. Les détails peuvent rester identifiants et la réutilisation doit être maîtrisée.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "La finalité et les conditions de réutilisation doivent être vérifiées.",
+      "Les détails peuvent rester personnels même sans noms."
+    ],
+    "risks": [
+      "risk-pii-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-eu-gdpr-2016-679",
+        "label": "Règlement (UE) 2016/679 — RGPD",
+        "url": "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679",
+        "type": "law"
+      },
+      {
+        "id": "source-cnil-ai",
+        "label": "CNIL — Intelligence artificielle et protection des données",
+        "url": "https://www.cnil.fr/fr/intelligence-artificielle",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-purpose-limitation, concept-authorized-tool."
+    }
+  },
+  {
+    "id": "q-batch-primary-source-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Le résumé de l'IA n'est pas la source",
+    "axis": "source_verification",
+    "difficulty": "beginner",
+    "intent": "Faire citer et vérifier la source primaire plutôt qu'un résumé produit par IA.",
+    "context": {
+      "role": "chargé de veille",
+      "scenario": "Une IA résume un rapport public et propose une conclusion utile pour votre note."
+    },
+    "prompt": "Quelle source devez-vous utiliser pour soutenir la conclusion ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "cite_primary",
+        "label": "Lire le rapport primaire et citer le passage qui soutient la conclusion.",
+        "score": 1.0,
+        "feedback": "Correct. Le résumé IA peut aider à explorer, mais la source primaire fait foi."
+      },
+      {
+        "id": "cite_ai",
+        "label": "Citer l'IA comme source de la conclusion.",
+        "score": -1.0,
+        "feedback": "Risqué. Une sortie IA n'est pas une source vérifiable pour un claim important.",
+        "severity": "high"
+      },
+      {
+        "id": "copy_summary",
+        "label": "Copier le résumé sans citer pour éviter une source incertaine.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Masquer la source ne règle pas la vérification du claim.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Un résumé IA n'est pas une source primaire.",
+      "Le claim doit être soutenu par un passage vérifié."
+    ],
+    "risks": [
+      "risk-misattribution",
+      "risk-hallucinated-source"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-primary-source, concept-claim-scope."
+    }
+  },
+  {
+    "id": "q-batch-link-authority-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un lien fonctionnel ne suffit pas",
+    "axis": "source_verification",
+    "difficulty": "intermediate",
+    "intent": "Faire évaluer autorité, date et pertinence d'une source proposée par IA.",
+    "context": {
+      "role": "rédacteur",
+      "scenario": "Une IA fournit un lien réel pour appuyer une affirmation. Le site est peu connu et l'article date de plusieurs années."
+    },
+    "prompt": "Que vérifier avant de l'utiliser ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "authority_date_scope",
+        "label": "Vérifier l'autorité, la date, la méthode et si la source soutient précisément l'affirmation.",
+        "score": 1.0,
+        "feedback": "Correct. Un lien fonctionnel ne prouve pas la fiabilité ni la pertinence de la source."
+      },
+      {
+        "id": "accept_link",
+        "label": "Accepter car le lien fonctionne.",
+        "score": -1.0,
+        "feedback": "Risqué. L'existence d'un lien ne garantit pas son autorité ou son actualité.",
+        "severity": "high"
+      },
+      {
+        "id": "accept_first_result",
+        "label": "Accepter si c'est le premier résultat affiché.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Le rang d'affichage n'est pas une preuve d'autorité.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "La fiabilité dépend d'autorité, date, méthode et périmètre.",
+      "Un lien peut être réel mais insuffisant."
+    ],
+    "risks": [
+      "risk-misattribution",
+      "risk-obsolete-context"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-link-not-evidence, concept-source-authority."
+    }
+  },
+  {
+    "id": "q-batch-legal-reference-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une référence juridique plausible peut être fausse",
+    "axis": "hallucination",
+    "difficulty": "intermediate",
+    "intent": "Faire vérifier une référence juridique IA dans une source officielle avant usage.",
+    "context": {
+      "role": "assistant juridique",
+      "scenario": "Une IA propose une référence juridique très précise pour appuyer un argument interne."
+    },
+    "prompt": "Quelle vérification est nécessaire ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "official_source",
+        "label": "Vérifier l'existence et le contenu dans une source officielle avant usage.",
+        "score": 1.0,
+        "feedback": "Correct. Une référence juridique plausible peut être inventée ou mal attribuée."
+      },
+      {
+        "id": "trust_precise",
+        "label": "La reprendre car la référence est précise.",
+        "score": -1.5,
+        "feedback": "Risqué. La précision apparente peut masquer une source fabriquée.",
+        "severity": "high"
+      },
+      {
+        "id": "ask_rephrase",
+        "label": "Demander à l'IA de reformuler l'argument plus prudemment.",
+        "score": -0.2,
+        "feedback": "Partiel. La prudence de style ne remplace pas la vérification officielle.",
+        "severity": "low"
+      }
+    ],
+    "expected_reasoning": [
+      "Les références juridiques doivent être vérifiées officiellement.",
+      "Le style précis n'est pas une preuve."
+    ],
+    "risks": [
+      "risk-hallucinated-source",
+      "risk-misattribution"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-hallucinated-source, concept-fabricated-fact."
+    }
+  },
+  {
+    "id": "q-batch-summary-omission-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un résumé peut omettre l'exception importante",
+    "axis": "hallucination",
+    "difficulty": "intermediate",
+    "intent": "Faire contrôler un résumé IA lorsque des exceptions ou conditions changent la décision.",
+    "context": {
+      "role": "responsable conformité",
+      "scenario": "Une IA résume une procédure longue et conclut que l'action est autorisée, mais vous savez que la procédure contient souvent des exceptions."
+    },
+    "prompt": "Quelle action est responsable ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "check_original_exceptions",
+        "label": "Vérifier le document original, en particulier exceptions et conditions d'application.",
+        "score": 1.0,
+        "feedback": "Correct. Un résumé peut omettre une exception critique pour la décision."
+      },
+      {
+        "id": "trust_summary",
+        "label": "Faire confiance au résumé car il est clair.",
+        "score": -1.0,
+        "feedback": "Risqué. La clarté d'un résumé ne garantit pas qu'il couvre les exceptions.",
+        "severity": "high"
+      },
+      {
+        "id": "ask_shorter",
+        "label": "Demander un résumé encore plus court.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Raccourcir augmente le risque d'omission.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Les exceptions doivent être vérifiées dans l'original.",
+      "Un résumé clair peut être incomplet."
+    ],
+    "risks": [
+      "risk-critical-omission"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-critical-summary-omission."
+    }
+  },
+  {
+    "id": "q-batch-few-shot-sensitive-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Les exemples fournis au prompt peuvent être sensibles",
+    "axis": "prompt_practice",
+    "difficulty": "intermediate",
+    "intent": "Faire remplacer des exemples sensibles par des exemples synthétiques ou abstraits.",
+    "context": {
+      "role": "responsable formation",
+      "scenario": "Pour obtenir un bon style, vous voulez fournir à une IA trois exemples réels de réponses client contenant des détails personnels fictifs mais plausibles."
+    },
+    "prompt": "Comment procéder ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "synthetic_examples",
+        "label": "Créer des exemples synthétiques non identifiants ou abstraire les données avant de les fournir.",
+        "score": 1.0,
+        "feedback": "Correct. Les exemples few-shot peuvent exposer autant de données qu'un document complet."
+      },
+      {
+        "id": "paste_real_examples",
+        "label": "Coller les exemples réels pour améliorer la qualité.",
+        "score": -1.0,
+        "feedback": "Risqué. La qualité attendue ne justifie pas l'exposition de données personnelles.",
+        "severity": "high"
+      },
+      {
+        "id": "ask_confidential",
+        "label": "Ajouter au prompt que les exemples sont confidentiels.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Déclarer la confidentialité ne supprime pas l'exposition.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Les exemples de prompt peuvent contenir des données sensibles.",
+      "Des exemples synthétiques peuvent préserver le style sans exposer."
+    ],
+    "risks": [
+      "risk-pii-leak",
+      "risk-confidential-document-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-cnil-ai",
+        "label": "CNIL — Intelligence artificielle et protection des données",
+        "url": "https://www.cnil.fr/fr/intelligence-artificielle",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-eu-gdpr-2016-679",
+        "label": "Règlement (UE) 2016/679 — RGPD",
+        "url": "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679",
+        "type": "law"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-sensitive-example, concept-prompt-minimization."
+    }
+  },
+  {
+    "id": "q-batch-prompt-template-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un template de prompt ne garantit pas la conformité",
+    "axis": "prompt_practice",
+    "difficulty": "beginner",
+    "intent": "Éviter de présenter un template de prompt comme garantie de qualité ou conformité.",
+    "context": {
+      "role": "chef de projet",
+      "scenario": "Un collègue propose un template de prompt censé rendre toutes les réponses IA fiables et conformes."
+    },
+    "prompt": "Quelle réaction est juste ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "template_help_not_guarantee",
+        "label": "L'utiliser comme aide de cadrage, mais conserver vérification, sources et revue selon le risque.",
+        "score": 1.0,
+        "feedback": "Correct. Un template structure la demande mais ne garantit ni vérité ni conformité."
+      },
+      {
+        "id": "adopt_as_policy",
+        "label": "L'adopter comme règle suffisante pour tous les usages.",
+        "score": -1.0,
+        "feedback": "Risqué. Un prompt ne remplace pas politique interne, vérification ou revue humaine.",
+        "severity": "high"
+      },
+      {
+        "id": "ban_prompts",
+        "label": "Interdire tout template de prompt.",
+        "score": 0.0,
+        "feedback": "Trop fort. Les templates peuvent aider s'ils restent des aides, pas des garanties.",
+        "severity": "low"
+      }
+    ],
+    "expected_reasoning": [
+      "Un template aide mais ne garantit pas.",
+      "Les contrôles dépendent du risque et du contexte."
+    ],
+    "risks": [
+      "risk-vendor-overtrust"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-prompt-template-limit, concept-task-framing."
+    }
+  },
+  {
+    "id": "q-batch-rag-contradiction-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Deux documents RAG peuvent se contredire",
+    "axis": "source_verification",
+    "difficulty": "advanced",
+    "intent": "Faire escalader lorsqu'un système RAG récupère des sources internes contradictoires.",
+    "context": {
+      "role": "responsable opérations",
+      "scenario": "L'assistant interne récupère deux procédures avec des consignes incompatibles sur le même cas."
+    },
+    "prompt": "Quelle est la meilleure action ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "escalate_owner",
+        "label": "Identifier la procédure applicable, vérifier date/propriétaire et escalader au responsable métier.",
+        "score": 1.0,
+        "feedback": "Correct. Des sources contradictoires exigent arbitrage humain et vérification de version."
+      },
+      {
+        "id": "choose_newer",
+        "label": "Appliquer automatiquement la plus récente.",
+        "score": -0.5,
+        "feedback": "Partiel. La date aide, mais le périmètre et le propriétaire comptent aussi.",
+        "severity": "medium"
+      },
+      {
+        "id": "average_rules",
+        "label": "Combiner les deux réponses pour obtenir un compromis.",
+        "score": -1.0,
+        "feedback": "Risqué. Un compromis entre procédures incompatibles peut créer une règle invalide.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Les contradictions documentaires doivent être arbitrées.",
+      "Date, périmètre et propriétaire de source sont nécessaires."
+    ],
+    "risks": [
+      "risk-obsolete-context",
+      "risk-misattribution"
+    ],
+    "sources": [
+      {
+        "id": "source-lewis-rag-2020",
+        "label": "Lewis et al. — Retrieval-Augmented Generation",
+        "url": "https://arxiv.org/abs/2005.11401",
+        "type": "documentation"
+      },
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-rag-contradiction, concept-document-obsolescence."
+    }
+  },
+  {
+    "id": "q-batch-rag-permission-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une réponse RAG peut révéler un document non autorisé",
+    "axis": "security",
+    "difficulty": "advanced",
+    "intent": "Faire contrôler les permissions d'accès dans un système RAG interne.",
+    "context": {
+      "role": "utilisateur métier",
+      "scenario": "Un assistant interne répond avec des informations très précises issues d'un dossier auquel vous ne pensez pas avoir accès normalement."
+    },
+    "prompt": "Que devez-vous faire ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "report_permission_issue",
+        "label": "Ne pas réutiliser l'information et signaler un possible problème de permission ou de périmètre documentaire.",
+        "score": 1.0,
+        "feedback": "Correct. Un RAG doit respecter les droits d'accès ; une fuite de périmètre doit être traitée."
+      },
+      {
+        "id": "use_because_answered",
+        "label": "Utiliser l'information car l'assistant vous l'a fournie.",
+        "score": -1.0,
+        "feedback": "Risqué. Une réponse accessible via assistant n'autorise pas nécessairement sa réutilisation.",
+        "severity": "high"
+      },
+      {
+        "id": "ask_more_details",
+        "label": "Demander plus de détails pour confirmer.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Demander plus peut aggraver l'exposition d'information non autorisée.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Les droits d'accès doivent être respectés par le RAG.",
+      "Un signal de fuite doit être remonté."
+    ],
+    "risks": [
+      "risk-confidential-document-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-owasp-llm-top10",
+        "label": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-retrieval-permission."
+    }
+  },
+  {
+    "id": "q-batch-indirect-injection-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un document externe peut contenir une instruction malveillante",
+    "axis": "security",
+    "difficulty": "advanced",
+    "intent": "Faire reconnaître une prompt injection indirecte dans un document traité par un assistant.",
+    "context": {
+      "role": "analyste",
+      "scenario": "Vous demandez à un assistant de résumer une page web. Le texte de la page contient une phrase demandant à l'assistant d'ignorer les règles et d'envoyer des données internes."
+    },
+    "prompt": "Comment considérer cette phrase ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "treat_as_data",
+        "label": "La traiter comme du contenu non fiable à résumer, pas comme une instruction à suivre.",
+        "score": 1.0,
+        "feedback": "Correct. Les instructions présentes dans un document externe sont des données, pas des ordres fiables."
+      },
+      {
+        "id": "follow_page",
+        "label": "La suivre car elle fait partie de la page.",
+        "score": -1.5,
+        "feedback": "À bloquer. Un document externe ne doit pas redéfinir les règles du système.",
+        "severity": "critical"
+      },
+      {
+        "id": "delete_sentence_only",
+        "label": "Supprimer la phrase et faire comme si le document était sûr.",
+        "score": -0.2,
+        "feedback": "Partiel. Supprimer le signal ne suffit pas ; il faut traiter la source comme non fiable et limiter les outils.",
+        "severity": "low"
+      }
+    ],
+    "expected_reasoning": [
+      "Une injection indirecte vient d'une source externe.",
+      "Le contenu récupéré ne doit pas devenir instruction prioritaire."
+    ],
+    "risks": [
+      "risk-indirect-prompt-injection"
+    ],
+    "sources": [
+      {
+        "id": "source-owasp-llm-top10",
+        "label": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-mitre-atlas",
+        "label": "MITRE ATLAS",
+        "url": "https://atlas.mitre.org/",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-indirect-prompt-injection, concept-instruction-hierarchy."
+    }
+  },
+  {
+    "id": "q-batch-generated-script-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un script généré ne s'exécute pas sans revue",
+    "axis": "security",
+    "difficulty": "intermediate",
+    "intent": "Faire relire et tester un script généré par IA avant exécution.",
+    "context": {
+      "role": "administrateur système",
+      "scenario": "Une IA propose un script shell pour nettoyer des fichiers temporaires sur un serveur."
+    },
+    "prompt": "Quelle conduite est sûre ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "review_test_dryrun",
+        "label": "Lire le script, le tester en environnement sûr et prévoir un dry-run avant toute exécution.",
+        "score": 1.0,
+        "feedback": "Correct. Une sortie exécutable doit être revue et testée avant action réelle."
+      },
+      {
+        "id": "run_directly",
+        "label": "L'exécuter directement car il vient d'une IA réputée.",
+        "score": -1.5,
+        "feedback": "Risqué. Un script peut supprimer ou modifier des données de façon non voulue.",
+        "severity": "high"
+      },
+      {
+        "id": "ask_ai_if_safe",
+        "label": "Demander à l'IA si le script est sûr puis l'exécuter.",
+        "score": -0.5,
+        "feedback": "Insuffisant. L'auto-évaluation par le même système ne remplace pas une revue technique.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Les sorties exécutables demandent revue et tests.",
+      "Un dry-run réduit le risque d'action irréversible."
+    ],
+    "risks": [
+      "risk-unsafe-action-automation"
+    ],
+    "sources": [
+      {
+        "id": "source-owasp-llm-top10",
+        "label": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-generated-code-review, concept-insecure-output-handling, concept-dry-run."
+    }
+  },
+  {
+    "id": "q-batch-agent-calendar-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un agent calendrier ne doit pas inviter sans validation",
+    "axis": "human_responsibility",
+    "difficulty": "advanced",
+    "intent": "Faire limiter une action externe d'agent à un brouillon validé par humain.",
+    "context": {
+      "role": "assistante de direction",
+      "scenario": "Un agent IA peut lire des disponibilités et envoyer automatiquement des invitations à des partenaires externes."
+    },
+    "prompt": "Quelle configuration privilégier ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "draft_invites",
+        "label": "Autoriser la préparation de brouillons d'invitation mais exiger validation humaine avant envoi.",
+        "score": 1.0,
+        "feedback": "Correct. Envoyer une invitation externe est une action qui doit rester contrôlée."
+      },
+      {
+        "id": "auto_send",
+        "label": "Autoriser l'envoi automatique pour gagner du temps.",
+        "score": -1.0,
+        "feedback": "Risqué. L'agent peut envoyer au mauvais destinataire ou divulguer des informations.",
+        "severity": "high"
+      },
+      {
+        "id": "full_calendar_access",
+        "label": "Donner accès complet à tous les calendriers pour optimiser.",
+        "score": -1.0,
+        "feedback": "Risqué. Le moindre privilège impose de limiter l'accès aux données nécessaires.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Une action externe demande validation.",
+      "Les permissions doivent être proportionnées."
+    ],
+    "risks": [
+      "risk-excessive-agent-permission",
+      "risk-unsafe-action-automation"
+    ],
+    "sources": [
+      {
+        "id": "source-owasp-llm-top10",
+        "label": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-mitre-atlas",
+        "label": "MITRE ATLAS",
+        "url": "https://atlas.mitre.org/",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-external-action, concept-agent-rollback."
+    }
+  },
+  {
+    "id": "q-batch-agent-delete-ticket-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un agent ne doit pas supprimer sans rollback",
+    "axis": "security",
+    "difficulty": "advanced",
+    "intent": "Faire prévoir validation, journalisation et rollback pour une action agentique destructive.",
+    "context": {
+      "role": "responsable support",
+      "scenario": "Un agent IA propose de fermer et supprimer automatiquement les tickets qu'il juge résolus."
+    },
+    "prompt": "Quelle décision est la plus sûre ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "no_delete_without_review",
+        "label": "Interdire la suppression automatique, journaliser les propositions et valider humainement les actions.",
+        "score": 1.0,
+        "feedback": "Correct. Une action destructive exige contrôle humain, audit et possibilité de retour arrière."
+      },
+      {
+        "id": "delete_auto",
+        "label": "Autoriser la suppression automatique si le score de confiance est élevé.",
+        "score": -1.5,
+        "feedback": "À bloquer. Un score de confiance ne justifie pas une action destructive sans contrôle.",
+        "severity": "critical"
+      },
+      {
+        "id": "close_not_delete",
+        "label": "Autoriser la fermeture automatique sans suppression.",
+        "score": -0.5,
+        "feedback": "Partiel. Fermer un ticket reste une action externe qui peut nécessiter validation selon impact.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Les actions destructives exigent validation et rollback.",
+      "Le score de confiance ne remplace pas la responsabilité humaine."
+    ],
+    "risks": [
+      "risk-unsafe-action-automation",
+      "risk-excessive-agent-permission"
+    ],
+    "sources": [
+      {
+        "id": "source-owasp-llm-top10",
+        "label": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-mitre-atlas",
+        "label": "MITRE ATLAS",
+        "url": "https://atlas.mitre.org/",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-agent-rollback, concept-tool-audit-log."
+    }
+  },
+  {
+    "id": "q-batch-persona-stereotype-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Des personas IA peuvent stéréotyper",
+    "axis": "bias_fairness",
+    "difficulty": "intermediate",
+    "intent": "Faire relire des personas générés pour éviter les stéréotypes de rôle ou de groupe.",
+    "context": {
+      "role": "designer pédagogique",
+      "scenario": "Une IA génère des personas pour une formation : les profils techniques sont tous masculins et les profils administratifs tous féminins."
+    },
+    "prompt": "Que faire ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "review_rebalance",
+        "label": "Identifier le biais, rééquilibrer les personas et documenter la revue.",
+        "score": 1.0,
+        "feedback": "Correct. Les personas doivent éviter de renforcer des stéréotypes de rôle ou de genre."
+      },
+      {
+        "id": "keep_generated",
+        "label": "Les garder car ce sont des personas fictifs.",
+        "score": -1.0,
+        "feedback": "Risqué. Un contenu fictif peut quand même renforcer des représentations problématiques.",
+        "severity": "high"
+      },
+      {
+        "id": "change_names_only",
+        "label": "Changer seulement quelques prénoms.",
+        "score": -0.5,
+        "feedback": "Partiel. Le problème vient de l'association systématique rôle/groupe, pas seulement des prénoms.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Un biais de représentation peut apparaître dans un contenu fictif.",
+      "La correction doit traiter la structure du stéréotype."
+    ],
+    "risks": [
+      "risk-bias-stereotype"
+    ],
+    "sources": [
+      {
+        "id": "source-bender-stochastic-parrots-2021",
+        "label": "Bender et al. — On the Dangers of Stochastic Parrots",
+        "url": "https://doi.org/10.1145/3442188.3445922",
+        "type": "documentation"
+      },
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-representation-bias."
+    }
+  },
+  {
+    "id": "q-batch-proxy-variable-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une variable neutre peut servir de proxy",
+    "axis": "bias_fairness",
+    "difficulty": "advanced",
+    "intent": "Faire identifier qu'une variable apparemment neutre peut créer un effet discriminant.",
+    "context": {
+      "role": "analyste RH formation",
+      "scenario": "Pour prioriser des invitations à une formation, un modèle propose d'utiliser le temps de trajet et la disponibilité horaire comme critères principaux."
+    },
+    "prompt": "Quel point vérifier ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "check_proxy_effect",
+        "label": "Vérifier si ces variables créent un effet indirect sur certains groupes et demander une revue appropriée.",
+        "score": 1.0,
+        "feedback": "Correct. Une variable apparemment neutre peut être corrélée à des contraintes personnelles ou sociales."
+      },
+      {
+        "id": "accept_neutral",
+        "label": "Accepter car les variables ne mentionnent aucun groupe protégé.",
+        "score": -1.0,
+        "feedback": "Risqué. L'absence de mention directe ne supprime pas le risque de proxy discriminant.",
+        "severity": "high"
+      },
+      {
+        "id": "hide_criteria",
+        "label": "Ne pas expliquer les critères pour éviter les contestations.",
+        "score": -1.0,
+        "feedback": "Risqué. L'opacité empêche la revue et la responsabilité.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Les variables proxy doivent être examinées.",
+      "La transparence et la revue sont nécessaires."
+    ],
+    "risks": [
+      "risk-bias-stereotype"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-bender-stochastic-parrots-2021",
+        "label": "Bender et al. — On the Dangers of Stochastic Parrots",
+        "url": "https://doi.org/10.1145/3442188.3445922",
+        "type": "documentation"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-proxy-variable."
+    }
+  },
+  {
+    "id": "q-batch-deepfake-voice-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une voix synthétique peut tromper",
+    "axis": "media_synthetic",
+    "difficulty": "advanced",
+    "intent": "Faire identifier les risques de tromperie et consentement autour d'une voix synthétique.",
+    "context": {
+      "role": "communicant",
+      "scenario": "Pour une vidéo interne, une IA propose une voix synthétique très proche de celle d'une dirigeante absente."
+    },
+    "prompt": "Quelle décision est responsable ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "avoid_or_consent_label",
+        "label": "Éviter l'imitation ou obtenir accord explicite, signaler la synthèse et documenter la provenance.",
+        "score": 1.0,
+        "feedback": "Correct. Une voix synthétique proche d'une personne réelle peut tromper ou poser un problème de consentement."
+      },
+      {
+        "id": "use_because_internal",
+        "label": "L'utiliser car la vidéo reste interne.",
+        "score": -1.0,
+        "feedback": "Risqué. Un usage interne peut quand même tromper et porter atteinte à la confiance.",
+        "severity": "high"
+      },
+      {
+        "id": "slight_change",
+        "label": "Modifier légèrement la voix et ne rien signaler.",
+        "score": -0.5,
+        "feedback": "Insuffisant. La provenance et le risque de confusion doivent être traités explicitement.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Un média synthétique imitant une personne exige prudence et consentement.",
+      "Le signalement et la provenance sont importants."
+    ],
+    "risks": [
+      "risk-synthetic-human-media"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-deepfake-risk, concept-media-provenance."
+    }
+  },
+  {
+    "id": "q-batch-watermark-limit-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un watermark ne suffit pas à valider un média",
+    "axis": "media_synthetic",
+    "difficulty": "intermediate",
+    "intent": "Faire comprendre qu'un marquage ou watermark ne remplace pas la revue de provenance et de biais.",
+    "context": {
+      "role": "chargé de communication",
+      "scenario": "Une image générée par IA porte un marquage indiquant son origine synthétique."
+    },
+    "prompt": "Cela suffit-il avant publication ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "review_provenance_bias",
+        "label": "Non, il faut aussi vérifier utilité, droits, provenance détaillée et risques de biais.",
+        "score": 1.0,
+        "feedback": "Correct. Le marquage aide mais ne remplace pas la revue du média."
+      },
+      {
+        "id": "watermark_enough",
+        "label": "Oui, le marquage suffit.",
+        "score": -0.5,
+        "feedback": "Partiel. Le public est informé, mais les droits et biais restent à examiner.",
+        "severity": "medium"
+      },
+      {
+        "id": "remove_watermark",
+        "label": "Retirer le marquage pour rendre l'image plus naturelle.",
+        "score": -1.0,
+        "feedback": "Risqué. Masquer l'origine synthétique peut tromper les utilisateurs.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Le marquage ne couvre pas tous les risques média.",
+      "La provenance et les biais doivent être revus."
+    ],
+    "risks": [
+      "risk-synthetic-human-media",
+      "risk-bias-stereotype"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-media-provenance."
+    }
+  },
+  {
+    "id": "q-batch-decision-trace-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Tracer les limites d'une décision assistée par IA",
+    "axis": "human_responsibility",
+    "difficulty": "intermediate",
+    "intent": "Faire documenter sources, hypothèses et limites lorsqu'une décision s'appuie sur l'IA.",
+    "context": {
+      "role": "manager opérationnel",
+      "scenario": "Vous utilisez une IA pour préparer une recommandation interne ayant un impact budgétaire important."
+    },
+    "prompt": "Que doit contenir la note finale ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "document_sources_limits",
+        "label": "Les sources vérifiées, hypothèses, limites de l'IA et validations humaines réalisées.",
+        "score": 1.0,
+        "feedback": "Correct. La traçabilité permet de comprendre et revoir la décision."
+      },
+      {
+        "id": "only_final_answer",
+        "label": "Seulement la recommandation finale pour rester concis.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Sans sources ni limites, la décision devient difficile à auditer.",
+        "severity": "medium"
+      },
+      {
+        "id": "hide_ai_use",
+        "label": "Ne pas mentionner l'usage de l'IA pour éviter de fragiliser la recommandation.",
+        "score": -1.0,
+        "feedback": "Risqué. Masquer l'assistance IA nuit à la responsabilité et à la revue.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Une décision assistée doit être traçable.",
+      "Sources, hypothèses, limites et validation humaine sont nécessaires."
+    ],
+    "risks": [
+      "risk-critical-omission",
+      "risk-unsafe-action-automation"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-decision-trace, concept-human-review."
+    }
+  },
+  {
+    "id": "q-batch-escalation-dpo-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Savoir escalader vers DPO ou sécurité",
+    "axis": "privacy_rgpd",
+    "difficulty": "intermediate",
+    "intent": "Faire choisir l'escalade appropriée quand une demande IA implique des données personnelles à enjeu.",
+    "context": {
+      "role": "chef de projet",
+      "scenario": "Une équipe veut analyser avec une IA des retours contenant des informations de santé fictives mais réalistes."
+    },
+    "prompt": "Quelle est la bonne décision ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "escalate_dpo_security",
+        "label": "Suspendre l'usage et demander une validation DPO/sécurité avec minimisation et outil autorisé.",
+        "score": 1.0,
+        "feedback": "Correct. Des données sensibles exigent une analyse et un cadre renforcés."
+      },
+      {
+        "id": "remove_names",
+        "label": "Retirer les noms puis lancer l'analyse.",
+        "score": -1.0,
+        "feedback": "Risqué. Les informations de santé restent sensibles même sans nom direct.",
+        "severity": "high"
+      },
+      {
+        "id": "use_small_sample",
+        "label": "N'envoyer qu'un petit échantillon pour limiter le risque.",
+        "score": -0.5,
+        "feedback": "Partiel. Un échantillon peut toujours contenir des données sensibles et nécessite un cadre.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Certaines données exigent escalade et validation.",
+      "La minimisation seule ne remplace pas le cadre juridique."
+    ],
+    "risks": [
+      "risk-pii-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-eu-gdpr-2016-679",
+        "label": "Règlement (UE) 2016/679 — RGPD",
+        "url": "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679",
+        "type": "law"
+      },
+      {
+        "id": "source-cnil-ai",
+        "label": "CNIL — Intelligence artificielle et protection des données",
+        "url": "https://www.cnil.fr/fr/intelligence-artificielle",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-escalation-path, concept-purpose-limitation."
+    }
+  },
+  {
+    "id": "q-batch-cohort-threshold-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une cohorte trop petite ne doit pas être affichée",
+    "axis": "business_context",
+    "difficulty": "intermediate",
+    "intent": "Faire appliquer le seuil de confidentialité avant d'afficher des résultats agrégés.",
+    "context": {
+      "role": "responsable formation",
+      "scenario": "Une équipe de trois personnes a terminé le parcours. Le responsable veut voir la distribution détaillée par axe."
+    },
+    "prompt": "Quelle réponse respecte la confidentialité ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "hide_under_threshold",
+        "label": "Ne pas afficher la distribution détaillée tant que le seuil minimal de cohorte n'est pas atteint.",
+        "score": 1.0,
+        "feedback": "Correct. Une petite cohorte peut permettre de réidentifier les personnes."
+      },
+      {
+        "id": "show_because_aggregate",
+        "label": "Afficher car ce ne sont pas des noms, seulement des agrégats.",
+        "score": -1.0,
+        "feedback": "Risqué. Un agrégat sur très petit effectif peut réidentifier indirectement.",
+        "severity": "high"
+      },
+      {
+        "id": "show_to_manager_only",
+        "label": "Afficher seulement au responsable direct.",
+        "score": -0.5,
+        "feedback": "Insuffisant. Restreindre l'accès ne supprime pas le risque de réidentification.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Le k-anonymat impose un seuil minimal.",
+      "Un agrégat petit peut devenir nominatif de fait."
+    ],
+    "risks": [
+      "risk-rh-scoring"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-cohort-threshold, concept-organizational-aggregate."
+    }
+  },
+  {
+    "id": "q-batch-learning-score-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Le meilleur score local reste privé",
+    "axis": "business_context",
+    "difficulty": "beginner",
+    "intent": "Faire distinguer score pédagogique privé et indicateur organisationnel agrégé.",
+    "context": {
+      "role": "apprenant",
+      "scenario": "Vous rejouez un module et améliorez votre meilleur score local. Un collègue demande à comparer vos scores."
+    },
+    "prompt": "Quelle réponse correspond à l'esprit du produit ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "private_learning",
+        "label": "Garder le score comme repère privé d'apprentissage et discuter plutôt des pratiques à renforcer.",
+        "score": 1.0,
+        "feedback": "Correct. Le score sert à progresser, pas à comparer des personnes."
+      },
+      {
+        "id": "share_ranking",
+        "label": "Créer un classement informel entre collègues.",
+        "score": -0.5,
+        "feedback": "Risqué. Même informel, un classement peut déplacer l'objectif vers la compétition.",
+        "severity": "medium"
+      },
+      {
+        "id": "send_manager",
+        "label": "Envoyer les scores au manager pour montrer la progression.",
+        "score": -1.0,
+        "feedback": "Risqué. Cela peut transformer un signal pédagogique privé en usage RH.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Le score est un repère privé.",
+      "La comparaison nominative est hors doctrine produit."
+    ],
+    "risks": [
+      "risk-rh-scoring"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-learning-score, concept-training-not-rh-evaluation."
+    }
+  },
+  {
+    "id": "q-batch-vendor-compliance-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une promesse fournisseur ne suffit pas",
+    "axis": "business_context",
+    "difficulty": "intermediate",
+    "intent": "Faire vérifier contrat, configuration et finalité plutôt que se fier à une page marketing fournisseur.",
+    "context": {
+      "role": "acheteur interne",
+      "scenario": "Un fournisseur IA affirme être conforme et sécurisé sur une page commerciale. Une équipe veut l'utiliser pour des documents clients."
+    },
+    "prompt": "Quelle vérification est nécessaire ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "check_contract_config",
+        "label": "Vérifier contrat, configuration, rétention, localisation, finalité et validation interne avant usage.",
+        "score": 1.0,
+        "feedback": "Correct. Une déclaration fournisseur doit être contextualisée et contractualisée."
+      },
+      {
+        "id": "trust_vendor",
+        "label": "Accepter car le fournisseur indique être conforme.",
+        "score": -1.0,
+        "feedback": "Risqué. La conformité dépend de l'usage, du contrat et de la configuration.",
+        "severity": "high"
+      },
+      {
+        "id": "pilot_with_real_docs",
+        "label": "Faire un test rapide avec quelques vrais documents clients.",
+        "score": -1.0,
+        "feedback": "Risqué. Un pilote ne doit pas exposer des documents clients sans cadre.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "Une source vendeur ne suffit pas pour une règle générale.",
+      "Usage, contrat et configuration déterminent le risque."
+    ],
+    "risks": [
+      "risk-vendor-overtrust",
+      "risk-confidential-document-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-cnil-ai",
+        "label": "CNIL — Intelligence artificielle et protection des données",
+        "url": "https://www.cnil.fr/fr/intelligence-artificielle",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-vendor-source, concept-authorized-tool."
+    }
+  },
+  {
+    "id": "q-batch-retention-analytics-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Les réponses libres peuvent contenir des données sensibles",
+    "axis": "privacy_rgpd",
+    "difficulty": "advanced",
+    "intent": "Faire éviter la collecte de réponses libres sensibles dans les analytics d'un parcours IA.",
+    "context": {
+      "role": "responsable produit",
+      "scenario": "Vous envisagez d'ajouter une question ouverte demandant aux apprenants de décrire un cas réel d'usage IA dans leur équipe."
+    },
+    "prompt": "Quel risque principal traiter ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "avoid_or_constrain_free_text",
+        "label": "Éviter ou encadrer fortement le texte libre, car il peut contenir PII, secrets ou informations internes.",
+        "score": 1.0,
+        "feedback": "Correct. Le texte libre augmente fortement le risque de collecte de données sensibles."
+      },
+      {
+        "id": "collect_for_insights",
+        "label": "Collecter librement pour obtenir de meilleurs insights produit.",
+        "score": -1.0,
+        "feedback": "Risqué. La valeur d'analyse ne justifie pas une collecte non minimisée.",
+        "severity": "high"
+      },
+      {
+        "id": "delete_later",
+        "label": "Collecter maintenant et prévoir une suppression manuelle plus tard.",
+        "score": -0.5,
+        "feedback": "Insuffisant. La minimisation doit être conçue avant la collecte.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Le texte libre peut contenir des données sensibles.",
+      "La minimisation doit guider la conception analytique."
+    ],
+    "risks": [
+      "risk-pii-leak",
+      "risk-confidential-document-leak"
+    ],
+    "sources": [
+      {
+        "id": "source-eu-gdpr-2016-679",
+        "label": "Règlement (UE) 2016/679 — RGPD",
+        "url": "https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679",
+        "type": "law"
+      },
+      {
+        "id": "source-cnil-ai",
+        "label": "CNIL — Intelligence artificielle et protection des données",
+        "url": "https://www.cnil.fr/fr/intelligence-artificielle",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-retention-period, concept-purpose-limitation."
+    }
+  },
+  {
+    "id": "q-batch-system-prompt-leak-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une demande de révéler les règles système est un signal",
+    "axis": "security",
+    "difficulty": "intermediate",
+    "intent": "Faire reconnaître qu'une demande de révélation ou contournement des instructions système doit être refusée.",
+    "context": {
+      "role": "utilisateur d'un assistant interne",
+      "scenario": "Un document importé contient une consigne demandant à l'assistant de révéler ses instructions système et ses règles internes."
+    },
+    "prompt": "Quelle réaction est appropriée ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "refuse_and_report",
+        "label": "Ne pas suivre cette consigne et la signaler comme tentative de contournement ou injection.",
+        "score": 1.0,
+        "feedback": "Correct. Les règles système et politiques internes ne doivent pas être révélées par un contenu non fiable."
+      },
+      {
+        "id": "ask_assistant",
+        "label": "Demander à l'assistant d'obéir au document pour voir ce qu'il révèle.",
+        "score": -1.0,
+        "feedback": "Risqué. Tester ainsi peut exposer des informations internes ou contourner des protections.",
+        "severity": "high"
+      },
+      {
+        "id": "ignore_all_document",
+        "label": "Ignorer tout le document sans analyse.",
+        "score": -0.2,
+        "feedback": "Partiel. Il faut traiter la consigne malveillante comme donnée non fiable, mais le reste du document peut encore être résumé prudemment.",
+        "severity": "low"
+      }
+    ],
+    "expected_reasoning": [
+      "Une demande de révélation d'instructions est un signal de risque.",
+      "Le contenu externe ne doit pas contrôler les règles système."
+    ],
+    "risks": [
+      "risk-indirect-prompt-injection"
+    ],
+    "sources": [
+      {
+        "id": "source-owasp-llm-top10",
+        "label": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "type": "public_guidance"
+      },
+      {
+        "id": "source-mitre-atlas",
+        "label": "MITRE ATLAS",
+        "url": "https://atlas.mitre.org/",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-instruction-hierarchy, concept-indirect-prompt-injection."
+    }
+  },
+  {
+    "id": "q-batch-doc-freshness-policy-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Une politique interne doit avoir un propriétaire",
+    "axis": "source_verification",
+    "difficulty": "intermediate",
+    "intent": "Faire vérifier propriétaire et version d'une politique interne avant application.",
+    "context": {
+      "role": "référent métier",
+      "scenario": "Une IA retrouve une politique interne non datée dans un espace partagé et recommande de l'appliquer."
+    },
+    "prompt": "Quelle vérification manque ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "owner_version",
+        "label": "Identifier propriétaire, date/version et périmètre applicable de la politique.",
+        "score": 1.0,
+        "feedback": "Correct. Une politique interne non datée ou sans propriétaire peut être obsolète ou hors périmètre."
+      },
+      {
+        "id": "apply_because_internal",
+        "label": "L'appliquer car elle est interne.",
+        "score": -1.0,
+        "feedback": "Risqué. Interne ne signifie pas valide, actuelle ou applicable.",
+        "severity": "high"
+      },
+      {
+        "id": "ask_ai_to_summarize",
+        "label": "Demander un résumé plus clair à l'IA.",
+        "score": -0.5,
+        "feedback": "Insuffisant. La clarté du résumé ne donne pas la version ni le propriétaire.",
+        "severity": "medium"
+      }
+    ],
+    "expected_reasoning": [
+      "Une source interne doit être versionnée et propriétaire.",
+      "L'applicabilité dépend du périmètre."
+    ],
+    "risks": [
+      "risk-obsolete-context",
+      "risk-misattribution"
+    ],
+    "sources": [
+      {
+        "id": "source-internal-data-classification-policy",
+        "label": "Politique interne de classification des données",
+        "url": "internal://data-classification",
+        "type": "internal_policy"
+      },
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-source-date, concept-claim-scope."
+    }
+  },
+  {
+    "id": "q-batch-model-version-change-001",
+    "version": 1,
+    "status": "draft",
+    "locale": "fr-FR",
+    "title": "Un changement de modèle peut changer le risque",
+    "axis": "business_context",
+    "difficulty": "advanced",
+    "intent": "Faire revalider un workflow IA après changement de modèle ou version fournisseur.",
+    "context": {
+      "role": "product owner",
+      "scenario": "Votre fournisseur IA annonce une nouvelle version du modèle utilisé dans un workflow de synthèse documentaire."
+    },
+    "prompt": "Quelle action est responsable ?",
+    "interaction": {
+      "type": "single_choice",
+      "min_choices": 1,
+      "max_choices": 1
+    },
+    "choices": [
+      {
+        "id": "retest_workflow",
+        "label": "Rejouer les tests et scénarios critiques avant de considérer le workflow inchangé.",
+        "score": 1.0,
+        "feedback": "Correct. Une nouvelle version peut modifier qualité, comportement et risques."
+      },
+      {
+        "id": "assume_better",
+        "label": "Considérer que la nouvelle version est forcément meilleure.",
+        "score": -0.5,
+        "feedback": "Risqué. Amélioration moyenne ne garantit pas absence de régression sur votre cas.",
+        "severity": "medium"
+      },
+      {
+        "id": "ignore_change",
+        "label": "Ignorer le changement car l'interface est identique.",
+        "score": -1.0,
+        "feedback": "Risqué. Une interface identique peut masquer un changement de comportement du modèle.",
+        "severity": "high"
+      }
+    ],
+    "expected_reasoning": [
+      "La version du modèle fait partie du contexte de risque.",
+      "Les workflows critiques doivent être retestés."
+    ],
+    "risks": [
+      "risk-critical-omission",
+      "risk-vendor-overtrust"
+    ],
+    "sources": [
+      {
+        "id": "source-nist-ai-rmf-1-0",
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+        "type": "public_guidance"
+      }
+    ],
+    "review": {
+      "author": "draft-agent",
+      "reviewers": [],
+      "last_reviewed_at": null,
+      "confidence": "medium",
+      "notes": "Liens conceptuels: concept-model-version, concept-tool-vs-model."
+    }
+  }
+]

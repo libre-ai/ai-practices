@@ -1,0 +1,173 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: source-eu-gdpr-2016-679
+    status: draft
+    level: A
+    type: law
+    publisher: Union européenne
+    label: Règlement (UE) 2016/679 — RGPD
+    url: https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679
+    domains: [privacy_rgpd, governance_compliance]
+    claim_scope: données personnelles, licéité, minimisation, sous-traitance, droits
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-eu-ai-act-2024-1689
+    status: draft
+    level: A
+    type: law
+    publisher: Union européenne
+    label: Règlement (UE) 2024/1689 — AI Act
+    url: https://eur-lex.europa.eu/eli/reg/2024/1689/oj
+    domains: [governance_compliance, human_responsibility]
+    claim_scope: obligations IA selon rôle, usage et niveau de risque
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-cnil-ai
+    status: draft
+    level: B
+    type: public_guidance
+    publisher: CNIL
+    label: CNIL — Intelligence artificielle et protection des données
+    url: https://www.cnil.fr/fr/intelligence-artificielle
+    domains: [privacy_rgpd, governance_compliance]
+    claim_scope: doctrine française sur IA et données personnelles
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-nist-ai-rmf-1-0
+    status: draft
+    level: B
+    type: public_guidance
+    publisher: NIST
+    label: Artificial Intelligence Risk Management Framework 1.0
+    url: https://www.nist.gov/itl/ai-risk-management-framework
+    domains: [governance_compliance, source_reliability, evaluation]
+    claim_scope: gestion des risques IA, gouvernance, mesure et cartographie
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-owasp-llm-top10
+    status: draft
+    level: D
+    type: public_guidance
+    publisher: OWASP
+    label: OWASP Top 10 for Large Language Model Applications
+    url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+    domains: [ai_security, agents_tools, rag_knowledge]
+    claim_scope: risques applicatifs LLM, prompt injection, agents, données
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-mitre-atlas
+    status: draft
+    level: D
+    type: public_guidance
+    publisher: MITRE
+    label: MITRE ATLAS
+    url: https://atlas.mitre.org/
+    domains: [ai_security]
+    claim_scope: tactiques et techniques adverses liées aux systèmes IA
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-long-magerko-ai-literacy-2020
+    status: draft
+    level: C
+    type: research
+    publisher: ACM
+    label: Long & Magerko — What is AI Literacy?
+    url: https://dl.acm.org/doi/10.1145/3313831.3376727
+    domains: [ai_literacy, pedagogy]
+    claim_scope: dimensions de littératie IA à adapter au contexte professionnel
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-roediger-karpicke-2006
+    status: draft
+    level: C
+    type: research
+    publisher: Psychological Science
+    label: Roediger & Karpicke — Test-enhanced learning
+    url: https://doi.org/10.1111/j.1467-9280.2006.01693.x
+    domains: [pedagogy]
+    claim_scope: retrieval practice et apprentissage par rappel actif
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-hattie-timperley-feedback-2007
+    status: draft
+    level: C
+    type: research
+    publisher: Review of Educational Research
+    label: Hattie & Timperley — The Power of Feedback
+    url: https://doi.org/10.3102/003465430298487
+    domains: [pedagogy, feedback]
+    claim_scope: rôle du feedback pour guider progression et action
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-lewis-rag-2020
+    status: draft
+    level: C
+    type: research
+    publisher: arXiv
+    label: Lewis et al. — Retrieval-Augmented Generation
+    url: https://arxiv.org/abs/2005.11401
+    domains: [rag_knowledge]
+    claim_scope: principe RAG, pas garantie de factualité opérationnelle
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-bender-stochastic-parrots-2021
+    status: draft
+    level: C
+    type: research
+    publisher: ACM FAccT
+    label: Bender et al. — On the Dangers of Stochastic Parrots
+    url: https://doi.org/10.1145/3442188.3445922
+    domains: [genai_foundations, bias_fairness]
+    claim_scope: limites, risques et impacts socio-techniques des grands modèles de langage
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: medium
+  - id: source-internal-data-classification-policy
+    status: draft
+    level: F
+    type: internal_policy
+    publisher: Organisation utilisatrice
+    label: Politique interne de classification des données
+    url: internal://data-classification
+    domains: [data_confidentiality, business_context]
+    claim_scope: niveaux public/interne/confidentiel/restreint selon organisation
+    review:
+      author: draft-agent
+      reviewers: []
+      last_reviewed_at: null
+      confidence: low
+      notes: Placeholder interne à remplacer par la politique réelle de l'organisation.

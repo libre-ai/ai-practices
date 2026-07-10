@@ -1,0 +1,991 @@
+{
+  "version": 1,
+  "status": "draft",
+  "locale": "fr-FR",
+  "items": [
+    {
+      "id": "concept-model-limitations",
+      "status": "draft",
+      "label": "Limites du modèle",
+      "domain": "genai_foundations",
+      "level": "foundational",
+      "summary": "Limites de connaissances, contexte, raisonnement ou actualité d'un modèle IA.",
+      "risk_axes": [
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-understand-ai-output"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-model-version",
+      "status": "draft",
+      "label": "Version de modèle",
+      "domain": "genai_foundations",
+      "level": "applied",
+      "summary": "Version précise d'un modèle ou service, pouvant changer capacités et risques.",
+      "risk_axes": [
+        "business_context",
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-assess-risk"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-output-plausibility",
+      "status": "draft",
+      "label": "Plausibilité de sortie",
+      "domain": "genai_foundations",
+      "level": "foundational",
+      "summary": "Capacité d'une sortie à sembler crédible sans être vérifiée.",
+      "risk_axes": [
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-detect-hallucination"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-tool-vs-model",
+      "status": "draft",
+      "label": "Outil versus modèle",
+      "domain": "genai_foundations",
+      "level": "foundational",
+      "summary": "Distinction entre modèle IA, application, connecteurs, politiques et stockage.",
+      "risk_axes": [
+        "business_context",
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-assess-risk"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-context-leakage",
+      "status": "draft",
+      "label": "Fuite par contexte",
+      "domain": "genai_foundations",
+      "level": "applied",
+      "summary": "Exposition involontaire d'information sensible dans le contexte fourni au modèle.",
+      "risk_axes": [
+        "data_confidentiality",
+        "security"
+      ],
+      "competencies": [
+        "comp-protect-data"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-metadata-sensitivity",
+      "status": "draft",
+      "label": "Sensibilité des métadonnées",
+      "domain": "data_confidentiality",
+      "level": "applied",
+      "summary": "Commentaires, auteurs, dates, chemins ou versions peuvent révéler des informations internes.",
+      "risk_axes": [
+        "data_confidentiality"
+      ],
+      "competencies": [
+        "comp-classify-data-context"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-log-sensitivity",
+      "status": "draft",
+      "label": "Sensibilité des logs",
+      "domain": "data_confidentiality",
+      "level": "applied",
+      "summary": "Les logs peuvent contenir tokens, emails, IP, identifiants ou erreurs client.",
+      "risk_axes": [
+        "security",
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-protect-data"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-customer-data",
+      "status": "draft",
+      "label": "Données client",
+      "domain": "data_confidentiality",
+      "level": "foundational",
+      "summary": "Informations liées à clients, utilisateurs ou bénéficiaires, souvent soumises à restrictions.",
+      "risk_axes": [
+        "privacy_rgpd",
+        "data_confidentiality"
+      ],
+      "competencies": [
+        "comp-protect-data"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-internal-document",
+      "status": "draft",
+      "label": "Document interne",
+      "domain": "data_confidentiality",
+      "level": "foundational",
+      "summary": "Document non destiné à être partagé hors de l'organisation ou du périmètre autorisé.",
+      "risk_axes": [
+        "data_confidentiality"
+      ],
+      "competencies": [
+        "comp-classify-data-context"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-quasi-identifier",
+      "status": "draft",
+      "label": "Quasi-identifiant",
+      "domain": "data_confidentiality",
+      "level": "advanced",
+      "summary": "Attribut apparemment neutre pouvant contribuer à réidentifier une personne lorsqu'il est combiné.",
+      "risk_axes": [
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-classify-data-context"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-source-authority",
+      "status": "draft",
+      "label": "Autorité d'une source",
+      "domain": "source_reliability",
+      "level": "applied",
+      "summary": "Crédibilité d'une source selon son auteur, statut, méthode et périmètre.",
+      "risk_axes": [
+        "source_verification"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-source-date",
+      "status": "draft",
+      "label": "Date d'une source",
+      "domain": "source_reliability",
+      "level": "applied",
+      "summary": "Date de publication ou version à vérifier pour les sujets évolutifs.",
+      "risk_axes": [
+        "source_verification",
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-claim-scope",
+      "status": "draft",
+      "label": "Périmètre d'un claim",
+      "domain": "source_reliability",
+      "level": "advanced",
+      "summary": "Limite exacte de ce qu'une source permet d'affirmer.",
+      "risk_axes": [
+        "source_verification"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-vendor-source",
+      "status": "draft",
+      "label": "Source fournisseur",
+      "domain": "source_reliability",
+      "level": "applied",
+      "summary": "Documentation ou déclaration d'un vendeur, utile mais limitée pour les vérités générales.",
+      "risk_axes": [
+        "business_context",
+        "source_verification"
+      ],
+      "competencies": [
+        "comp-assess-risk"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-link-not-evidence",
+      "status": "draft",
+      "label": "Lien non probant",
+      "domain": "source_reliability",
+      "level": "foundational",
+      "summary": "Un lien fonctionnel ne prouve ni autorité, ni pertinence, ni actualité.",
+      "risk_axes": [
+        "source_verification"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-fabricated-fact",
+      "status": "draft",
+      "label": "Fait fabriqué",
+      "domain": "hallucination_uncertainty",
+      "level": "foundational",
+      "summary": "Affirmation produite sans fondement vérifié.",
+      "risk_axes": [
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-detect-hallucination"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-wrong-attribution",
+      "status": "draft",
+      "label": "Mauvaise attribution",
+      "domain": "hallucination_uncertainty",
+      "level": "applied",
+      "summary": "Attribution d'un propos ou résultat à une source qui ne le soutient pas.",
+      "risk_axes": [
+        "source_verification"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-critical-summary-omission",
+      "status": "draft",
+      "label": "Omission critique en résumé",
+      "domain": "hallucination_uncertainty",
+      "level": "applied",
+      "summary": "Résumé qui omet une condition, exception ou information nécessaire.",
+      "risk_axes": [
+        "hallucination",
+        "human_responsibility"
+      ],
+      "competencies": [
+        "comp-detect-hallucination"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-uncertainty-signal",
+      "status": "draft",
+      "label": "Signal d'incertitude",
+      "domain": "hallucination_uncertainty",
+      "level": "applied",
+      "summary": "Indice qu'une sortie doit être vérifiée ou escaladée.",
+      "risk_axes": [
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-detect-hallucination"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-recency-check",
+      "status": "draft",
+      "label": "Vérification d'actualité",
+      "domain": "hallucination_uncertainty",
+      "level": "applied",
+      "summary": "Contrôle qu'une information récente est confirmée par une source à jour.",
+      "risk_axes": [
+        "hallucination",
+        "source_verification"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-sensitive-example",
+      "status": "draft",
+      "label": "Exemple sensible",
+      "domain": "prompt_practice",
+      "level": "applied",
+      "summary": "Exemple fourni au modèle qui contient des données client, secrets ou détails internes.",
+      "risk_axes": [
+        "data_confidentiality",
+        "prompt_practice"
+      ],
+      "competencies": [
+        "comp-frame-task"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-prompt-minimization",
+      "status": "draft",
+      "label": "Minimisation du prompt",
+      "domain": "prompt_practice",
+      "level": "applied",
+      "summary": "Réduire les informations fournies à ce qui est utile à la tâche.",
+      "risk_axes": [
+        "prompt_practice",
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-frame-task"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-instruction-hierarchy",
+      "status": "draft",
+      "label": "Hiérarchie d'instructions",
+      "domain": "prompt_practice",
+      "level": "advanced",
+      "summary": "Priorité relative entre règles système, développeur, utilisateur et contenu documentaire.",
+      "risk_axes": [
+        "security"
+      ],
+      "competencies": [
+        "comp-secure-agent-tools"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-prompt-template-limit",
+      "status": "draft",
+      "label": "Limite d'un template de prompt",
+      "domain": "prompt_practice",
+      "level": "foundational",
+      "summary": "Un template aide à structurer mais ne garantit pas exactitude ou conformité.",
+      "risk_axes": [
+        "prompt_practice"
+      ],
+      "competencies": [
+        "comp-understand-ai-output"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-document-obsolescence",
+      "status": "draft",
+      "label": "Obsolescence documentaire",
+      "domain": "rag_knowledge",
+      "level": "applied",
+      "summary": "Risque qu'un document récupéré ne soit plus applicable.",
+      "risk_axes": [
+        "source_verification",
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-retrieval-permission",
+      "status": "draft",
+      "label": "Permission de récupération",
+      "domain": "rag_knowledge",
+      "level": "advanced",
+      "summary": "Droit d'accès aux documents qu'un système RAG peut récupérer.",
+      "risk_axes": [
+        "security",
+        "data_confidentiality"
+      ],
+      "competencies": [
+        "comp-secure-agent-tools"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-rag-contradiction",
+      "status": "draft",
+      "label": "Contradiction documentaire RAG",
+      "domain": "rag_knowledge",
+      "level": "advanced",
+      "summary": "Documents récupérés qui soutiennent des règles différentes ou incompatibles.",
+      "risk_axes": [
+        "source_verification",
+        "business_context"
+      ],
+      "competencies": [
+        "comp-assess-risk"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-chunk-context-loss",
+      "status": "draft",
+      "label": "Perte de contexte par chunk",
+      "domain": "rag_knowledge",
+      "level": "advanced",
+      "summary": "Découpage documentaire qui sépare une information de ses conditions d'application.",
+      "risk_axes": [
+        "hallucination"
+      ],
+      "competencies": [
+        "comp-check-source"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-external-action",
+      "status": "draft",
+      "label": "Action externe",
+      "domain": "agents_tools",
+      "level": "applied",
+      "summary": "Action produisant un effet hors conversation, comme envoyer, modifier ou supprimer.",
+      "risk_axes": [
+        "human_responsibility",
+        "security"
+      ],
+      "competencies": [
+        "comp-secure-agent-tools"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-dry-run",
+      "status": "draft",
+      "label": "Dry-run",
+      "domain": "agents_tools",
+      "level": "applied",
+      "summary": "Simulation d'une action avant exécution réelle.",
+      "risk_axes": [
+        "security",
+        "human_responsibility"
+      ],
+      "competencies": [
+        "comp-secure-agent-tools"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-agent-rollback",
+      "status": "draft",
+      "label": "Rollback agentique",
+      "domain": "agents_tools",
+      "level": "advanced",
+      "summary": "Capacité à annuler ou corriger une action d'agent.",
+      "risk_axes": [
+        "security"
+      ],
+      "competencies": [
+        "comp-secure-agent-tools"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-tool-audit-log",
+      "status": "draft",
+      "label": "Journal d'action outil",
+      "domain": "agents_tools",
+      "level": "advanced",
+      "summary": "Trace des outils appelés et effets produits, sans PII inutile.",
+      "risk_axes": [
+        "security",
+        "human_responsibility"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-secret-in-code",
+      "status": "draft",
+      "label": "Secret dans le code",
+      "domain": "ai_security",
+      "level": "applied",
+      "summary": "Clé, token ou credential présent dans du code ou un exemple.",
+      "risk_axes": [
+        "security"
+      ],
+      "competencies": [
+        "comp-protect-data"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-generated-code-review",
+      "status": "draft",
+      "label": "Revue de code généré",
+      "domain": "ai_security",
+      "level": "applied",
+      "summary": "Contrôle humain et tests sur code produit par IA avant usage.",
+      "risk_axes": [
+        "security",
+        "human_responsibility"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-insecure-output-handling",
+      "status": "draft",
+      "label": "Traitement non sûr des sorties",
+      "domain": "ai_security",
+      "level": "advanced",
+      "summary": "Exécution ou intégration d'une sortie IA sans validation appropriée.",
+      "risk_axes": [
+        "security"
+      ],
+      "competencies": [
+        "comp-secure-agent-tools"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-representation-bias",
+      "status": "draft",
+      "label": "Biais de représentation",
+      "domain": "bias_fairness",
+      "level": "applied",
+      "summary": "Représentation répétée ou stéréotypée d'un groupe, rôle ou métier.",
+      "risk_axes": [
+        "bias_fairness"
+      ],
+      "competencies": [
+        "comp-handle-bias"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-proxy-variable",
+      "status": "draft",
+      "label": "Variable proxy",
+      "domain": "bias_fairness",
+      "level": "advanced",
+      "summary": "Variable qui semble neutre mais corrèle avec une caractéristique sensible.",
+      "risk_axes": [
+        "bias_fairness"
+      ],
+      "competencies": [
+        "comp-handle-bias"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-media-provenance",
+      "status": "draft",
+      "label": "Provenance média",
+      "domain": "synthetic_media",
+      "level": "applied",
+      "summary": "Information sur origine, génération, droits et modifications d'un média.",
+      "risk_axes": [
+        "media_synthetic"
+      ],
+      "competencies": [
+        "comp-handle-bias"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-deepfake-risk",
+      "status": "draft",
+      "label": "Risque deepfake",
+      "domain": "synthetic_media",
+      "level": "advanced",
+      "summary": "Risque de tromperie lié à un média synthétique représentant une personne.",
+      "risk_axes": [
+        "media_synthetic",
+        "security"
+      ],
+      "competencies": [
+        "comp-handle-bias"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-human-review",
+      "status": "draft",
+      "label": "Revue humaine",
+      "domain": "human_responsibility",
+      "level": "foundational",
+      "summary": "Validation réelle par une personne compétente avant décision ou publication.",
+      "risk_axes": [
+        "human_responsibility"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-decision-trace",
+      "status": "draft",
+      "label": "Trace de décision",
+      "domain": "human_responsibility",
+      "level": "applied",
+      "summary": "Documentation des sources, hypothèses, limites et validations.",
+      "risk_axes": [
+        "human_responsibility",
+        "business_context"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-escalation-path",
+      "status": "draft",
+      "label": "Chemin d'escalade",
+      "domain": "human_responsibility",
+      "level": "applied",
+      "summary": "Rôle à solliciter en cas de doute : sécurité, DPO, juridique ou métier.",
+      "risk_axes": [
+        "human_responsibility",
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-purpose-limitation",
+      "status": "draft",
+      "label": "Limitation de finalité",
+      "domain": "governance_compliance",
+      "level": "applied",
+      "summary": "Utiliser les données seulement pour une finalité déterminée et compatible.",
+      "risk_axes": [
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-assess-risk"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-retention-period",
+      "status": "draft",
+      "label": "Durée de conservation",
+      "domain": "governance_compliance",
+      "level": "applied",
+      "summary": "Durée pendant laquelle données ou traces sont conservées.",
+      "risk_axes": [
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-assess-risk"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-cohort-threshold",
+      "status": "draft",
+      "label": "Seuil de cohorte",
+      "domain": "governance_compliance",
+      "level": "advanced",
+      "summary": "Taille minimale pour afficher des agrégats sans réidentifier.",
+      "risk_axes": [
+        "privacy_rgpd",
+        "business_context"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-authorized-tool",
+      "status": "draft",
+      "label": "Outil autorisé",
+      "domain": "business_context",
+      "level": "foundational",
+      "summary": "Service IA validé pour certains usages, données et finalités.",
+      "risk_axes": [
+        "business_context",
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-assess-risk"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-organizational-aggregate",
+      "status": "draft",
+      "label": "Agrégat organisationnel",
+      "domain": "business_context",
+      "level": "governance",
+      "summary": "Mesure groupée par axe sans détail nominatif.",
+      "risk_axes": [
+        "business_context",
+        "privacy_rgpd"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    },
+    {
+      "id": "concept-learning-score",
+      "status": "draft",
+      "label": "Score pédagogique",
+      "domain": "business_context",
+      "level": "foundational",
+      "summary": "Signal d'apprentissage privé, non utilisable comme classement RH.",
+      "risk_axes": [
+        "business_context"
+      ],
+      "competencies": [
+        "comp-human-accountability"
+      ],
+      "review": {
+        "author": "draft-agent",
+        "reviewers": [],
+        "last_reviewed_at": null,
+        "confidence": "medium"
+      }
+    }
+  ]
+}

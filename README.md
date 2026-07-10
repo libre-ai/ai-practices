@@ -1,6 +1,6 @@
 # rumble-ai-practices
 
-**Couche** : Rumble
+**Outil** : Rumble
 **Rôle** : entraînement professionnel aux pratiques IA, scénarios et feedback sourcé
 **deployment_class** : product-linkable
 **Maturité** : dojo — PWA/Rust qui tourne ; moteur de session provisoire à documenter comme tel

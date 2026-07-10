@@ -1,0 +1,44 @@
+version: 1
+status: draft
+locale: fr-FR
+items:
+  - id: misconception-asking-source-is-verification
+    status: draft
+    statement: Demander à l'IA de citer une source suffit à vérifier une affirmation.
+    correction: Une source doit être retrouvée et lue pour vérifier qu'elle soutient le claim.
+    risks: [risk-hallucinated-source, risk-misattribution]
+  - id: misconception-intended-public-means-safe
+    status: draft
+    statement: Un document destiné à publication est déjà non sensible.
+    correction: Un brouillon peut contenir commentaires, métadonnées ou informations internes.
+    risks: [risk-confidential-document-leak]
+  - id: misconception-anonymized-by-removing-name
+    status: draft
+    statement: Retirer le nom suffit à anonymiser.
+    correction: Des quasi-identifiants peuvent encore permettre la réidentification.
+    risks: [risk-pii-leak]
+  - id: misconception-rag-eliminates-hallucinations
+    status: draft
+    statement: Une réponse RAG est fiable parce qu'elle cite des documents.
+    correction: Les documents récupérés peuvent être obsolètes, incomplets ou mal attribués.
+    risks: [risk-misattribution, risk-obsolete-context]
+  - id: misconception-agent-is-just-chatbot
+    status: draft
+    statement: Un agent IA n'est qu'un assistant conversationnel.
+    correction: Un agent peut agir via outils ; ses permissions et effets doivent être contrôlés.
+    risks: [risk-excessive-agent-permission, risk-unsafe-action-automation]
+  - id: misconception-internal-tool-always-safe
+    status: draft
+    statement: Un outil interne est automatiquement sûr.
+    correction: Il faut vérifier droits, logs, rétention, finalité et politique d'usage.
+    risks: [risk-pii-leak, risk-secret-leakage]
+  - id: misconception-score-is-maturity
+    status: draft
+    statement: Un score individuel prouve la maturité IA d'une personne.
+    correction: Le score est un signal pédagogique privé, pas une mesure RH.
+    risks: [risk-rh-scoring]
+  - id: misconception-synthetic-media-neutral
+    status: draft
+    statement: Une image IA est neutre parce qu'elle est fictive.
+    correction: Un média synthétique peut produire stéréotypes, tromperie ou confusion de provenance.
+    risks: [risk-bias-stereotype, risk-synthetic-human-media]
