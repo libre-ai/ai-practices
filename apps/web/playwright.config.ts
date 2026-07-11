@@ -3,9 +3,10 @@ import { defineConfig, devices } from "@playwright/test";
 // Durable e2e for the web PWA (browser-tooling rule: `playwright test` in-repo
 // is the canonical tool for durable e2e). Runs against a served build; locally
 // it reuses a running `dx serve` on :8080, in CI it builds+serves the release.
-// PW_BASE_URL points the suite at an already-running server on another port
-// (e.g. when :8080 is taken locally); unset, behavior is unchanged.
-const BASE_URL = process.env.PW_BASE_URL ?? "http://localhost:8080";
+// E2E_BASE_URL selects the single-origin binary used by cohort tests;
+// PW_BASE_URL remains the generic override for an already-running web server.
+const EXTERNAL_BASE_URL = process.env.E2E_BASE_URL ?? process.env.PW_BASE_URL;
+const BASE_URL = EXTERNAL_BASE_URL ?? "http://localhost:8080";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -25,7 +26,7 @@ export default defineConfig({
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["Pixel 7"] } },
   ],
-  webServer: process.env.PW_BASE_URL
+  webServer: EXTERNAL_BASE_URL
     ? undefined
     : {
         command: "dx serve --platform web",
