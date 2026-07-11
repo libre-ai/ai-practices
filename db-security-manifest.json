@@ -1,0 +1,46 @@
+{
+  "data": {
+    "format": "wrench.db_inspect.manifest.v0.1",
+    "product": "ai-practices",
+    "tenant": {
+      "canonical_name": "anonymous_session",
+      "column": "session_id"
+    },
+    "roles": {
+      "app": [],
+      "readonly": [],
+      "migration": []
+    },
+    "tables": [
+      {
+        "name": "anonymous_sessions",
+        "classification": "internal",
+        "tenant_column": null,
+        "tenant_derivation": null,
+        "contains_personal_data": false,
+        "contains_embeddings": false
+      },
+      {
+        "name": "anonymous_session_axes",
+        "classification": "internal",
+        "tenant_column": null,
+        "tenant_derivation": null,
+        "contains_personal_data": false,
+        "contains_embeddings": false
+      },
+      {
+        "name": "cohort_access_audit",
+        "classification": "audit_system",
+        "tenant_column": null,
+        "tenant_derivation": null,
+        "contains_personal_data": false,
+        "contains_embeddings": false
+      }
+    ],
+    "waivers": []
+  },
+  "meta": {
+    "schema_version": "0.1",
+    "generated_at": "2026-07-11T00:00:00Z"
+  }
+}
