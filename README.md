@@ -37,9 +37,9 @@ cargo run -p rumble-ai-practices-cli -- serve --bind 127.0.0.1:3000
 
 Then open <http://127.0.0.1:3000>. Health and PWA proofs include `/readyz`, `/manifest.webmanifest` and `/sw.js`.
 
-## Database inspection pilot
+## Database inspection gate
 
-[`db-security-manifest.json`](db-security-manifest.json) records the anonymous cohort storage classifications from ADR 0006. Run the local evidence check with no database connection or secret:
+[`db-security-manifest.json`](db-security-manifest.json) records the anonymous cohort storage classifications from ADR 0006. Protected branches run the fail-closed workflow in [`.github/workflows/db-inspection.yml`](.github/workflows/db-inspection.yml) with the checksummed `wrench-db-inspect` `v0.1.0-alpha.1` release. Run the same evidence check locally with no database connection or secret:
 
 ```bash
 wrench-db-inspect run \
@@ -49,7 +49,7 @@ wrench-db-inspect run \
   --report-json target/db-inspect/report.json
 ```
 
-The current corpus passes with zero parser errors and zero unclassified tables. This is a reproducible local pilot; no global or protected-branch gate is enabled by this repository change.
+The current corpus passes with zero parser errors and zero unclassified tables. CI retains the redacted JSON and Markdown reports for 14 days; no global Bolt gate is enabled by this product workflow.
 
 ## Architecture
 
