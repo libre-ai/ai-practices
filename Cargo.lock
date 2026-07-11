@@ -4936,12 +4936,15 @@ dependencies = [
  "dioxus",
  "dioxus-ssr",
  "gloo-net 0.7.0",
+ "js-sys",
  "rumble-ai-practices-content",
  "rumble-ai-practices-domain",
  "rumble-ai-practices-session",
  "rumble-ai-practices-ui",
  "serde",
  "serde_json",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

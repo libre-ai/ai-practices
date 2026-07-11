@@ -86,7 +86,7 @@ Enrichissements issus de `docs/benchmark-jeu-competitif.md` (Famille C) :
 ## Sécurité frontend
 
 - Pas de token en `localStorage` ou `sessionStorage`.
-- CSP restrictive.
+- CSP restrictive : scripts même origine, compilation WASM dédiée, sans `unsafe-eval` ni `unsafe-inline` (ADR 0010).
 - Pas de police ou script CDN tiers par défaut.
 - Désactiver le tracking analytics tiers.
 - Vérifier absence de PII dans exports client.
