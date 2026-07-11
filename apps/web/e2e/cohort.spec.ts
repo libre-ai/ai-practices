@@ -16,7 +16,9 @@ test.beforeEach(async ({ page, context }) => {
   // Emulate reducedMotion to ensure stable timing during tests
   await page.emulateMedia({ reducedMotion: "reduce" });
 
-  await page.goto("/");
+  // The single-origin binary boots with Postgres migrations: the first
+  // navigation can exceed the 30s default while the server warms up.
+  await page.goto("/", { timeout: 60_000 });
   // Verify manifesto landing gate is visible (from PR #9)
   await expect(page.locator(".intro-title")).toContainText(
     "Aucune image générée n'est neutre."
@@ -36,9 +38,15 @@ async function completeParcours(
   await counter.waitFor({ state: "visible" });
   const label = await counter.textContent();
   const total = Number((label ?? "").split("/")[1].trim());
+  // Mirror the proven parcours.spec loop: each step waits for the app's
+  // re-render before the next key, and the third press is the CONTINUE —
+  // firing 2/Enter blind desyncs the sequence (caught on mobile).
   for (let i = 0; i < total; i++) {
     await page.keyboard.press("2"); // select choice 2
+    await page.locator('.choice[data-key="2"].sel').waitFor();
     await page.keyboard.press("Enter"); // validate
+    await page.locator('[data-action="continue"]').waitFor({ state: "visible" });
+    await page.keyboard.press("Enter"); // continue
   }
   return total;
 }
