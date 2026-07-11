@@ -39,7 +39,7 @@ Then open <http://127.0.0.1:3000>. Health and PWA proofs include `/readyz`, `/ma
 
 ## Database inspection gate
 
-[`db-security-manifest.json`](db-security-manifest.json) records the anonymous cohort storage classifications from ADR 0006. Protected branches run the fail-closed workflow in [`.github/workflows/db-inspection.yml`](.github/workflows/db-inspection.yml) with the checksummed consolidated Wrench release `db-inspect-v0.1.0-alpha.4`. Run the same evidence check locally with no database connection or secret:
+[`db-security-manifest.json`](db-security-manifest.json) records the anonymous cohort storage classifications from ADR 0006. Protected branches run the fail-closed workflow in [`.github/workflows/db-inspection.yml`](.github/workflows/db-inspection.yml) with the checksummed consolidated Proof Kit release `db-inspect-v0.1.0-alpha.4`. Run the same evidence check locally with no database connection or secret:
 
 ```bash
 wrench-db-inspect run \
