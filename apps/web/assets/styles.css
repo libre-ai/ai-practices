@@ -88,17 +88,10 @@ body {
   font-family: var(--font-family-mono);
   font-weight: 600;
   color: var(--color-cap-face);
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--color-cap) 100%, white 8%),
-    var(--color-cap)
-  );
+  background: var(--color-cap);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-cap);
-  box-shadow:
-    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 14%) inset,
-    0 var(--cap-travel) 0 color-mix(in oklab, var(--color-cap) 100%, black 32%),
-    0 calc(var(--cap-travel) + 3px) 8px rgba(0, 0, 0, 0.35);
+
   transform: translateY(0);
   transition:
     transform var(--motion-press),
@@ -111,7 +104,7 @@ body {
   inset: 3px 4px auto 4px;
   height: 40%;
   border-radius: 6px 6px 10px 10px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
+  background: var(--color-cap);
   pointer-events: none;
 }
 /* actuation: a quiet depress, no neon glow (UX direction a). Applies to a
@@ -122,11 +115,7 @@ body {
 .validate-btn:active .cap,
 .idk:active .cap {
   transform: translateY(var(--cap-travel));
-  box-shadow:
-    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 10%) inset,
-    0 0 0 color-mix(in oklab, var(--color-cap) 100%, black 32%),
-    0 1px 3px rgba(0, 0, 0, 0.3),
-    0 0 0 1px color-mix(in oklab, var(--c) 45%, transparent);
+
 }
 .cap.mini {
   width: 1.7em;
@@ -165,17 +154,11 @@ body {
 
 /* ---------- the question console ---------- */
 .console {
-  background:
-    radial-gradient(
-      120% 90% at 50% -10%,
-      color-mix(in oklab, var(--color-accent) 8%, transparent),
-      transparent 60%
-    ),
-    var(--color-surface);
+  background: var(--color-cap);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: clamp(20px, 3.4vw, 36px);
-  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.6);
+
   position: relative;
 }
 /* faint per-category watermark, tucked in the top-right corner */
@@ -206,18 +189,11 @@ body {
   align-items: center;
   gap: 14px;
   margin-top: var(--spacing-md);
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--color-cap) 100%, white 6%),
-    var(--color-cap)
-  );
+  background: var(--color-cap);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 12px 14px;
-  box-shadow:
-    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 12%) inset,
-    0 var(--cap-travel) 0 color-mix(in oklab, var(--color-cap) 100%, black 30%),
-    0 calc(var(--cap-travel) + 4px) 12px rgba(0, 0, 0, 0.26);
+
 }
 .attach-ticket {
   grid-template-columns: auto 1fr;
@@ -227,10 +203,9 @@ body {
   height: 52px;
   display: grid;
   place-items: center;
-  color: var(--color-accent);
-  background: color-mix(in oklab, var(--color-accent) 12%, transparent);
-  border: 1px solid
-    color-mix(in oklab, var(--color-accent) 40%, var(--color-border));
+  color: var(--color-text);
+  background: var(--color-cap);
+  border: var(--border-default) solid var(--color-accent);
   border-radius: 8px;
 }
 .attach-thumb svg {
@@ -261,7 +236,7 @@ body {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--color-partiel-ink, var(--color-partiel));
-  border: 1px solid color-mix(in oklab, var(--color-partiel) 50%, transparent);
+  border: var(--border-default) solid var(--color-border);
   border-radius: 999px;
   padding: 3px 9px;
 }
@@ -283,7 +258,7 @@ body {
   font-family: var(--font-family-mono);
   font-size: 13px;
   color: var(--color-text);
-  background: color-mix(in oklab, var(--color-cap) 55%, transparent);
+  background: var(--color-cap);
   border: 1px dashed var(--color-border);
   border-radius: 8px;
   padding: 8px 11px;
@@ -312,13 +287,9 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: color-mix(in oklab, var(--color-cap) 70%, transparent);
+  background: var(--color-cap);
   aspect-ratio: 16 / 8;
-  color: color-mix(
-    in oklab,
-    var(--color-faux) 75%,
-    var(--color-text-secondary)
-  );
+  color: var(--color-text);
 }
 .imgframe svg {
   width: 100%;
@@ -334,8 +305,8 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-faux-ink, var(--color-faux));
-  background: color-mix(in oklab, var(--color-background) 70%, transparent);
-  border: 1px solid color-mix(in oklab, var(--color-faux) 50%, transparent);
+  background: var(--color-cap);
+  border: var(--border-default) solid var(--color-border);
   border-radius: 999px;
   padding: 3px 9px;
 }
@@ -360,7 +331,7 @@ body {
   min-width: 92px;
 }
 .redact {
-  background: color-mix(in oklab, var(--color-risque) 24%, var(--color-cap));
+  background: var(--color-cap);
   color: transparent;
   border-radius: 3px;
   padding: 0 6px;
@@ -387,18 +358,12 @@ body {
   font-weight: 700;
   font-size: 15px;
   color: var(--color-cap-face);
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--color-cap) 100%, white 8%),
-    var(--color-cap)
-  );
+  background: var(--color-cap);
   border: 1px solid var(--color-border);
-  box-shadow:
-    0 1px 0 color-mix(in oklab, var(--color-cap) 100%, white 12%) inset,
-    0 2px 0 color-mix(in oklab, var(--color-cap) 100%, black 30%);
+
 }
 .bubble {
-  background: color-mix(in oklab, var(--color-cap) 52%, transparent);
+  background: var(--color-cap);
   border: 1px solid var(--color-border);
   border-radius: 4px 14px 14px 14px;
   padding: 13px 15px;
@@ -428,14 +393,16 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: clamp(24px, 4vw, 44px);
-  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.6);
+
 }
 .intro-eyebrow {
+  border-left: var(--border-strong) solid var(--color-accent);
+  padding-left: var(--spacing-sm);
   font-family: var(--font-family-mono);
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-text);
   margin: 0 0 var(--spacing-sm);
 }
 .intro-title {
@@ -480,7 +447,10 @@ body {
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: var(--spacing-xs);
 }
 .intro-start {
   width: 100%;
@@ -489,7 +459,7 @@ body {
 .intro-unavailable {
   font-family: var(--font-family-sans);
   color: var(--color-risque-ink, var(--color-risque));
-  border: 1px solid color-mix(in oklab, var(--color-risque) 40%, transparent);
+  border: var(--border-default) solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 14px 16px;
   margin: 0;
@@ -547,8 +517,8 @@ body {
   background: var(--color-cap);
   padding: 1px 7px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  color: var(--color-accent);
+  border: 1px solid var(--color-accent);
+  color: var(--color-text);
 }
 .prompt {
   font-family: var(--font-family-sans);
@@ -571,7 +541,7 @@ body {
 .calm-hint::before {
   content: "◷";
   font-size: 15px;
-  color: var(--color-accent);
+  color: var(--color-text-secondary);
 }
 
 /* ---------- choices (keycap radio group) ---------- */
@@ -608,17 +578,13 @@ body {
   font-size: 17px;
 }
 .choice:hover {
-  border-color: color-mix(
-    in oklab,
-    var(--color-accent) 50%,
-    var(--color-border)
-  );
+  border-color: var(--color-border);
 }
 .choice.sel {
   border-color: var(--color-accent);
-  background: color-mix(in oklab, var(--color-accent) 14%, transparent);
+  background: var(--color-cap);
   /* a steady ring marks the selection; no wide neon bloom (UX direction a) */
-  box-shadow: 0 0 0 1px var(--color-accent);
+
 }
 .choice.sel .cap {
   --c: var(--color-accent);
@@ -638,15 +604,11 @@ body {
 }
 .choice[data-verdict] {
   border-color: var(--v);
-  background: color-mix(in oklab, var(--v) 12%, transparent);
+  background: var(--color-cap);
 }
 .choice[data-verdict] .cap {
   --c: var(--v);
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--v) 28%, var(--color-cap)),
-    color-mix(in oklab, var(--v) 16%, var(--color-cap))
-  );
+  background: var(--color-cap);
 }
 .verdict-tag {
   font-family: var(--font-family-mono);
@@ -654,7 +616,7 @@ body {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--v-ink);
-  border: 1px solid color-mix(in oklab, var(--v) 55%, transparent);
+  border: var(--border-default) solid var(--color-border);
   border-radius: 999px;
   padding: 3px 10px;
   white-space: nowrap;
@@ -686,15 +648,14 @@ body {
   font-size: 14px;
   letter-spacing: 0.04em;
   cursor: pointer;
-  box-shadow: 0 var(--cap-travel) 0
-    color-mix(in oklab, var(--color-accent) 100%, black 34%);
+
 }
 .validate-btn .cap {
-  --cap: color-mix(in oklab, var(--color-accent) 100%, black 18%);
+  --cap: var(--color-action);
   color: var(--color-accent-ink);
 }
 .validate-btn:hover {
-  filter: brightness(1.06);
+
 }
 .validate-btn:focus-visible {
   outline: 2px solid var(--color-text);
@@ -703,7 +664,7 @@ body {
 .validate-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  box-shadow: none;
+
 }
 
 /* "je ne sais pas" — the spacebar of humility */
@@ -904,7 +865,7 @@ body {
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--v);
   border-radius: var(--radius-md);
-  background: color-mix(in oklab, var(--v) 7%, transparent);
+  background: var(--color-cap);
 }
 /* category vignette: the motif in a verdict-tinted frame */
 .summary-vignette {
@@ -914,8 +875,8 @@ body {
   place-items: center;
   border-radius: 10px;
   color: var(--v-ink);
-  background: color-mix(in oklab, var(--v) 14%, transparent);
-  border: 1px solid color-mix(in oklab, var(--v) 40%, transparent);
+  background: var(--color-cap);
+  border: var(--border-default) solid var(--color-border);
 }
 .summary-vignette .motif-svg {
   width: 24px;
@@ -974,8 +935,7 @@ body {
   border-radius: var(--radius-cap);
   padding: 12px 22px;
   cursor: pointer;
-  box-shadow: 0 var(--cap-travel) 0
-    color-mix(in oklab, var(--color-cap) 100%, black 32%);
+
 }
 .start-btn:hover {
   border-color: var(--color-accent);

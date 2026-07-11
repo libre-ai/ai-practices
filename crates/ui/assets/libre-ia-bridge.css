@@ -1,0 +1,72 @@
+:root {
+  /* Product vocabulary mapped exclusively to Libre IA Design System 2.0. */
+  --color-ink: var(--color-background);
+  --color-board: var(--color-background);
+  --color-well: var(--color-surface-active);
+  --color-edge: var(--color-border);
+  --color-pbt: var(--color-foreground);
+  --color-pbt-dim: var(--color-muted);
+  --color-ink-soft: var(--color-muted);
+  --color-brass: var(--color-action);
+  --color-brass-soft: var(--color-border);
+
+  --color-juste: var(--color-libre);
+  --color-partiel: var(--color-border);
+  --color-risque: var(--color-foreground);
+  --color-faux: var(--color-muted);
+  --color-juste-ink: var(--color-foreground);
+  --color-partiel-ink: var(--color-foreground);
+  --color-risque-ink: var(--color-foreground);
+  --color-faux-ink: var(--color-foreground);
+
+  --color-cap: var(--color-surface-active);
+  --color-cap-face: var(--color-foreground);
+  --color-text: var(--color-foreground);
+  --color-text-secondary: var(--color-muted);
+  --color-accent: var(--color-action);
+  --color-accent-ink: var(--color-action-text);
+  --color-brand: var(--color-action);
+  --color-success: var(--color-libre);
+  --color-warning: var(--color-foreground);
+  --color-danger: var(--color-foreground);
+
+  --font-family-mono: ui-monospace, monospace;
+  --font-family-serif: var(--font-body);
+  --font-family-sans: var(--font-body);
+  --font-family-body: var(--font-body);
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: clamp(30px, 5vw, 52px);
+
+  --radius-cap: var(--radius-sm);
+  --radius-lg: var(--radius-md);
+  --spacing-xs: var(--space-1);
+  --spacing-sm: var(--space-2);
+  --spacing-md: var(--space-4);
+  --spacing-lg: var(--space-6);
+  --spacing-xl: var(--space-8);
+  --cap-travel: 1px;
+  --motion-press: var(--motion-ui) var(--motion-easeStandard);
+}
+
+[data-verdict="juste"] {
+  --v: var(--color-juste);
+  --v-ink: var(--color-juste-ink);
+}
+[data-verdict="partiel"] {
+  --v: var(--color-partiel);
+  --v-ink: var(--color-partiel-ink);
+}
+[data-verdict="risque"] {
+  --v: var(--color-risque);
+  --v-ink: var(--color-risque-ink);
+}
+[data-verdict="faux"] {
+  --v: var(--color-faux);
+  --v-ink: var(--color-faux-ink);
+}
+[data-verdict="idk"] {
+  --v: var(--color-border);
+  --v-ink: var(--color-foreground);
+}

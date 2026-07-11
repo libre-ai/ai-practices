@@ -1,7 +1,7 @@
-//! Mobile-first PWA shell — the "keycap" direction (ADR 0036).
+//! Mobile-first PWA shell — Libre IA Design System 2.0 (ADR 0037).
 //!
-//! A reflex is a keystroke, but a responsible decision takes a beat: the keycap
-//! actuation is deliberately calm (UX direction a). The flow is a short parcours
+//! Keyboard affordances remain part of the interaction model, while all visual
+//! identity comes from the shared flat, single-accent contract. The flow is a short parcours
 //! — onboarding gate → one situation per risk axis → private synthesis — so the learner can see
 //! which reflexes to reinforce.
 //!
