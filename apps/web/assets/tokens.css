@@ -1,158 +1,50 @@
-/* Portal design tokens — rumble-ai-practices "keycap" direction (ADR 0036).
- *
- * A reflex is a keystroke: the interface is a calm mechanical keyboard, and a
- * decision is a keycap you press. The verdict spectrum is four states, never a
- * binary green/red — the product refuses the binary quiz.
- *
- * Appearance lives here as tokens only; components never hardcode colors
- * (tokens-only rule, wrench-inspect portal inspect). Both themes are designed. */
-
 :root {
-  /* ground: mechanical keyboard on a calm desk */
-  --color-ink: #171a21; /* the board / page ground */
-  --color-board: #1e222c; /* raised panel */
-  --color-well: #262b37; /* keycap body */
-  --color-edge: #333a49; /* borders / key skirts */
-  --color-pbt: #e8e2d4; /* warm keycap face / reading text */
-  --color-pbt-dim: #b9b3a6;
-  --color-ink-soft: #9aa2b1; /* muted */
-  --color-brass: #c8925a; /* actuation accent — the press */
-  --color-brass-soft: #9a7548;
-
-  /* four-state verdict spectrum (semantic, distinct from the accent).
-   * Two tones per verdict: the base (borders/dots/keycaps) and an *ink* tone
-   * for TEXT, kept ≥ 4.5:1 on the ground (WCAG AA). On the dark ground the
-   * bright base already passes, so ink == base; the light theme overrides ink
-   * with darker values. */
-  --color-juste: #5fb79a; /* correct */
-  --color-partiel: #d9b45a; /* partial — recognized, incomplete */
-  --color-risque: #d9765f; /* risky — burnt coral, not alarm-red */
-  --color-faux: #9b7bb0; /* incorrect — reconsider, not shame */
-  --color-juste-ink: #6fc7ab;
-  --color-partiel-ink: #e0bd6a;
-  --color-risque-ink: #e08974;
-  --color-faux-ink: #b193c4;
-
-  /* semantic surface tokens (components read these) */
-  --color-background: var(--color-ink);
-  --color-surface: var(--color-board);
-  --color-cap: var(--color-well);
-  --color-cap-face: var(--color-pbt);
-  --color-text: var(--color-pbt);
-  --color-text-secondary: var(--color-ink-soft);
-  --color-border: var(--color-edge);
-  --color-accent: var(--color-brass);
-  --color-accent-ink: var(--color-ink);
-  --color-brand: var(--color-brass);
-  /* legacy names kept, remapped to the four-state system */
-  --color-success: var(--color-juste);
-  --color-warning: var(--color-partiel);
-  --color-danger: var(--color-risque);
-
-  /* typography — a triad: mono (keyboard voice), serif (reading), sans (ui) */
-  --font-family-mono:
-    ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas,
-    monospace;
-  --font-family-serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
-  --font-family-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-family-body: var(--font-family-serif);
-
-  --font-size-sm: 14px;
-  --font-size-base: 17px;
-  --font-size-lg: 21px;
-  --font-size-xl: clamp(30px, 5vw, 52px);
-
-  --radius-cap: 9px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 6px;
-
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 16px;
-  --spacing-lg: 24px;
-  --spacing-xl: 40px;
-
-  --cap-travel: 4px;
-  /* A calm actuation, not a snappy click: slower, gentle ease-out, no
-   * overshoot. The product trains reflection, not speed (UX direction a). */
-  --motion-press: 0.16s cubic-bezier(0.2, 0.75, 0.3, 1);
-}
-
-/* OS-preference default: dark-first (the board), light fully designed */
-@media (prefers-color-scheme: light) {
-  :root {
-    --color-background: #ece5d6;
-    --color-surface: #e2dbc9;
-    --color-cap: #f3eee1;
-    --color-cap-face: #2a2f3a;
-    --color-text: #23262e;
-    --color-text-secondary: #5f594c;
-    --color-border: #cbc2ab;
-    --color-accent: #76501f;
-    --color-accent-ink: var(--color-cap);
-    --color-brand: #76501f;
-    /* darker verdict text on the paper ground (WCAG AA on #e2dbc9) */
-    --color-juste-ink: #1a5c43;
-    --color-partiel-ink: #5f480e;
-    --color-risque-ink: #992c19;
-    --color-faux-ink: #5a3f73;
-  }
-}
-
-/* explicit theme override wins in both directions; the attribute may sit on the
- * root or on the .app-root wrapper (in-app toggle), so target both. */
-:root[data-theme="dark"],
-[data-theme="dark"] {
-  --color-background: #171a21;
-  --color-surface: #1e222c;
-  --color-cap: #262b37;
-  --color-cap-face: #e8e2d4;
-  --color-text: #e8e2d4;
-  --color-text-secondary: #9aa2b1;
-  --color-border: #333a49;
-  --color-accent: #c8925a;
-  --color-accent-ink: #171a21;
-  --color-brand: #c8925a;
-}
-:root[data-theme="light"],
-[data-theme="light"] {
-  --color-background: #ece5d6;
-  --color-surface: #e2dbc9;
-  --color-cap: #f3eee1;
-  --color-cap-face: #2a2f3a;
-  --color-text: #23262e;
-  --color-text-secondary: #5f594c;
-  --color-border: #cbc2ab;
-  --color-accent: #76501f;
-  --color-accent-ink: #f3eee1;
-  --color-brand: #76501f;
-  --color-juste-ink: #1a5c43;
-  --color-partiel-ink: #5f480e;
-  --color-risque-ink: #992c19;
-  --color-faux-ink: #5a3f73;
-}
-
-/* verdict slug -> two tokens: --v (borders/dots/keycaps) and --v-ink (text,
- * AA-contrasted per theme). Components carry data-verdict, never a hex. */
-[data-verdict="juste"] {
-  --v: var(--color-juste);
-  --v-ink: var(--color-juste-ink);
-}
-[data-verdict="partiel"] {
-  --v: var(--color-partiel);
-  --v-ink: var(--color-partiel-ink);
-}
-[data-verdict="risque"] {
-  --v: var(--color-risque);
-  --v-ink: var(--color-risque-ink);
-}
-[data-verdict="faux"] {
-  --v: var(--color-faux);
-  --v-ink: var(--color-faux-ink);
-}
-/* "je ne sais pas" — neutral, neither reward nor alarm */
-[data-verdict="idk"] {
-  --v: var(--color-text-secondary);
-  --v-ink: var(--color-text-secondary);
+  --border-default: 1px;
+  --border-strong: 2px;
+  --color-gray: #6B7280;
+  --color-ink: #111827;
+  --color-libre: #22C55E;
+  --color-line: #E5E7EB;
+  --color-surface: #000000;
+  --color-theme-dark-action: #22C55E;
+  --color-theme-dark-actionText: #111827;
+  --color-theme-dark-background: #000000;
+  --color-theme-dark-border: #6B7280;
+  --color-theme-dark-focus: #FFFFFF;
+  --color-theme-dark-foreground: #FFFFFF;
+  --color-theme-dark-muted: #E5E7EB;
+  --color-theme-dark-surface: #000000;
+  --color-theme-light-action: #22C55E;
+  --color-theme-light-actionText: #111827;
+  --color-theme-light-background: #FFFFFF;
+  --color-theme-light-border: #6B7280;
+  --color-theme-light-focus: #111827;
+  --color-theme-light-foreground: #111827;
+  --color-theme-light-muted: #6B7280;
+  --color-theme-light-surface: #FFFFFF;
+  --color-white: #FFFFFF;
+  --control-touchTarget: 44px;
+  --design-version: 2.0.0;
+  --font-body: Inter, sans-serif;
+  --font-display: Plus Jakarta Sans, Inter, sans-serif;
+  --motion-easeEmphasized: cubic-bezier(.22, 1, .36, 1);
+  --motion-easeStandard: cubic-bezier(.2, .8, .2, 1);
+  --motion-fast: 120ms;
+  --motion-hero: 900ms;
+  --motion-loop: 6000ms;
+  --motion-panel: 280ms;
+  --motion-ui: 180ms;
+  --radius-md: 16px;
+  --radius-sm: 8px;
+  --radius-sticker: 140px;
+  --space-1: 4px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-2: 8px;
+  --space-24: 96px;
+  --space-3: 12px;
+  --space-32: 128px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
 }

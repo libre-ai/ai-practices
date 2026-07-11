@@ -1,11 +1,11 @@
-//! Dioxus UI contracts for `rumble-ai-practices` — the "keycap" direction.
+//! Dioxus UI contracts for `rumble-ai-practices`, styled by Libre IA Design System 2.0.
 //!
 //! Components here stay presentational. Scoring, validation and session
 //! decisions belong to the Rust core crates, not to UI: a verdict arrives as
 //! data (`VerdictKind` on a `FeedbackViewModel`), it is never computed here.
 //!
 //! Appearance is tokens-only: components carry semantic classes and a
-//! `data-verdict` slug; the colors live in `assets/tokens.css`.
+//! `data-verdict` slug; status meaning also has a label and glyph, never color alone.
 
 use dioxus::prelude::*;
 use dioxus_primitives::collapsible::{Collapsible, CollapsibleContent, CollapsibleTrigger};
