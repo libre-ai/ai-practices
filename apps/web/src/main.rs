@@ -9,7 +9,7 @@
 #[cfg(any(feature = "web", feature = "desktop", feature = "mobile"))]
 mod web_app {
     use dioxus::prelude::*;
-    use rumble_ai_practices_web::App;
+    use rumble_ai_practices_web::{App, register_service_worker};
 
     const FONTS_CSS: Asset = asset!(
         "/assets/fonts/fonts.css",
@@ -66,42 +66,26 @@ mod web_app {
     /// pure `App` component (and its tests) stay style-agnostic.
     #[component]
     fn Root() -> Element {
-        // Register the service worker for offline install (best-effort; the
-        // file is served next to the app so its scope covers the shell).
-        use_effect(|| {
-            document::eval(
-                "if ('serviceWorker' in navigator) { \
-                   navigator.serviceWorker.register('./sw.js').catch(function () {}); \
-                 }",
-            );
-        });
+        // Register the service worker for offline install through the typed
+        // browser adapter (best-effort; host/desktop builds use a no-op).
+        use_effect(register_service_worker);
 
-        rsx! {
-            document::Title { "rumble-ai-practices — réflexes IA" }
-            document::Meta {
-                name: "viewport",
-                content: "width=device-width, initial-scale=1, viewport-fit=cover",
-            }
-            // Platform manifests require a literal; this is the canonical Vert Libre token.
-            document::Meta { name: "theme-color", content: "#22C55E" }
-            document::Meta { name: "mobile-web-app-capable", content: "yes" }
-            document::Meta { name: "apple-mobile-web-app-capable", content: "yes" }
-            document::Meta {
-                name: "apple-mobile-web-app-status-bar-style",
-                content: "black-translucent",
-            }
-            document::Meta { name: "apple-mobile-web-app-title", content: "AI Practices" }
-            document::Link { rel: "manifest", href: MANIFEST }
-            document::Link { rel: "icon", r#type: "image/svg+xml", href: ICON }
-            document::Link { rel: "apple-touch-icon", href: ICON }
-            document::Stylesheet { href: FONTS_CSS }
-            document::Stylesheet { href: TOKENS_CSS }
-            document::Stylesheet { href: THEMES_CSS }
-            document::Stylesheet { href: BRIDGE_CSS }
-            document::Stylesheet { href: COMPONENTS_CSS }
-            document::Stylesheet { href: STYLES_CSS }
-            App {}
-        }
+        // Keep all Manganis assets linked into the web bundle. CSS marked
+        // `static_head` is injected by the Dioxus CLI at build time; PWA metadata
+        // lives in index.html, so runtime document evaluation is unnecessary.
+        let _assets = (
+            FONTS_CSS,
+            TOKENS_CSS,
+            THEMES_CSS,
+            BRIDGE_CSS,
+            COMPONENTS_CSS,
+            STYLES_CSS,
+            MANIFEST,
+            ICON,
+            MEDIA,
+        );
+
+        rsx! { App {} }
     }
 
     pub fn run() {

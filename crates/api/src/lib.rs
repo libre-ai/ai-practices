@@ -227,12 +227,13 @@ fn enforce_session_limit(sessions: &mut BTreeMap<String, StoredSession>) {
 async fn security_headers(request: Request<axum::body::Body>, next: Next) -> Response {
     let mut response = next.run(request).await;
     let headers = response.headers_mut();
-    // The dx-generated loader compiles WebAssembly and `document::eval` uses
-    // `new Function`, so this app currently requires `unsafe-eval`. Scripts
-    // remain same-origin only, and inline scripts/styles remain forbidden.
+    // The shell uses typed browser APIs only: scripts stay same-origin and
+    // JavaScript evaluation plus inline scripts/styles remain forbidden.
+    // `wasm-unsafe-eval` is narrowly required for browser WebAssembly
+    // compilation; unlike `unsafe-eval`, it does not allow eval/new Function.
     headers.insert(
         HeaderName::from_static("content-security-policy"),
-        HeaderValue::from_static("default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"),
+        HeaderValue::from_static("default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"),
     );
     headers.insert(
         HeaderName::from_static("x-content-type-options"),
@@ -696,8 +697,9 @@ mod tests {
             .unwrap()
             .to_str()
             .unwrap();
-        assert!(csp.contains("script-src 'self' 'unsafe-eval'"));
+        assert!(csp.contains("script-src 'self' 'wasm-unsafe-eval'"));
         assert!(csp.contains("style-src 'self'"));
+        assert!(!csp.contains("'unsafe-eval'"));
         assert!(!csp.contains("'unsafe-inline'"));
         assert_eq!(
             response.headers().get("x-content-type-options").unwrap(),

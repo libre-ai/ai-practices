@@ -22,6 +22,9 @@ use rumble_ai_practices_ui::{
 };
 use serde::{Deserialize, Serialize};
 
+mod browser;
+pub use browser::register_service_worker;
+
 /// The engine's evaluation level *is* the UI verdict — the UI never scores.
 pub fn verdict_from_level(level: EvaluationLevel) -> VerdictKind {
     match level {
@@ -99,34 +102,10 @@ enum Stage {
     Summary,
 }
 
-/// Global keyboard routing, installed once on `document`. It works on every
-/// stage by dispatching to the active screen's buttons via their `data-action`
-/// (Enter → validate/continue/start/restart, Space → idk, R → replay/restart,
-/// E → export) and to `.choice[data-key]` for the number keys, briefly showing
-/// the keycap actuation.
-///
-/// Why `document::eval` and not `web-sys`: a document-level listener is the
-/// portable way to catch keys regardless of focus across all Dioxus render
-/// targets (web / desktop / mobile share this crate). A `web-sys` window
-/// listener would be web-only and would need a `RuntimeGuard` dance; lifting all
-/// per-question state to `App` would break component encapsulation. Behavior is
-/// pinned by the Playwright e2e (`apps/web/e2e/parcours.spec.ts`), which drives
-/// real key events.
-const GLOBAL_KEYS_JS: &str = "if (!window.__raipKeys) { window.__raipKeys = true; \
-     document.addEventListener('keydown', function (e) { \
-       if (e.metaKey || e.ctrlKey || e.altKey) return; \
-       var q = function (s) { var el = document.querySelector(s); \
-         return el && getComputedStyle(el).visibility !== 'hidden' ? el : null; }; \
-       var k = e.key; \
-       if (k >= '1' && k <= '9') { var b = q('.choice[data-key=\"' + k + '\"]'); \
-         if (b) { e.preventDefault(); var c = b.querySelector('.cap'); \
-           if (c) { c.classList.add('is-down'); setTimeout(function(){c.classList.remove('is-down');},160); } b.click(); } } \
-       else if (k === 'Enter') { var v = q('[data-action=\"validate\"]') || q('[data-action=\"continue\"]') || q('[data-action=\"start\"]') || q('[data-action=\"restart\"]'); \
-         if (v && !v.disabled) { e.preventDefault(); v.click(); } } \
-       else if (k === ' ') { var i = q('[data-action=\"idk\"]'); if (i) { e.preventDefault(); i.click(); } } \
-       else if (k === 'r' || k === 'R') { var r = q('[data-action=\"replay\"]') || q('[data-action=\"restart\"]'); if (r) { e.preventDefault(); r.click(); } } \
-       else if (k === 'e' || k === 'E') { var x = q('[data-action=\"export\"]'); if (x) { e.preventDefault(); x.click(); } } \
-     }); }";
+/// Global keyboard routing is installed once through typed browser APIs. It
+/// dispatches to the active screen's buttons via `data-action` and preserves
+/// the same number/Enter/Space/R/E shortcuts on the WASM target. Host and SSR
+/// builds use no-op adapters, so no JavaScript evaluation is required.
 
 #[component]
 pub fn App() -> Element {
@@ -147,12 +126,9 @@ pub fn App() -> Element {
     let total = corpus.len();
     let theme_attr = theme().unwrap_or("");
 
-    // Install the global keyboard navigation once at the app root. Covered by
-    // the Playwright e2e (real key events); see GLOBAL_KEYS_JS for the routing
-    // and the rationale for using document::eval over web-sys.
-    use_effect(|| {
-        document::eval(GLOBAL_KEYS_JS);
-    });
+    // Installed once at the app root through a retained typed event closure.
+    // Covered by the Playwright e2e with real keyboard events.
+    use_effect(browser::install_global_keyboard_navigation);
 
     rsx! {
         div { class: "app-root", "data-theme": "{theme_attr}",
@@ -184,6 +160,7 @@ pub fn App() -> Element {
                                 if total > 0 {
                                     results.write().clear();
                                     answers.write().clear();
+                                    browser::reset_rum();
                                     stage.set(Stage::Question(0));
                                 }
                             },
@@ -233,6 +210,7 @@ pub fn App() -> Element {
                                 on_restart: move |_| {
                                     results.write().clear();
                                     answers.write().clear();
+                                    browser::reset_rum();
                                     stage.set(Stage::Intro);
                                 },
                             }
@@ -293,22 +271,8 @@ fn IntroGate(total: usize, on_start: EventHandler<()>) -> Element {
     }
 }
 
-/// RUM: stamp the moment a choice becomes the current selection.
-const RUM_MARK_SELECT: &str = "window.__raipSelectAt = performance.now();";
-
-/// RUM: on validation, record the selection→validation delay (ms) — the
-/// direction-(a) metric ("does slowing the reveal make people deliberate?").
-/// Kept anonymous and local (localStorage only), no personal data.
-const RUM_MARK_VALIDATE: &str = "if (window.__raipSelectAt) { \
-     var d = performance.now() - window.__raipSelectAt; \
-     (window.__raipDelays = window.__raipDelays || []).push(Math.round(d)); \
-     try { localStorage.setItem('raip_delays', JSON.stringify(window.__raipDelays)); } catch (e) {} }";
-
-/// On lock, move focus to Continue without scrolling — the reveal happens in
-/// place, so the viewport must not jump (the pain the swap removes).
-const FOCUS_CONTINUE_NO_SCROLL: &str = "requestAnimationFrame(function () { \
-     var c = document.querySelector('[data-action=\"continue\"]'); \
-     if (c) c.focus({ preventScroll: true }); });";
+// Selection→validation timing remains anonymous, local and browser-only.
+// Typed browser adapters own the clock, storage and export snapshot.
 
 /// One interactive situation. Owns select/lock state. On validation the console
 /// swaps in place — the chosen choice stays pinned and the four-state feedback
@@ -338,7 +302,7 @@ pub fn QuestionConsole(
     // Continue (without scroll — the reveal is in place).
     use_effect(move || {
         if locked() {
-            document::eval(FOCUS_CONTINUE_NO_SCROLL);
+            browser::focus_continue();
         }
     });
 
@@ -456,11 +420,11 @@ pub fn QuestionConsole(
                                         // one-gesture touch: first tap selects, a tap on the
                                         // already-selected choice validates.
                                         if selected() == Some(idx) {
-                                            document::eval(RUM_MARK_VALIDATE);
+                                            browser::mark_validation();
                                             locked.set(true);
                                         } else {
                                             selected.set(Some(idx));
-                                            document::eval(RUM_MARK_SELECT);
+                                            browser::mark_selection();
                                         }
                                     },
                                     Keycap { legend: choice.key.clone() }
@@ -488,7 +452,7 @@ pub fn QuestionConsole(
                                 disabled: sel_now.is_none(),
                                 onclick: move |_| {
                                     if selected().is_some() {
-                                        document::eval(RUM_MARK_VALIDATE);
+                                        browser::mark_validation();
                                         locked.set(true);
                                     }
                                 },
@@ -599,35 +563,20 @@ fn build_summary(
 }
 
 /// Serialize the synthesis to a JSON string for the local export. Contains only
-/// categories and verdicts — no personal data, no identifier.
-///
-/// The result is embedded verbatim into a `document::eval` (as a JS object
-/// literal), so the two unicode line separators U+2028 / U+2029 — which serde
-/// leaves raw, are legal in JSON, but terminate a JS line — are escaped. Content
-/// is trusted today, but this keeps the embedding robust regardless of source.
-fn summary_json(summary: &SummaryViewModel) -> String {
-    serde_json::to_string_pretty(summary)
-        .unwrap_or_else(|_| "{}".to_string())
-        .replace('\u{2028}', "\\u2028")
-        .replace('\u{2029}', "\\u2029")
-}
-
-/// Client-side download of the synthesis JSON (Blob + anchor click). The RUM
-/// selection→validation delays (direction-a metric) are merged in at download
-/// time so the export is the metric's destination — local, no beacon, no PII.
-fn export_script(json: &str) -> String {
-    format!(
-        "(function(){{ var data = {json}; \
-         var d = (window.__raipDelays || []).slice(); \
-         var median = null; \
-         if (d.length) {{ var s = d.slice().sort(function(a,b){{ return a - b; }}); median = s[Math.floor(s.length / 2)]; }} \
-         data.rum = {{ select_to_validate_ms: d, median_ms: median }}; \
-         var blob = new Blob([JSON.stringify(data, null, 2)], {{ type: 'application/json' }}); \
-         var url = URL.createObjectURL(blob); var a = document.createElement('a'); \
-         a.href = url; a.download = 'rumble-ai-practices-synthese.json'; \
-         document.body.appendChild(a); a.click(); document.body.removeChild(a); \
-         setTimeout(function(){{ URL.revokeObjectURL(url); }}, 0); }})();"
-    )
+/// categories, verdicts and anonymous local timing — no personal identifier.
+fn export_json(summary: &SummaryViewModel) -> String {
+    let mut payload = serde_json::to_value(summary).unwrap_or_else(|_| serde_json::json!({}));
+    let (delays, median) = browser::rum_snapshot();
+    if let Some(object) = payload.as_object_mut() {
+        object.insert(
+            "rum".to_string(),
+            serde_json::json!({
+                "select_to_validate_ms": delays,
+                "median_ms": median,
+            }),
+        );
+    }
+    serde_json::to_string_pretty(&payload).unwrap_or_else(|_| "{}".to_string())
 }
 
 /// Replay the recorded choices onto the real questions and run them through the
@@ -717,21 +666,8 @@ async fn fetch_cohort(_client_id: Option<String>, _axis_levels: Vec<AxisLevel>) 
 /// A stable, opaque idempotency key persisted in `localStorage` so a repeat
 /// visit is not double-counted in the cohort (ADR 0006). It is a random token
 /// only — no PII, no nominative link. `None` lets the server mint one.
-#[cfg(target_arch = "wasm32")]
-async fn stable_client_id() -> Option<String> {
-    const JS: &str = "(function(){ try { var k='raip_cohort_id'; \
-        var v=localStorage.getItem(k); \
-        if(!v){ v=(self.crypto&&crypto.randomUUID)?crypto.randomUUID():String(Date.now())+Math.random(); \
-        localStorage.setItem(k,v); } return v; } catch(e){ return ''; } })()";
-    match document::eval(JS).join::<String>().await {
-        Ok(id) if !id.is_empty() => Some(id),
-        _ => None,
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-async fn stable_client_id() -> Option<String> {
-    None
+fn stable_client_id() -> Option<String> {
+    browser::stable_client_id()
 }
 
 /// The end-of-parcours screen: the private local synthesis, the anonymous cohort
@@ -743,7 +679,7 @@ fn SummaryStage(
     on_restart: EventHandler<()>,
 ) -> Element {
     let mut cohort = use_signal(|| CohortState::Loading);
-    let export = export_script(&summary_json(&summary));
+    let export = export_json(&summary);
 
     // Fire the offline-first cohort call once, on mount. Skipped entirely when
     // there is nothing to situate (an all-"idk" parcours).
@@ -754,7 +690,7 @@ fn SummaryStage(
                 cohort.set(CohortState::Offline);
                 return;
             }
-            let client_id = stable_client_id().await;
+            let client_id = stable_client_id();
             cohort.set(fetch_cohort(client_id, axis_levels).await);
         }
     });
@@ -767,9 +703,7 @@ fn SummaryStage(
                 class: "idk",
                 r#type: "button",
                 "data-action": "export",
-                onclick: move |_| {
-                    document::eval(&export);
-                },
+                onclick: move |_| browser::download_json(&export),
                 span { "Exporter (JSON)" }
                 Keycap { legend: "E".to_string(), class: "mini".to_string() }
             }
@@ -1297,13 +1231,16 @@ mod tests {
                 source: "src".into(),
             }),
         )];
-        let json = summary_json(&build_summary(&results));
+        let json = export_json(&build_summary(&results));
         // round-trips through serde -> it is valid JSON
-        let parsed: SummaryViewModel = serde_json::from_str(&json).unwrap();
-        assert_eq!(parsed.answered_count, 1);
-        assert_eq!(parsed.outcomes[0].category, "Sources");
-        // the export script embeds the JSON as a download gesture
-        assert!(export_script(&json).contains("rumble-ai-practices-synthese.json"));
+        let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed["answered_count"], 1);
+        assert_eq!(parsed["outcomes"][0]["category"], "Sources");
+        assert_eq!(
+            parsed["rum"]["select_to_validate_ms"],
+            serde_json::json!([])
+        );
+        assert!(parsed.get("client_id").is_none());
     }
 
     #[test]
@@ -1322,8 +1259,7 @@ mod tests {
     }
 
     #[test]
-    fn summary_json_escapes_js_line_separators() {
-        // a takeaway carrying U+2028 must not survive raw into the eval string
+    fn export_json_round_trips_unicode_line_separators_without_eval() {
         let outcome = CategoryOutcome {
             category: "X".into(),
             motif: MotifKind::Shield,
@@ -1335,9 +1271,9 @@ mod tests {
             outcomes: vec![outcome],
             privacy_notice: "p".into(),
         };
-        let json = summary_json(&summary);
-        assert!(!json.contains('\u{2028}'), "raw U+2028 must be escaped");
-        assert!(json.contains("\\u2028"));
+        let json = export_json(&summary);
+        let parsed: serde_json::Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(parsed["outcomes"][0]["takeaway"], "avant\u{2028}après");
     }
 
     #[test]

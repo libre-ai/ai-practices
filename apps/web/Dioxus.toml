@@ -1,7 +1,7 @@
 [application]
 
 [web.app]
-title = "rumble-ai-practices"
+title = "rumble-ai-practices — réflexes IA"
 
 [web.resource]
 style = []

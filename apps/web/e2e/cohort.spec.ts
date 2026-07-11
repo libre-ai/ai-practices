@@ -28,6 +28,14 @@ test.beforeEach(async ({ page, context }) => {
   );
 });
 
+test("single-origin CSP forbids dynamic evaluation", async ({ page }) => {
+  const response = await page.request.get("/");
+  const csp = response.headers()["content-security-policy"] ?? "";
+  expect(csp).toContain("script-src 'self' 'wasm-unsafe-eval'");
+  expect(csp).not.toContain("'unsafe-eval'");
+  expect(csp).not.toContain("'unsafe-inline'");
+});
+
 // Answer every question using keyboard (choice 2 via '2' key, validate via Enter).
 // This is faster than one-gesture clicks (50 questions: ~0.5s vs minutes with page interactions).
 async function completeParcours(
