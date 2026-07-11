@@ -19,12 +19,13 @@ web = [
     "dioxus/launch",
     "dioxus/devtools",
     "dioxus/logger",
-    "dioxus/lib",
-    "dioxus/document",
+    "dioxus/asset",
+    "dioxus/cli-config",
+    "dioxus/warnings",
     "dioxus/web",
 ]
-desktop = ["dioxus/launch", "dioxus/document", "dioxus/desktop"]
-mobile = ["dioxus/launch", "dioxus/document", "dioxus/mobile"]
+desktop = ["dioxus/launch", "dioxus/asset", "dioxus/cli-config", "dioxus/desktop"]
+mobile = ["dioxus/launch", "dioxus/asset", "dioxus/cli-config", "dioxus/mobile"]
 
 # Application binary. Its body is cfg-gated on any render feature; on host CI
 # (default features) it compiles to an empty `main` with no renderer deps.
@@ -54,6 +55,30 @@ serde_json.workspace = true
 # degrades to local-only there, exactly as it does offline in the browser.
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 gloo-net = { version = "0.7", default-features = false, features = ["http", "json"] }
+js-sys = "0.3"
+wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+    "Blob",
+    "BlobPropertyBag",
+    "Crypto",
+    "CssStyleDeclaration",
+    "Document",
+    "DomTokenList",
+    "Element",
+    "EventTarget",
+    "FocusOptions",
+    "HtmlAnchorElement",
+    "HtmlButtonElement",
+    "HtmlElement",
+    "KeyboardEvent",
+    "Navigator",
+    "Node",
+    "Performance",
+    "ServiceWorkerContainer",
+    "Storage",
+    "Url",
+    "Window",
+] }
 
 [dev-dependencies]
 dioxus-ssr.workspace = true
