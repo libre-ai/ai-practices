@@ -37,6 +37,20 @@ cargo run -p rumble-ai-practices-cli -- serve --bind 127.0.0.1:3000
 
 Then open <http://127.0.0.1:3000>. Health and PWA proofs include `/readyz`, `/manifest.webmanifest` and `/sw.js`.
 
+## Database inspection pilot
+
+[`db-security-manifest.json`](db-security-manifest.json) records the anonymous cohort storage classifications from ADR 0006. Run the local evidence check with no database connection or secret:
+
+```bash
+wrench-db-inspect run \
+  --manifest db-security-manifest.json \
+  --schema-dump crates/store/migrations/0001_anonymous_cohort.sql \
+  --profile protected_branch \
+  --report-json target/db-inspect/report.json
+```
+
+The current corpus passes with zero parser errors and zero unclassified tables. This is a reproducible local pilot; no global or protected-branch gate is enabled by this repository change.
+
 ## Architecture
 
 The Rust workspace separates domain rules, governed content, audit, session state, storage ports, API, CLI and UI. Dioxus/PWA is the current proof path; native targets remain conditional on evidence.
