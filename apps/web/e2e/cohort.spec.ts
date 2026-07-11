@@ -5,6 +5,9 @@ import { test, expect } from "@playwright/test";
 // render distribution) and offline degradation (abort network, graceful fallback).
 
 test.beforeEach(async ({ page, context }) => {
+  // First test pays the binary+Postgres warmup: the 30s default test
+  // timeout expires inside this hook on cold boot.
+  test.setTimeout(120_000);
   // The cohort round-trip needs the single-origin binary (same origin as
   // /v1/cohort). The default parcours job serves the app via `dx serve`, which
   // has no API — so skip there and only run when pointed at the binary.

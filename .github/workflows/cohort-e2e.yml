@@ -57,4 +57,6 @@ jobs:
             --bind 127.0.0.1:3000 \
             --web-root target/dx/rumble-ai-practices-web-app/release/web/public &
           npx --yes wait-on http://127.0.0.1:3000/healthz --timeout 60000
-          cd apps/web && E2E_BASE_URL=http://127.0.0.1:3000 npx playwright test cohort.spec.ts
+          # --workers=1: every test POSTs into the same Postgres; parallel workers
+          # accumulate submissions past k=5 and the below-k premise breaks.
+          cd apps/web && E2E_BASE_URL=http://127.0.0.1:3000 npx playwright test cohort.spec.ts --workers=1
