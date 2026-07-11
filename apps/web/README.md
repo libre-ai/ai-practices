@@ -25,7 +25,8 @@ builds — including host CI — compile an empty `main` with zero web dependenc
 
 ## Design tokens
 
-`assets/tokens.css` + `assets/styles.css` come from the `portal-*` design
-system (`portal-forge` generates the tokens; the shared identity lives there).
-`Root` in `src/main.rs` injects them via `document::Stylesheet`, keeping the
-`App` component itself style-agnostic so the SSR tests stay pure.
+`assets/tokens.css` is generated from Libre IA Design System 2.0 by
+`portal-forge`; `themes.css`, `libre-ia-bridge.css` and `styles.css` consume that
+single palette. `assets/libre-ia/manifest.json` pins the version and SHA-256.
+`Root` injects fonts and styles locally via `document::Stylesheet`; no CDN or
+runtime token fetch is used.

@@ -87,16 +87,13 @@ Servir `public/` comme site statique (Clever Cloud app statique, `CC_WEBROOT`
 pointant sur le `public/`, pattern `rumble-cos`). Sur HTTPS :
 
 - **Android / Chrome** : installable via le manifest (`Ajouter à l'écran
-d'accueil`), affichage `standalone`, icône keycap, `theme_color`.
+d'accueil`), affichage `standalone`, icône Libre IA, `theme_color` Vert Libre.
 - **iOS / Safari** : `Ajouter à l'écran d'accueil` via les tags
   `apple-mobile-web-app-*`.
 
-**Offline (follow-up)** : le service worker (`assets/sw.js`) n'est pleinement
-actif que servi à la **racine** (`/sw.js`) pour couvrir tout le shell. Sous
-`dx`, les assets sont hachés sous `/assets/`, donc câbler l'offline est une
-étape de déploiement : copier `sw.js` à la racine du webroot, ou poser l'en-tête
-`Service-Worker-Allowed: /`. Sans cela l'enregistrement dégrade proprement et
-l'app reste installable.
+**Offline** : `public/sw.js` est copié par `dx` à la racine du webroot afin que
+le service worker couvre tout le shell. `assets/sw.js` reste la source suivie ;
+les deux fichiers doivent rester identiques lors d'une évolution du cache.
 
 ### Desktop et mobile natifs
 
