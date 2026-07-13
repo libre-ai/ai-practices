@@ -56,3 +56,8 @@ jobs:
         # #[sqlx::test] creates ephemeral databases off DATABASE_URL and applies
         # crates/store/migrations automatically.
         run: cargo test --workspace --all-targets
+      - name: Governed content gates
+        run: |
+          cargo run -p rumble-ai-practices-cli -- validate-corpus --content content/questions
+          cargo run -p rumble-ai-practices-cli -- validate-activities --activities content/activities
+          cargo run -p rumble-ai-practices-cli -- audit-corpus --content content/questions --media content/media --out reports/audit.json

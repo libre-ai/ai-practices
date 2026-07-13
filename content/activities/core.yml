@@ -1,0 +1,172 @@
+- id: activity-plausible-is-not-measured
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Une réponse plausible n'est pas une mesure
+  type: scenario
+  objective:
+    observable_outcome: Choisir un protocole de vérification proportionné à l'enjeu plutôt que se fier au style de la réponse.
+    competency_ids: [comp-understand-ai-output, comp-check-source]
+  prerequisites:
+    - Distinguer une sortie IA d'une source primaire.
+  situation: Trois réponses à la même question présentent des tons et niveaux de stabilité différents, mais seul un petit corpus de référence permet de vérifier les faits.
+  instructions:
+    - Comparer chaque réponse au corpus autorisé.
+    - Relever séparément erreurs, omissions et citations invalides.
+    - Décider quelles affirmations peuvent être réutilisées et lesquelles doivent être refusées.
+  permitted_data:
+    - data_id: data-synthetic-answer-set
+      label: Trois réponses synthétiques et corpus de référence fictif
+      license: CC0-1.0
+      classification: synthetic
+  success_criteria:
+    - La stabilité et le ton assuré ne sont jamais traités comme une preuve.
+    - Chaque affirmation réutilisée est reliée à un passage du corpus.
+    - Une information importante absente est comptée comme omission.
+  feedback:
+    principle: Une sortie générée reste une proposition à vérifier, même lorsqu'elle paraît stable et assurée.
+    remediation: Reprendre les affirmations une par une, définir le niveau de preuve attendu puis consulter la source primaire.
+  risks:
+    - Réutiliser une erreur plausible dans une décision à enjeu.
+    - Ignorer une omission parce que les phrases présentes sont correctes.
+  limits:
+    - L'activité mesure un réflexe de vérification, pas la qualité générale d'un modèle.
+    - Le corpus synthétique ne permet aucune comparaison publique de modèles.
+  stop_conditions:
+    - Arrêter et signaler source_gap si le corpus de référence manque ou ne permet pas de vérifier une affirmation importante.
+  source_refs:
+    - source-nist-ai-rmf-1-0
+    - source-bender-stochastic-parrots-2021
+  claims:
+    - claim_id: claim-ai-output-not-proof
+      statement: Une sortie IA générative doit être traitée comme une proposition à vérifier, pas comme une preuve.
+      source_ids: [source-nist-ai-rmf-1-0, source-bender-stochastic-parrots-2021]
+  media: []
+  ai_assistance:
+    used: true
+    details: Structure préparée à partir du brief Website par un agent ; scénario, sources et formulation attendent une revue humaine.
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: Ne pas promouvoir avant création du corpus synthétique et revue des claims.
+  retire_when: Retirer ou réviser si les sources, le protocole ou les seuils de vérification changent.
+
+- id: activity-rag-citation-support
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: Un RAG peut citer sans soutenir
+  type: scenario
+  objective:
+    observable_outcome: Séparer récupération, attribution et soutien effectif d'une affirmation.
+    competency_ids: [comp-check-source]
+  prerequisites:
+    - Comprendre ce qu'est une source primaire.
+    - Connaître le principe général d'un système RAG.
+  situation: Une réponse RAG contient trois citations ; l'une est obsolète, l'une est exacte mais hors portée et la dernière soutient précisément l'affirmation.
+  instructions:
+    - Ouvrir les trois extraits autorisés.
+    - Vérifier date, portée, attribution et passage probant pour chaque affirmation.
+    - Accepter, corriger ou refuser chaque affirmation séparément.
+  permitted_data:
+    - data_id: data-synthetic-rag-pack
+      label: Réponse et extraits RAG synthétiques sans donnée personnelle
+      license: CC0-1.0
+      classification: synthetic
+  success_criteria:
+    - Une citation présente n'est pas assimilée à une affirmation soutenue.
+    - La source obsolète et le passage hors portée sont signalés distinctement.
+    - L'acceptation conserve le passage et la version de la source.
+  feedback:
+    principle: Le RAG améliore l'accès à des documents mais ne garantit ni fraîcheur, ni pertinence, ni soutien du claim.
+    remediation: Vérifier la relation exacte claim-source et refuser la réponse lorsque le passage probant manque.
+  risks:
+    - Publier une mauvaise attribution avec une citation réelle.
+    - Présenter une source obsolète comme état actuel.
+  limits:
+    - L'activité ne mesure pas le rappel global du moteur de recherche.
+    - Une correspondance lexicale ne constitue pas à elle seule une preuve de vérité.
+  stop_conditions:
+    - Refuser l'affirmation si aucun passage autorisé ne la soutient explicitement.
+  source_refs:
+    - source-lewis-rag-2020
+    - source-nist-ai-rmf-1-0
+  claims:
+    - claim_id: claim-rag-does-not-guarantee-truth
+      statement: Le RAG peut améliorer l'ancrage documentaire sans garantir que la réponse soit vraie, complète ou correctement attribuée.
+      source_ids: [source-lewis-rag-2020, source-nist-ai-rmf-1-0]
+  media: []
+  ai_assistance:
+    used: true
+    details: Structure préparée par un agent à partir du brief Website ; exemples et claims attendent une revue humaine.
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: Construire trois extraits synthétiques et faire relire le protocole de soutien du claim.
+  retire_when: Retirer ou réviser si le contrat de citation ou le protocole d'évaluation RAG change.
+
+- id: activity-agent-least-privilege
+  version: 1
+  status: draft
+  locale: fr-FR
+  title: L'outil n'obtient pas tous les droits
+  type: simulation
+  objective:
+    observable_outcome: Réduire les permissions d'un agent et placer un gate humain avant tout effet externe.
+    competency_ids: [comp-secure-agent-tools, comp-human-accountability]
+  prerequisites:
+    - Distinguer un assistant conversationnel d'un agent disposant d'outils.
+    - Identifier les données sensibles et les effets externes.
+  situation: Un agent doit lire un dossier de documents publics, produire un brouillon puis proposer l'envoi d'un message ; les permissions sont accordées étape par étape.
+  instructions:
+    - Choisir les seules capacités nécessaires à chaque étape.
+    - Définir durée, journal d'audit, condition de révocation et rollback.
+    - Placer une validation humaine distincte avant l'envoi.
+  permitted_data:
+    - data_id: data-synthetic-agent-workspace
+      label: Documents, destinataire et message entièrement synthétiques
+      license: CC0-1.0
+      classification: synthetic
+  success_criteria:
+    - Lecture, écriture de brouillon et envoi sont trois permissions distinctes.
+    - L'envoi reste impossible sans validation humaine explicite.
+    - Les permissions expirent et peuvent être révoquées.
+    - Le journal ne contient ni secret ni contenu brut inutile.
+  feedback:
+    principle: Un agent ne reçoit que les droits nécessaires, pour une durée bornée, avec une validation humaine avant effet externe.
+    remediation: Recomposer la mission en étapes, retirer les droits globaux et documenter l'arrêt sûr avant de réessayer.
+  risks:
+    - Exfiltration de données par permission de lecture trop large.
+    - Envoi non autorisé ou irréversible.
+    - Journalisation de secrets ou de contenu personnel.
+  limits:
+    - La simulation n'exécute aucun outil réel et ne prouve pas une infrastructure d'autorisation.
+    - Le bon découpage dépend du contexte métier et de la politique interne.
+  stop_conditions:
+    - Arrêter si une permission globale est la seule option proposée.
+    - Arrêter si aucun humain ne peut vérifier le message avant envoi.
+  source_refs:
+    - source-owasp-llm-top10
+    - source-mitre-atlas
+  claims:
+    - claim_id: claim-agent-permissions-increase-risk
+      statement: Un agent disposant d'outils ou permissions peut produire des effets externes et doit être borné.
+      source_ids: [source-owasp-llm-top10, source-mitre-atlas]
+    - claim_id: claim-indirect-prompt-injection-risk
+      statement: Une instruction malveillante peut être introduite par un document traité par l'agent.
+      source_ids: [source-owasp-llm-top10]
+  media: []
+  ai_assistance:
+    used: true
+    details: Structure et scénario initial préparés par un agent ; menace, permissions et feedback attendent une revue sécurité humaine.
+  review:
+    author: draft-agent
+    reviewers: []
+    last_reviewed_at: null
+    confidence: low
+    notes: Ne connecter à aucun outil réel avant revue sécurité et fixture entièrement synthétique.
+  retire_when: Retirer ou réviser si le modèle de permissions, les menaces ou les gates humains changent.

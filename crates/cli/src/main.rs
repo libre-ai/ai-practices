@@ -1,10 +1,12 @@
 use anyhow::{Context, Result, bail};
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use rumble_ai_practices_api::{serve, serve_with_store};
 use rumble_ai_practices_audit::audit_corpus;
-use rumble_ai_practices_content::validate_content;
-use rumble_ai_practices_domain::QuestionId;
-use rumble_ai_practices_session::{SessionFixture, run_fixture};
+use rumble_ai_practices_content::{validate_activities, validate_content};
+use rumble_ai_practices_domain::{ActivityId, PublicationStatus, QuestionId};
+use rumble_ai_practices_session::{
+    ActivityAttempt, ActivityAttemptStatus, SessionFixture, run_activity, run_fixture,
+};
 use sqlx::postgres::PgPoolOptions;
 use std::fs;
 use std::net::SocketAddr;
@@ -27,6 +29,28 @@ enum Command {
         content: PathBuf,
         #[arg(long, default_value = "content/media")]
         media: PathBuf,
+    },
+    /// Validate governed learning activities and fail on invalid drafts or blockers.
+    ValidateActivities {
+        #[arg(long, default_value = "content/activities")]
+        activities: PathBuf,
+    },
+    /// Run one activity as an explicit local preview; never awards success automatically.
+    RunActivity {
+        #[arg(long)]
+        id: String,
+        #[arg(long, default_value = "content/activities")]
+        activities: PathBuf,
+        #[arg(long, value_enum)]
+        status: ActivityRunStatus,
+        #[arg(long = "evidence-ref")]
+        evidence_refs: Vec<String>,
+        #[arg(long)]
+        stop_reason: Option<String>,
+        #[arg(long, default_value_t = false)]
+        allow_draft_preview: bool,
+        #[arg(long)]
+        out: Option<PathBuf>,
     },
     /// Audit a question corpus and optionally write the report as JSON.
     AuditCorpus {
@@ -73,6 +97,22 @@ enum Command {
     },
 }
 
+/// Outcome submitted by the local activity preview.
+#[derive(Debug, Clone, Copy, ValueEnum)]
+enum ActivityRunStatus {
+    EvidenceSubmitted,
+    Stopped,
+}
+
+impl From<ActivityRunStatus> for ActivityAttemptStatus {
+    fn from(value: ActivityRunStatus) -> Self {
+        match value {
+            ActivityRunStatus::EvidenceSubmitted => Self::EvidenceSubmitted,
+            ActivityRunStatus::Stopped => Self::Stopped,
+        }
+    }
+}
+
 /// Cohort backend mode: where to persist anonymous session outcomes.
 #[derive(Debug)]
 enum CohortBackend {
@@ -104,6 +144,24 @@ async fn run() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Command::ValidateCorpus { content, media } => validate_corpus_cmd(&content, &media),
+        Command::ValidateActivities { activities } => validate_activities_cmd(&activities),
+        Command::RunActivity {
+            id,
+            activities,
+            status,
+            evidence_refs,
+            stop_reason,
+            allow_draft_preview,
+            out,
+        } => run_activity_cmd(
+            &activities,
+            &id,
+            status,
+            evidence_refs,
+            stop_reason,
+            allow_draft_preview,
+            out.as_deref(),
+        ),
         Command::AuditCorpus {
             content,
             media,
@@ -135,6 +193,51 @@ fn validate_corpus_cmd(content: &Path, media: &Path) -> Result<()> {
     } else {
         bail!("corpus validation failed")
     }
+}
+
+fn validate_activities_cmd(activities: &Path) -> Result<()> {
+    let loaded = validate_activities(activities).context("failed to validate activities")?;
+    print_json(&loaded.report)?;
+    if loaded.report.is_success() {
+        Ok(())
+    } else {
+        bail!("activity validation failed")
+    }
+}
+
+fn run_activity_cmd(
+    activities: &Path,
+    id: &str,
+    status: ActivityRunStatus,
+    evidence_refs: Vec<String>,
+    stop_reason: Option<String>,
+    allow_draft_preview: bool,
+    out: Option<&Path>,
+) -> Result<()> {
+    let activity_id = ActivityId::parse(id.to_owned())?;
+    let loaded = validate_activities(activities).context("failed to validate activities")?;
+    if !loaded.report.is_success() {
+        print_json(&loaded.report)?;
+        bail!("refusing to run invalid activity content")
+    }
+    let activity = loaded
+        .activities
+        .iter()
+        .find(|activity| activity.id == activity_id)
+        .with_context(|| format!("activity `{id}` not found"))?;
+    if activity.status != PublicationStatus::Approved && !allow_draft_preview {
+        bail!("activity `{id}` is not approved; pass --allow-draft-preview only for local review")
+    }
+    let outcome = run_activity(
+        activity,
+        ActivityAttempt {
+            activity_id,
+            status: status.into(),
+            evidence_refs,
+            stop_reason,
+        },
+    )?;
+    write_or_print(out, &outcome)
 }
 
 fn audit_corpus_cmd(content: &Path, media: &Path, out: Option<&Path>) -> Result<()> {
