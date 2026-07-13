@@ -23,9 +23,14 @@ Every published question should carry an explanation, sources, risks and a revie
 
 ## Quickstart
 
+The service-free core and editorial gates run without secrets:
+
 ```bash
-cargo test --workspace
+cargo test --workspace \
+  --exclude rumble-ai-practices-api \
+  --exclude rumble-ai-practices-store
 cargo run -p rumble-ai-practices-cli -- validate-corpus --content content/questions
+cargo run -p rumble-ai-practices-cli -- validate-activities --activities content/activities
 cargo run -p rumble-ai-practices-cli -- audit-corpus \
   --content content/questions --media content/media --out reports/audit.json
 cargo run -p rumble-ai-practices-cli -- run-session \
@@ -35,7 +40,28 @@ cargo run -p rumble-ai-practices-cli -- run-session \
 cargo run -p rumble-ai-practices-cli -- serve --bind 127.0.0.1:3000
 ```
 
-Then open <http://127.0.0.1:3000>. Health and PWA proofs include `/readyz`, `/manifest.webmanifest` and `/sw.js`.
+The complete workspace suite includes `#[sqlx::test]` cohort tests. The preferred local proof creates a private, short-lived PostgreSQL cluster reachable only through a temporary Unix socket, runs the 78 workspace tests, then stops and removes it:
+
+```bash
+./scripts/test-postgres-disposable.sh
+```
+
+It requires local PostgreSQL client/server binaries and uses no durable credential or existing database. For an externally managed disposable database, set `SQLX_OFFLINE=true` and provide a `DATABASE_URL` whose role may create test databases. Then open <http://127.0.0.1:3000>. Health and PWA proofs include `/readyz`, `/manifest.webmanifest` and `/sw.js`.
+
+### Governed activity preview
+
+Three reconstructed activities can be exercised locally without being mistaken for approved training content:
+
+```bash
+cargo run -p rumble-ai-practices-cli -- run-activity \
+  --id activity-rag-citation-support \
+  --status evidence-submitted \
+  --evidence-ref evidence:synthetic-source-check \
+  --allow-draft-preview \
+  --out target/activity-outcome.json
+```
+
+Without `--allow-draft-preview`, the CLI refuses every non-approved activity. An evidence submission produces a reviewable outcome, never an automatic success or individual score.
 
 ## Database inspection gate
 
@@ -63,6 +89,7 @@ Key documentation:
 - [Security and GDPR](docs/security-rgpd.md)
 - [Human review gate](docs/local-review.md)
 - [Testing strategy](docs/testing-strategy.md)
+- [Website curriculum reconstruction plan](docs/plans/2026-07-website-curriculum-reconstruction.md)
 
 ## Success criteria
 

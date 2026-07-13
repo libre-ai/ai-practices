@@ -4,8 +4,9 @@
 pub mod cohort;
 
 use rumble_ai_practices_domain::{
-    AnswerEvaluation, AxisImpact, AxisLevel, EvaluationLevel, FeedbackCard, InteractionType,
-    ModuleRef, PracticeLevel, Question, QuestionId, RiskAxis, SessionSummary, SourceRef,
+    Activity, ActivityId, AnswerEvaluation, AxisImpact, AxisLevel, EvaluationLevel, FeedbackCard,
+    InteractionType, ModuleRef, PracticeLevel, PublicationStatus, Question, QuestionId, RiskAxis,
+    SessionSummary, SourceRef,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -38,6 +39,104 @@ pub enum SessionError {
         max: usize,
         actual: usize,
     },
+    #[error("activity attempt targets `{attempted}` but loaded activity is `{loaded}`")]
+    ActivityMismatch { attempted: String, loaded: String },
+    #[error("activity `{0}` requires non-empty evidence references before submission")]
+    ActivityEvidenceRequired(String),
+    #[error("activity `{0}` requires a stop reason when stopped")]
+    ActivityStopReasonRequired(String),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ActivityAttemptStatus {
+    EvidenceSubmitted,
+    Stopped,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityAttempt {
+    pub activity_id: ActivityId,
+    pub status: ActivityAttemptStatus,
+    #[serde(default)]
+    pub evidence_refs: Vec<String>,
+    #[serde(default)]
+    pub stop_reason: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityOutcome {
+    pub format: String,
+    pub activity_id: ActivityId,
+    pub publication_status: PublicationStatus,
+    pub draft_preview: bool,
+    pub attempt_status: ActivityAttemptStatus,
+    pub observable_outcome: String,
+    pub submitted_evidence_refs: Vec<String>,
+    pub stop_reason: Option<String>,
+    pub success_criteria: Vec<String>,
+    pub feedback_principle: String,
+    pub remediation: String,
+    pub human_review_required: bool,
+    pub next_action: String,
+}
+
+pub fn run_activity(
+    activity: &Activity,
+    attempt: ActivityAttempt,
+) -> Result<ActivityOutcome, SessionError> {
+    if activity.id != attempt.activity_id {
+        return Err(SessionError::ActivityMismatch {
+            attempted: attempt.activity_id.to_string(),
+            loaded: activity.id.to_string(),
+        });
+    }
+    if attempt.status == ActivityAttemptStatus::EvidenceSubmitted
+        && (attempt.evidence_refs.is_empty()
+            || attempt
+                .evidence_refs
+                .iter()
+                .any(|evidence| evidence.trim().is_empty()))
+    {
+        return Err(SessionError::ActivityEvidenceRequired(
+            activity.id.to_string(),
+        ));
+    }
+    if attempt.status == ActivityAttemptStatus::Stopped
+        && attempt
+            .stop_reason
+            .as_deref()
+            .unwrap_or("")
+            .trim()
+            .is_empty()
+    {
+        return Err(SessionError::ActivityStopReasonRequired(
+            activity.id.to_string(),
+        ));
+    }
+    let next_action = match attempt.status {
+        ActivityAttemptStatus::EvidenceSubmitted => {
+            "Faire examiner les preuves par une personne ; aucune réussite n’est attribuée automatiquement."
+        }
+        ActivityAttemptStatus::Stopped => {
+            "Appliquer la condition d’arrêt, corriger le contexte puis rejouer l’activité."
+        }
+    };
+    Ok(ActivityOutcome {
+        format: "libre-ai.ai-practices.activity-outcome.v1".into(),
+        activity_id: activity.id.clone(),
+        publication_status: activity.status,
+        draft_preview: activity.status != PublicationStatus::Approved,
+        attempt_status: attempt.status,
+        observable_outcome: activity.objective.observable_outcome.clone(),
+        submitted_evidence_refs: attempt.evidence_refs,
+        stop_reason: attempt.stop_reason,
+        success_criteria: activity.success_criteria.clone(),
+        feedback_principle: activity.feedback.principle.clone(),
+        remediation: activity.feedback.remediation.clone(),
+        human_review_required: true,
+        next_action: next_action.into(),
+    })
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -294,8 +393,9 @@ pub fn source_refs_for_evaluation(evaluation: &AnswerEvaluation) -> &[SourceRef]
 mod tests {
     use super::*;
     use rumble_ai_practices_domain::{
-        Choice, Confidence, Difficulty, Interaction, InteractionType, PublicationStatus,
-        ReviewMetadata, ScenarioContext,
+        ActivityClaim, ActivityFeedback, ActivityObjective, ActivityType, AiAssistance, Choice,
+        Confidence, Difficulty, Interaction, InteractionType, PublicationStatus, ReviewMetadata,
+        ScenarioContext,
     };
 
     fn question() -> Question {
@@ -447,5 +547,119 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    fn activity() -> Activity {
+        Activity {
+            id: ActivityId::parse("activity-session-test").unwrap(),
+            version: 1,
+            status: PublicationStatus::Draft,
+            locale: "fr-FR".into(),
+            title: "Vérifier une sortie".into(),
+            kind: ActivityType::Scenario,
+            objective: ActivityObjective {
+                observable_outcome: "Relier une affirmation à une preuve.".into(),
+                competency_ids: vec!["comp-check-source".into()],
+            },
+            prerequisites: vec![],
+            situation: "Une sortie plausible doit être vérifiée.".into(),
+            instructions: vec!["Consulter la source.".into()],
+            permitted_data: vec![],
+            environment: None,
+            success_criteria: vec!["Une preuve est jointe.".into()],
+            feedback: ActivityFeedback {
+                principle: "Une sortie n'est pas une preuve.".into(),
+                remediation: "Revenir à la source primaire.".into(),
+            },
+            risks: vec!["Erreur plausible.".into()],
+            limits: vec!["Cas synthétique.".into()],
+            stop_conditions: vec!["Arrêter si la source manque.".into()],
+            source_refs: vec!["source-nist-ai-rmf-1-0".into()],
+            claims: vec![ActivityClaim {
+                claim_id: "claim-ai-output-not-proof".into(),
+                statement: "Une sortie doit être vérifiée.".into(),
+                source_ids: vec!["source-nist-ai-rmf-1-0".into()],
+            }],
+            media: vec![],
+            ai_assistance: AiAssistance {
+                used: false,
+                details: None,
+            },
+            review: ReviewMetadata {
+                author: "test".into(),
+                reviewers: vec![],
+                last_reviewed_at: None,
+                confidence: Confidence::Low,
+                notes: None,
+            },
+            retire_when: "Le contrat change.".into(),
+        }
+    }
+
+    #[test]
+    fn activity_submission_never_auto_awards_success() {
+        let activity = activity();
+        let outcome = run_activity(
+            &activity,
+            ActivityAttempt {
+                activity_id: activity.id.clone(),
+                status: ActivityAttemptStatus::EvidenceSubmitted,
+                evidence_refs: vec!["evidence:local-check".into()],
+                stop_reason: None,
+            },
+        )
+        .unwrap();
+        assert!(outcome.draft_preview);
+        assert!(outcome.human_review_required);
+        assert!(outcome.next_action.contains("personne"));
+    }
+
+    #[test]
+    fn activity_submission_without_evidence_is_refused() {
+        let activity = activity();
+        assert!(matches!(
+            run_activity(
+                &activity,
+                ActivityAttempt {
+                    activity_id: activity.id.clone(),
+                    status: ActivityAttemptStatus::EvidenceSubmitted,
+                    evidence_refs: vec![],
+                    stop_reason: None,
+                },
+            ),
+            Err(SessionError::ActivityEvidenceRequired(_))
+        ));
+    }
+
+    #[test]
+    fn stopped_activity_requires_and_preserves_a_reason() {
+        let activity = activity();
+        assert!(matches!(
+            run_activity(
+                &activity,
+                ActivityAttempt {
+                    activity_id: activity.id.clone(),
+                    status: ActivityAttemptStatus::Stopped,
+                    evidence_refs: vec![],
+                    stop_reason: None,
+                },
+            ),
+            Err(SessionError::ActivityStopReasonRequired(_))
+        ));
+        let outcome = run_activity(
+            &activity,
+            ActivityAttempt {
+                activity_id: activity.id.clone(),
+                status: ActivityAttemptStatus::Stopped,
+                evidence_refs: vec![],
+                stop_reason: Some("La source autorisée est indisponible.".into()),
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            outcome.stop_reason.as_deref(),
+            Some("La source autorisée est indisponible.")
+        );
+        assert!(outcome.human_review_required);
     }
 }

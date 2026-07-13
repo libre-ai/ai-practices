@@ -1,7 +1,7 @@
 //! Versioned content loading and fail-closed corpus validation.
 
 use rumble_ai_practices_domain::{
-    BiasReviewDecision, Confidence, DomainError, MediaReview, PublicationStatus, Question,
+    Activity, BiasReviewDecision, Confidence, DomainError, MediaReview, PublicationStatus, Question,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
@@ -81,6 +81,38 @@ pub struct LoadedContent {
     pub report: CorpusReport,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityValidationFinding {
+    pub severity: ValidationSeverity,
+    pub activity_id: Option<String>,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityReport {
+    pub files_read: usize,
+    pub activities_read: usize,
+    pub approved_activities: usize,
+    pub findings: Vec<ActivityValidationFinding>,
+}
+
+impl ActivityReport {
+    pub fn is_success(&self) -> bool {
+        !self.findings.iter().any(|finding| {
+            matches!(
+                finding.severity,
+                ValidationSeverity::Fail | ValidationSeverity::Blocker
+            )
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct LoadedActivities {
+    pub activities: Vec<Activity>,
+    pub report: ActivityReport,
+}
+
 pub fn load_questions(path: impl AsRef<Path>) -> Result<Vec<Question>, ContentError> {
     let mut questions = Vec::new();
     for file in collect_content_files(path.as_ref())? {
@@ -132,6 +164,47 @@ pub fn validate_content(
         media_reviews,
         report: loaded.report,
     })
+}
+
+pub fn validate_activities(path: impl AsRef<Path>) -> Result<LoadedActivities, ContentError> {
+    let files = collect_content_files(path.as_ref())?;
+    let mut activities = Vec::new();
+    let mut findings = Vec::new();
+    let mut seen_ids = BTreeSet::new();
+
+    for file in &files {
+        for activity in load_activity_file(file)? {
+            if !seen_ids.insert(activity.id.to_string()) {
+                findings.push(ActivityValidationFinding {
+                    severity: ValidationSeverity::Blocker,
+                    activity_id: Some(activity.id.to_string()),
+                    message: "duplicate activity id".into(),
+                });
+            }
+            if let Err(error) = activity.validate_for_publication() {
+                findings.push(ActivityValidationFinding {
+                    severity: match activity.status {
+                        PublicationStatus::Approved => ValidationSeverity::Blocker,
+                        _ => ValidationSeverity::Fail,
+                    },
+                    activity_id: Some(activity.id.to_string()),
+                    message: error.to_string(),
+                });
+            }
+            activities.push(activity);
+        }
+    }
+
+    let report = ActivityReport {
+        files_read: files.len(),
+        activities_read: activities.len(),
+        approved_activities: activities
+            .iter()
+            .filter(|activity| activity.status == PublicationStatus::Approved)
+            .count(),
+        findings,
+    };
+    Ok(LoadedActivities { activities, report })
 }
 
 pub fn validate_corpus(path: impl AsRef<Path>) -> Result<LoadedCorpus, ContentError> {
@@ -288,6 +361,10 @@ fn load_question_file(path: &Path) -> Result<Vec<Question>, ContentError> {
     load_list_file::<QuestionList>(path).map(QuestionList::into_vec)
 }
 
+fn load_activity_file(path: &Path) -> Result<Vec<Activity>, ContentError> {
+    load_list_file::<ActivityList>(path).map(ActivityList::into_vec)
+}
+
 fn load_media_file(path: &Path) -> Result<Vec<MediaReview>, ContentError> {
     load_list_file::<MediaReviewList>(path).map(MediaReviewList::into_vec)
 }
@@ -340,6 +417,22 @@ impl From<QuestionList> for Vec<Question> {
 
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
+enum ActivityList {
+    Many(Vec<Activity>),
+    One(Box<Activity>),
+}
+
+impl ActivityList {
+    fn into_vec(self) -> Vec<Activity> {
+        match self {
+            Self::Many(activities) => activities,
+            Self::One(activity) => vec![*activity],
+        }
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
 enum MediaReviewList {
     Many(Vec<MediaReview>),
     One(Box<MediaReview>),
@@ -373,5 +466,20 @@ mod tests {
         // bias-game corpus: pilot(1) + bias-visual(50) + deepfakes(27) + profiles(31) = 109
         assert_eq!(loaded.media_reviews.len(), 109);
         assert!(loaded.report.is_success());
+    }
+
+    #[test]
+    fn validates_website_reconstruction_activities_as_drafts() {
+        let loaded =
+            validate_activities("../../content/activities").expect("activity corpus parses");
+        assert_eq!(loaded.report.activities_read, 3);
+        assert_eq!(loaded.report.approved_activities, 0);
+        assert!(loaded.report.is_success());
+        assert!(
+            loaded
+                .activities
+                .iter()
+                .all(|activity| activity.status == PublicationStatus::Draft)
+        );
     }
 }

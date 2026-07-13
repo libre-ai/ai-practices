@@ -22,6 +22,7 @@ content/
   learning-paths/       parcours et remédiations
   graph/                relations entre objets
   questions/            questions compatibles avec le schéma existant
+  activities/           scénarios, expériences et simulations gouvernés par activity.v1
   media/                médias et audits média
   audit/                audits d'existant
 ```
@@ -29,7 +30,7 @@ content/
 ## Règles
 
 - Tout nouvel artefact commence en `draft`.
-- Les questions servies aux utilisateurs doivent être `approved`.
+- Les questions et activités servies aux utilisateurs doivent être `approved`.
 - Aucun contenu généré par IA n'est publiable sans revue humaine.
 - Aucun média humain synthétique n'est utilisable sans audit.
 - Les sources doivent soutenir des claims précis.
@@ -41,11 +42,13 @@ content/
 - `content/questions/corpus-seed.yml` : 11 questions seed en `draft`.
 - `content/questions/batch-001.yml` : 29 questions supplémentaires en `draft`.
 - `content/concepts/core.yml` + `content/concepts/batch-001.yml` : concepts de base et extension en `draft`.
+- `content/activities/core.yml` : trois activités de reconstruction Website en `draft`, non publiables.
 
 ## Vérifications utiles
 
 ```bash
 cargo run -p rumble-ai-practices-cli -- validate-corpus --content content/questions
+cargo run -p rumble-ai-practices-cli -- validate-activities --activities content/activities
 cargo run -p rumble-ai-practices-cli -- audit-corpus --content content/questions --media content/media --out reports/audit.json
 ```
 

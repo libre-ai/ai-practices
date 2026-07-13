@@ -31,6 +31,18 @@ pub enum DomainError {
         question_id: String,
         choice_id: String,
     },
+    #[error("activity id must start with `activity-`: {0}")]
+    InvalidActivityId(String),
+    #[error("activity `{0}` must define instructions and success criteria")]
+    IncompleteActivity(String),
+    #[error("activity `{0}` contains a claim without a declared source")]
+    ActivityClaimMissingSource(String),
+    #[error("experiment activity `{0}` must define a locked environment")]
+    ExperimentMissingEnvironment(String),
+    #[error("activity `{0}` declares AI assistance without details")]
+    ActivityAiAssistanceMissingDetails(String),
+    #[error("approved activity `{0}` must include a reviewer, review date and sources")]
+    ApprovedActivityMissingReview(String),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -53,6 +65,31 @@ impl QuestionId {
 }
 
 impl std::fmt::Display for QuestionId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(transparent)]
+pub struct ActivityId(String);
+
+impl ActivityId {
+    pub fn parse(value: impl Into<String>) -> Result<Self, DomainError> {
+        let value = value.into();
+        if value.starts_with("activity-") {
+            Ok(Self(value))
+        } else {
+            Err(DomainError::InvalidActivityId(value))
+        }
+    }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl std::fmt::Display for ActivityId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.0)
     }
@@ -274,6 +311,171 @@ pub enum Confidence {
     Low,
     Medium,
     High,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Activity {
+    pub id: ActivityId,
+    pub version: u32,
+    pub status: PublicationStatus,
+    pub locale: String,
+    pub title: String,
+    #[serde(rename = "type")]
+    pub kind: ActivityType,
+    pub objective: ActivityObjective,
+    #[serde(default)]
+    pub prerequisites: Vec<String>,
+    pub situation: String,
+    pub instructions: Vec<String>,
+    #[serde(default)]
+    pub permitted_data: Vec<PermittedData>,
+    #[serde(default)]
+    pub environment: Option<ActivityEnvironment>,
+    pub success_criteria: Vec<String>,
+    pub feedback: ActivityFeedback,
+    pub risks: Vec<String>,
+    pub limits: Vec<String>,
+    pub stop_conditions: Vec<String>,
+    pub source_refs: Vec<String>,
+    pub claims: Vec<ActivityClaim>,
+    #[serde(default)]
+    pub media: Vec<ActivityMedia>,
+    pub ai_assistance: AiAssistance,
+    pub review: ReviewMetadata,
+    pub retire_when: String,
+}
+
+impl Activity {
+    pub fn validate_for_publication(&self) -> Result<(), DomainError> {
+        if !self.id.as_str().starts_with("activity-") {
+            return Err(DomainError::InvalidActivityId(self.id.to_string()));
+        }
+        if self.instructions.is_empty()
+            || self.success_criteria.is_empty()
+            || self.stop_conditions.is_empty()
+        {
+            return Err(DomainError::IncompleteActivity(self.id.to_string()));
+        }
+        let declared_sources: BTreeSet<&str> =
+            self.source_refs.iter().map(String::as_str).collect();
+        if self.claims.iter().any(|claim| {
+            claim.source_ids.is_empty()
+                || claim
+                    .source_ids
+                    .iter()
+                    .any(|source| !declared_sources.contains(source.as_str()))
+        }) {
+            return Err(DomainError::ActivityClaimMissingSource(self.id.to_string()));
+        }
+        if self.kind == ActivityType::Experiment && self.environment.is_none() {
+            return Err(DomainError::ExperimentMissingEnvironment(
+                self.id.to_string(),
+            ));
+        }
+        if self.ai_assistance.used
+            && self
+                .ai_assistance
+                .details
+                .as_deref()
+                .unwrap_or("")
+                .trim()
+                .is_empty()
+        {
+            return Err(DomainError::ActivityAiAssistanceMissingDetails(
+                self.id.to_string(),
+            ));
+        }
+        if self.status == PublicationStatus::Approved
+            && (self.review.reviewers.is_empty()
+                || self
+                    .review
+                    .last_reviewed_at
+                    .as_deref()
+                    .unwrap_or("")
+                    .trim()
+                    .is_empty()
+                || self.source_refs.is_empty())
+        {
+            return Err(DomainError::ApprovedActivityMissingReview(
+                self.id.to_string(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ActivityType {
+    Scenario,
+    Experiment,
+    Simulation,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityObjective {
+    pub observable_outcome: String,
+    pub competency_ids: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PermittedData {
+    pub data_id: String,
+    pub label: String,
+    pub license: String,
+    pub classification: DataClassification,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DataClassification {
+    Public,
+    Synthetic,
+    InternalRedacted,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityEnvironment {
+    pub runtime: String,
+    pub locked_dependencies: Vec<String>,
+    pub network: NetworkPolicy,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum NetworkPolicy {
+    Forbidden,
+    LoopbackOnly,
+    ExplicitAllowlist,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityFeedback {
+    pub principle: String,
+    pub remediation: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityClaim {
+    pub claim_id: String,
+    pub statement: String,
+    pub source_ids: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ActivityMedia {
+    pub media_id: String,
+    pub provenance: String,
+    pub license: String,
+    pub alt_text: String,
+    pub reviewed_by: Vec<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AiAssistance {
+    pub used: bool,
+    #[serde(default)]
+    pub details: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -532,6 +734,83 @@ mod tests {
         assert!(matches!(
             question.validate_for_publication(),
             Err(DomainError::ApprovedQuestionMissingReviewer(_))
+        ));
+    }
+
+    fn valid_activity() -> Activity {
+        Activity {
+            id: ActivityId::parse("activity-test").unwrap(),
+            version: 1,
+            status: PublicationStatus::Draft,
+            locale: "fr-FR".into(),
+            title: "Activité de test".into(),
+            kind: ActivityType::Scenario,
+            objective: ActivityObjective {
+                observable_outcome: "Choisir une action vérifiable.".into(),
+                competency_ids: vec!["comp-check-source".into()],
+            },
+            prerequisites: vec![],
+            situation: "Une réponse plausible doit être vérifiée.".into(),
+            instructions: vec!["Comparer la réponse à la source.".into()],
+            permitted_data: vec![],
+            environment: None,
+            success_criteria: vec!["La source primaire est consultée.".into()],
+            feedback: ActivityFeedback {
+                principle: "Une réponse n'est pas une preuve.".into(),
+                remediation: "Revenir au passage primaire.".into(),
+            },
+            risks: vec!["Réutilisation d'une erreur plausible.".into()],
+            limits: vec!["Le cas ne couvre pas toutes les sources.".into()],
+            stop_conditions: vec!["Arrêter si la source manque.".into()],
+            source_refs: vec!["source-nist-ai-rmf-1-0".into()],
+            claims: vec![ActivityClaim {
+                claim_id: "claim-output-not-proof".into(),
+                statement: "Une sortie doit être vérifiée.".into(),
+                source_ids: vec!["source-nist-ai-rmf-1-0".into()],
+            }],
+            media: vec![],
+            ai_assistance: AiAssistance {
+                used: true,
+                details: Some("Structure préparée par un agent, revue humaine en attente.".into()),
+            },
+            review: ReviewMetadata {
+                author: "draft-agent".into(),
+                reviewers: vec![],
+                last_reviewed_at: None,
+                confidence: Confidence::Low,
+                notes: None,
+            },
+            retire_when: "La source ou le comportement produit change.".into(),
+        }
+    }
+
+    #[test]
+    fn activity_claims_must_reference_declared_sources() {
+        let mut activity = valid_activity();
+        activity.claims[0].source_ids = vec!["source-unknown".into()];
+        assert!(matches!(
+            activity.validate_for_publication(),
+            Err(DomainError::ActivityClaimMissingSource(_))
+        ));
+    }
+
+    #[test]
+    fn experiment_requires_locked_environment() {
+        let mut activity = valid_activity();
+        activity.kind = ActivityType::Experiment;
+        assert!(matches!(
+            activity.validate_for_publication(),
+            Err(DomainError::ExperimentMissingEnvironment(_))
+        ));
+    }
+
+    #[test]
+    fn approved_activity_requires_human_review() {
+        let mut activity = valid_activity();
+        activity.status = PublicationStatus::Approved;
+        assert!(matches!(
+            activity.validate_for_publication(),
+            Err(DomainError::ApprovedActivityMissingReview(_))
         ));
     }
 }
