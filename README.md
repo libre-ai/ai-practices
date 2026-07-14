@@ -88,6 +88,7 @@ Key documentation:
 - [Content governance](docs/content-governance.md)
 - [Security and GDPR](docs/security-rgpd.md)
 - [Human review gate](docs/local-review.md)
+- [Product readiness cockpit](docs/product-readiness.md)
 - [Testing strategy](docs/testing-strategy.md)
 - [Website curriculum reconstruction plan](docs/plans/2026-07-website-curriculum-reconstruction.md)
 

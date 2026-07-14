@@ -22,9 +22,10 @@ canoniques.
 6. [`data-model.md`](data-model.md), [`question-model.md`](question-model.md), [`scoring.md`](scoring.md) — contrats métier.
 7. [`content-governance.md`](content-governance.md) et [`grille-audit-biais-media.md`](grille-audit-biais-media.md) — garde-fous éditoriaux.
 8. [`local-review.md`](local-review.md) — build local, localhost et gate humaine.
-9. [`model-delegation.md`](model-delegation.md) — délégation à des modèles légers.
-10. [`implementation/`](implementation/) — paquets de travail pour agents.
-11. [`benchmark-jeu-competitif.md`](benchmark-jeu-competitif.md) — veille : ce qu'on prend / rejette d'un jeu externe d'entraînement IA, et pourquoi (non-objectifs assumés).
+9. [`product-readiness.md`](product-readiness.md) — cockpit local de readiness canonique.
+10. [`model-delegation.md`](model-delegation.md) — délégation à des modèles légers.
+11. [`implementation/`](implementation/) — paquets de travail pour agents.
+12. [`benchmark-jeu-competitif.md`](benchmark-jeu-competitif.md) — veille : ce qu'on prend / rejette d'un jeu externe d'entraînement IA, et pourquoi (non-objectifs assumés).
 
 ## Principe de documentation
 
