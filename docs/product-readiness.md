@@ -15,16 +15,18 @@ Ce cockpit documente ce qui est **prouvé localement/CI** au snapshot courant, e
 - **blocked** : le gate attendu ne peut pas être levé aujourd'hui.
 - **later** : hors périmètre de readiness immédiate.
 
-## Preuves locales vérifiées
+## Commandes et preuves du dépôt
 
-| Preuve | Résultat |
+La suite PostgreSQL a été rejouée pour cette mise à jour. Les autres lignes sont les chemins canoniques documentés et couverts par le dépôt ; elles ne constituent pas une preuve d'hébergement.
+
+| Preuve | Résultat / limite |
 | --- | --- |
-| `./scripts/test-postgres-disposable.sh` | PASS, **78 tests** workspace, PostgreSQL jetable via socket temporaire |
-| `cargo run -p rumble-ai-practices-cli -- validate-corpus --content content/questions` | validation corpus disponible localement |
-| `cargo run -p rumble-ai-practices-cli -- validate-activities --activities content/activities` | validation activités disponible localement |
-| `cargo run -p rumble-ai-practices-cli -- audit-corpus --content content/questions --media content/media --out reports/audit.json` | audit contenu disponible localement |
+| `./scripts/test-postgres-disposable.sh` | PASS rejoué : **78 tests** workspace, PostgreSQL jetable via socket temporaire |
+| `cargo run -p rumble-ai-practices-cli -- validate-corpus --content content/questions` | validation corpus locale, couverte par les tests |
+| `cargo run -p rumble-ai-practices-cli -- validate-activities --activities content/activities` | validation activités locale, couverte par les tests |
+| `cargo run -p rumble-ai-practices-cli -- audit-corpus --content content/questions --media content/media --out reports/audit.json` | audit contenu local, couvert par les tests |
 | `cargo run -p rumble-ai-practices-cli -- run-session --fixture fixtures/session-basic.json --content content/questions --media content/media --out reports/session-basic.json` | synthèse pédagogique locale sur fixture |
-| `cargo run -p rumble-ai-practices-cli -- serve --bind 127.0.0.1:3000` | API + PWA locales, smoke via `/readyz`, `/manifest.webmanifest`, `/sw.js` |
+| `cargo run -p rumble-ai-practices-cli -- serve --bind 127.0.0.1:3000` | chemin single-origin API + PWA documenté ; aucune URL hébergée prouvée |
 
 ## Content / editorial
 
@@ -41,7 +43,9 @@ Ce cockpit documente ce qui est **prouvé localement/CI** au snapshot courant, e
 | Fixture session | **prouvé local/CI** | `fixtures/session-basic.json` + `run-session` | le parcours pédagogique local est reproductible |
 | API locale | **implemented-unhosted** | `serve` + smoke localhost | l'API et les routes de base existent en local |
 | PWA locale | **implemented-unhosted** | `manifest.webmanifest`, `sw.js`, tests `apps/web/tests/*` | le shell web est présent et consommable localement |
+| Parcours navigateur mobile | **prouvé local/CI** | `apps/web/e2e/parcours.spec.ts`, `.github/workflows/e2e.yml` | Playwright vérifie le parcours sur Chromium mobile ; cela ne prouve aucun hébergement |
 | Résultat pédagogique | **prouvé local/CI** | synthèse locale sans score individuel automatique | le produit rend une synthèse pédagogique, pas un score RH individuel |
+| Wrappers macOS/iOS/Android | **partial** | builds locaux documentés dans `docs/deploy.md` | artefacts debug/non signés ; aucune publication store ni convergence plateforme revendiquée |
 | Runtime partagé de session | **blocked** | absent du chemin vérifié | aucune preuve de runtime partagé borné pour un pilote privé |
 
 ## Data / security
@@ -57,16 +61,16 @@ Ce cockpit documente ce qui est **prouvé localement/CI** au snapshot courant, e
 
 | Zone | État | Preuve | Lecture |
 | --- | --- | --- | --- |
-| Staging | **later** | `docs/local-review.md` et `docs/deploy.md` refusent le staging distant comme gate nominal | pas de staging cloud comme preuve produit |
-| Production ops | **later** | même doctrine | aucune opération prod ne fait partie de la readiness locale |
+| Staging | **blocked** | aucun hôte ni runbook staging exécuté au snapshot | le dépôt documente une diffusion possible, mais aucune preuve hébergée n'est fournie |
+| Production ops | **later** | aucune preuve opérationnelle | aucune opération prod ne fait partie de la readiness actuelle |
 | Alpha publique | **later** | non revendiquée | ne pas confondre cockpit local et diffusion publique |
-| E2E navigateur comme preuve de readiness | **later** | non retenu ici | pas de prétention à une preuve browser E2E pour ce cockpit |
+| E2E navigateur | **prouvé local/CI** | Playwright Chromium mobile + workflows E2E | preuve du parcours local uniquement, pas de staging ni de vrai appareil |
 
 ## Gates
 
 | Gate | Attendu | État | Verdict |
 | --- | --- | --- | --- |
-| **P0** | état local runnable, corpus validé/audité, fixture session, API/PWA locale | **prouvé local/CI** | le socle local existe et passe |
+| **P0** | état local runnable, corpus validé/audité, fixture session, API/PWA locale et parcours navigateur CI | **prouvé local/CI** | le socle local existe et passe |
 | **P1** | contenu humain `approved`, pilote privé, runtime partagé borné | **blocked** | absence d'`approved` et runtime partagé non prouvé |
 | **P2** | opérations, release, diffusion | **later** | hors périmètre de readiness actuelle |
 
