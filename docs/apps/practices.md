@@ -2,7 +2,7 @@
 
 - **Path:** `apps/practices`
 - **Owner:** Experiences / Practices
-- **Runtime:** Bun.serve, React 19 PWA, local IndexedDB; PostgreSQL only for optional organization publication/anonymous aggregates
+- **Runtime:** Bun.serve, React 19 PWA, local IndexedDB; PostgreSQL only for organization review/publication
 - **Tenant model:** personal v1; organization publishing is a separate role boundary
 
 ## Purpose and actors
@@ -50,15 +50,15 @@ Feedback failure preserves the learner response locally and offers retry/export;
 
 ## Data
 
-Activity definitions and reviews are Git/contract authority. Personal sessions, answers and progress remain local by default and are retained until learner deletion/reset. Optional server aggregates accept only thresholded non-nominative counters keyed by activity version and organization tenant. Raw answers are never uploaded for aggregation. Migration sources are approved archived activity briefs and public sources; historical learner databases are not imported.
+Activity definitions and reviews are Git/contract authority. Personal sessions, answers and progress remain local by default and are retained until learner deletion/reset. Practices v1 stores no learner aggregate on the server. Raw answers and progress are never uploaded. Migration sources are approved archived activity briefs and public sources; historical learner databases are not imported.
 
 ## Authentication and authorization
 
-Reading/installing public activities and local practice require no account. Organization publishing uses opaque browser sessions. Internal publication Biscuit facts include subject, organization tenant and role; resources are `activity/<id>/<version>` with `review` or `publish`. Learner role cannot publish; organization administrators cannot query individual progress. RLS protects review/publishing records.
+Reading/installing public activities and local practice require no account. Organization publishing uses opaque browser sessions. Internal publication Biscuit facts include user, organization tenant and `role(user, role)`; resources are `activity/<id>/<version>` with `review` or `publish`. Learner role cannot publish; organization administrators cannot query individual progress. RLS protects review/publishing records.
 
 ## Runtime boundaries
 
-TypeScript owns sessions, local persistence, feedback presentation and review workflow. A Rust/WASM scoring core is permitted only for activity-declared deterministic rules with cross-runtime golden vectors; free-text model grading stays advisory and human-reviewed. Model calls use a provider-neutral port and never receive unrelated progress.
+TypeScript owns sessions, local persistence, bounded deterministic feedback rules and review workflow. Practices v1 has no Rust scoring implementation: no accepted activity currently demonstrates an invariant that justifies another runtime boundary. Free-text model grading stays advisory and human-reviewed. Model calls use a provider-neutral port and never receive unrelated progress.
 
 ## Accessibility and degraded mode
 
@@ -70,7 +70,7 @@ Activities require keyboard-only completion, explicit instructions, labels, erro
 - Activity Outcome v1 — `contracts/schemas/activity-outcome.v1.schema.json` ;
 - Progress Export v1 — `contracts/schemas/practice-progress-export.v1.schema.json` ;
 - publishing API — `contracts/openapi/practices.v1.yaml` ;
-- deterministic scoring, if retained — `contracts/wit/practice-scoring-v1/world.wit`.
+- reserved future scoring boundary, not implemented in v1 — `contracts/wit/practice-scoring-v1/world.wit`.
 
 ## Evidence
 
@@ -81,10 +81,10 @@ Unit tests cover state/revision, local deletion and feedback rule IDs. Contract 
 1. activity/outcome contracts and fixtures — Canonical Core ;
 2. local session/progress PWA — Experiences ;
 3. review/publish API and RLS — Web Platform + Experiences ;
-4. optional deterministic scorer proof — Specialized Rust ;
+4. deterministic TypeScript feedback and explanation rules — Experiences ;
 5. offline/accessibility/privacy qualification — Infrastructure and Release.
 
-Scorer work cannot begin before at least one approved activity demonstrates a deterministic invariant.
+Introducing the reserved Rust scorer requires a new approved work package backed by a real activity invariant and cross-runtime golden vectors.
 
 ## Release and rollback
 
