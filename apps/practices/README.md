@@ -23,9 +23,34 @@ Validation:
 - Deep immutability via `Object.freeze` — all objects and arrays are frozen against mutation.
 - Every refusal path is tested; boundary values and schema conformance are verified.
 
+## What is built (Increment 2)
+
+**Local persistence port: `src/persistence/local-outcome-store.ts`**
+
+The storage-agnostic core that lets an activity outcome survive a reload without ever
+leaving the device — mirroring the boussole local-response-store. It is protected by
+the `check-no-transmission` CI gate (the local-only invariant).
+
+- **serializeActivityOutcome** — encodes an outcome to a device-local string (never a
+  network payload).
+- **deserializeActivityOutcome** — fail-closed: shape is guarded, then the outcome is
+  reconstructed **through the domain** (`createOutcome`), so a corrupt or tampered
+  envelope is refused (`practices.response_schema_invalid`) rather than rehydrated
+  into an invalid state.
+- **LocalOutcomeStore** — the async port (`save` / `load(localSessionId)` / `list` /
+  `clear`), outcomes keyed by `localSessionId`; `load` surfaces corruption as a
+  `corrupt` result and never throws.
+- **createInMemoryOutcomeStore** — the in-memory adapter storing the encoded string,
+  so it exercises the exact same decode path a persistent adapter would. The concrete
+  IndexedDB adapter is a thin boundary deferred to a later increment.
+
+Verified: encode/decode round-trip; malformed JSON, missing/wrong-typed fields, and
+tampered content values (non-sha256 digest, non-URN id, invalid state) each surface
+as `corrupt`; save/load/list/clear behave keyed and fail-closed.
+
 ## What is deferred
 
-- Session/activity binding and local persistence (IndexedDB, LocalStorage)
+- The concrete IndexedDB adapter (the port + in-memory adapter ship in Increment 2)
 - HTTP API and networking (practices.v1.yaml publishing flow)
 - Review/approval workflow and RLS
 - Deterministic feedback explanation rules (TypeScript; planned for Increment 2)
