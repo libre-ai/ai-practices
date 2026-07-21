@@ -48,9 +48,28 @@ Verified: encode/decode round-trip; malformed JSON, missing/wrong-typed fields, 
 tampered content values (non-sha256 digest, non-URN id, invalid state) each surface
 as `corrupt`; save/load/list/clear behave keyed and fail-closed.
 
+## What is built (Increment 3)
+
+**IndexedDB adapter: `src/persistence/indexed-db-outcome-store.ts`**
+
+The on-device implementation of `LocalOutcomeStore`, persisting the encoded outcome
+string keyed by `localSessionId`. The `IDBFactory` is **injected** (a real
+`indexedDB` in the browser, a fake in tests), so the adapter never reaches for an
+ambient global and is testable off-browser. It mirrors the notebook adapter's
+transaction discipline: completion handlers are attached synchronously with the
+request, so a transaction can never auto-commit before completion is observed.
+
+The fail-closed decode stays in the port — the adapter only reads the stored string
+and hands it to `deserializeActivityOutcome`, so a corrupt or tampered record
+surfaces as a `corrupt` result, never a rehydrated invalid outcome.
+
+Verified against `fake-indexeddb` (real round-trip, not stubs): save/load by session,
+re-save overwrites, list/clear, a seeded corrupt record loads as `corrupt`, and an
+un-openable factory rejects.
+
 ## What is deferred
 
-- The concrete IndexedDB adapter (the port + in-memory adapter ship in Increment 2)
+- The Bun/PWA shell, service worker and offline install
 - HTTP API and networking (practices.v1.yaml publishing flow)
 - Review/approval workflow and RLS
 - Deterministic feedback explanation rules (TypeScript; planned for Increment 2)
