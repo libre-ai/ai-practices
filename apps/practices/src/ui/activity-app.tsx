@@ -2,6 +2,7 @@ import { StatusMessage } from "@libre-ai/ui";
 import { useActivity } from "../client/use-activity";
 import type { LocalOutcomeStore } from "../persistence/local-outcome-store";
 import { Activity } from "./activity";
+import { DataOwnership } from "./data-ownership";
 
 // The controller's handlers are passed unconditionally (they fold through the
 // domain and persist via the optional store), so the server render (no store) and
@@ -23,6 +24,9 @@ export function ActivityApp({ store }: { readonly store?: LocalOutcomeStore }) {
         onComplete={controller.complete}
         onStop={controller.stop}
       />
+      {controller.status === "corrupt" ? null : (
+        <DataOwnership exportData={controller.exportData} onDeleteAll={controller.deleteAll} />
+      )}
     </>
   );
 }

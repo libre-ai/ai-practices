@@ -67,16 +67,45 @@ Verified against `fake-indexeddb` (real round-trip, not stubs): save/load by ses
 re-save overwrites, list/clear, a seeded corrupt record loads as `corrupt`, and an
 un-openable factory rejects.
 
+## What is built (Increment 4 — client shell, PR #188)
+
+The client-first walking skeleton: accessible SSR baseline (no-JS usable),
+`hydrateDocument` hydration, Terminer/Arrêter state advance persisting to
+IndexedDB and restored on reload, PWA shell (hash-versioned service worker,
+shell-only fetch — the documented `check-no-transmission` allowlist entry),
+three-engine e2e (no-js, pwa offline, round-trip + zero cross-origin assertion).
+
+## What is built (Increment 5 — data-ownership controls)
+
+An enhanced-only "Mes données" region (`src/ui/data-ownership.tsx`) surfaces the
+export and delete behaviour the domain already carries:
+
+- **Export** — `useActivity().exportData()` returns the non-identifying
+  `activity-outcome.v1` document (digest only — raw responses never accompany the
+  export); the component writes it to a local `practices-activite.json` via a
+  `Blob` + object URL + anchor download. This touches **no network primitive**, so
+  `check-no-transmission` stays green with no new allowlist entry; the helper
+  lives inside the app so the guard scans it.
+- **Delete** — `useActivity().deleteAll()` clears the stored outcome and resets to
+  the fixture; it resolves only once the store has durably cleared, and the
+  in-page two-step confirmation (never `window.confirm`) announces success via
+  `aria-live` only after that point — a deletion claim must be durable.
+
+The region is `lai-enhanced-only`, so the no-JS baseline is unchanged.
+Three-engine e2e assert the download (filename + parsed document + **zero
+cross-origin traffic**), the confirmed delete round-trip (reload resets to the
+fixture), and the cancel path.
+
 ## What is deferred
 
-- The Bun/PWA shell, service worker and offline install
 - HTTP API and networking (practices.v1.yaml publishing flow)
-- Review/approval workflow and RLS
-- Deterministic feedback explanation rules (TypeScript; planned for Increment 2)
+- Review/approval workflow and RLS — publication is gated by the
+  `activity-content-and-privacy-review` humanGate
+- Deterministic feedback explanation rules (TypeScript)
 - Model-based grading (external, advisory, not part of domain)
 - Rust/WASM scoring boundary (reserved; requires real activity invariant)
-- UI/React components and accessibility qualification
-- Offline mode, export/delete, and browser feature gates
+- Response capture + hashing UI (the digest is fixture-provided today)
+- Browser feature gates
 
 ## References
 

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { type ActivityOutcome, advanceState } from "../domain/activity-outcome";
+import {
+  type ActivityOutcome,
+  advanceState,
+  type ExportedActivityOutcome,
+  exportOutcome,
+} from "../domain/activity-outcome";
 import type { LocalOutcomeStore } from "../persistence/local-outcome-store";
 import { ACTIVITY_FIXTURE, SESSION_ID } from "../ui/fixture";
 
@@ -10,6 +15,14 @@ export interface ActivityController {
   readonly status: ActivityStatus;
   readonly complete: () => void;
   readonly stop: () => void;
+  // Data-ownership: `exportData` returns the outcome as its non-identifying export
+  // document (digest only — raw responses never accompany the export); the caller
+  // turns it into a LOCAL file download — never a network upload. `deleteAll`
+  // erases the stored outcome and resets to the fixture; it resolves only once the
+  // store has durably cleared, so the caller can truthfully announce deletion
+  // (unlike the optimistic answer/skip saves, a deletion claim must be durable).
+  readonly exportData: () => ExportedActivityOutcome;
+  readonly deleteAll: () => Promise<void>;
 }
 
 // The interactive controller. Without a store (SSR) it stays at the fixture outcome with
@@ -48,6 +61,16 @@ export function useActivity(store?: LocalOutcomeStore): ActivityController {
     stop() {
       const next = advanceState(outcome, "stopped");
       if (next.ok) commit(next.value);
+    },
+    exportData() {
+      return exportOutcome(outcome);
+    },
+    async deleteAll() {
+      // Persist first, mutate UI state after: if the clear rejects, the visible
+      // state must keep matching the (unchanged) store — never show a reset
+      // activity whose old outcome would come back on reload.
+      await store?.clear();
+      setOutcome(ACTIVITY_FIXTURE);
     },
   };
 }
