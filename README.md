@@ -1,109 +1,71 @@
-> [!WARNING]
-> **Frozen on 2026-07-16 — reserved as the future home of AI Practices ([monorepo ADR-0008](https://github.com/libre-ai/libre-ai/blob/main/docs/adr/0008-multi-repo-target-topology-and-brand.md)).**
-> AI Practices is being rebuilt from locked contracts in the canonical base repository [`libre-ai/libre-ai`](https://github.com/libre-ai/libre-ai) (target: `apps/practices`). This repository will reopen as the real product repository when the owner activates it. Everything below describes the pre-freeze state and no longer reflects the current architecture or roadmap.
+**English** · [Français](README.fr.md)
 
-<p align="center">
-  <img src=".github/assets/repository-card.svg" alt="Libre AI Practices, represented by a reviewed learning path connecting scenarios, sources and feedback." width="100%">
-</p>
+> [!NOTE]
+> **Reserved · future home of AI Practices** — rebuilt in the canonical base repository [`libre-ai/libre-ai`](https://github.com/libre-ai/libre-ai) ([multi-repo topology, ADR-0008](https://github.com/libre-ai/libre-ai/blob/main/docs/adr/0008-multi-repo-target-topology-and-brand.md)).
+> This repository will reopen as the real product repository when the owner activates it, consuming the base as a versioned dependency. The foundations described below are **being built now** — with links to the code that already exists.
 
-# Libre AI Practices
+# AI Practices
 
-Professional training for sourced, responsible AI practice—**not a general-knowledge quiz and not HR scoring**.
+**Professional training for sourced and responsible AI practice.** Help learners exercise bounded, explicit judgment in realistic AI scenarios. Learners own their progress offline; reviewers approve activity versions; publishers release curated content — never automatedly ranked, never without human approval, never as a compliance checklist.
 
-## Status
+The canonical use: _a professional team completes a scenario involving model choice, data sensitivity and jurisdictional constraints, receives sourced non-punitive feedback, and verifies their reasoning against documented sources and known limitations._
 
-| | |
-| --- | --- |
-| Maturity | **Dojo** — runnable Rust API/PWA and governed corpus |
-| Works today | corpus validation/audit, fixture sessions, local API and PWA proof |
-| Not scale-ready | shared session runtime, production operations and broad platform convergence |
-| Historical IDs | `rumble-ai-practices-*` remain current crate identifiers |
+## Why it's different
 
-## Principles
+- **Owned offline, reviewed once.** Learner progress is local and portable; activity versions are immutable after approval. No continuous surveillance, no server-side learner profile.
+- **Sourced feedback, not model opinion.** Every hint references an approved source rule (policy, documentation, case study) — never uses unverified model inference as an answer key.
+- **Bounded scenarios, not open-ended chat.** Activities are schema-constrained; learner responses must satisfy the defined interface. Ambiguity is documented, not hidden.
+- **Non-punitive, audit-focused.** The outcome is _in-progress_, _completed_, or _stopped_ — not a pass/fail score. Feedback preserves the learner's response and offers retry, never fabricates success.
+- **Deterministic, degraded gracefully.** If a feedback provider (model, external service) is unavailable, deterministic hints remain available; unsourced feedback is marked explicitly, never silently upgraded to success.
 
-The product trains confidentiality, verification, sourcing, bias awareness, GDPR, security and professional responsibility. It rejects named rankings, disciplinary use, unsourced corrections and automatically published generated questions.
+## Status — spec-published, product skeleton complete
 
-Every published question should carry an explanation, sources, risks and a review date. Generated media requires explicit provenance and human bias review.
+AI Practices is being built from locked contracts and a domain model. It is **not released yet**; local offline practice is working and proven, and the review/publish surface is next:
 
-## Quickstart
+| Foundation                                                | State    | Evidence                                                                                                                                                            |
+| --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Activity Definition & Outcome** — domain model          | ✅ built | Schema + TypeScript domain, contract fixtures ([#163](https://github.com/libre-ai/libre-ai/pull/163))                                                               |
+| **Local outcome persistence** — in-memory & IndexedDB     | ✅ built | Adapters with unit tests, offline-first architecture ([#183](https://github.com/libre-ai/libre-ai/pull/183), [#184](https://github.com/libre-ai/libre-ai/pull/184)) |
+| **Data ownership & durable delete** — learner controls    | ✅ built | Export/reset, no residue in server-side index ([#190](https://github.com/libre-ai/libre-ai/pull/190))                                                               |
+| **Client-first UI** — activity and progress               | ✅ built | Walking skeleton, keyboard-accessible, React 19 PWA ([#188](https://github.com/libre-ai/libre-ai/pull/188))                                                         |
+| **Review & publish API** — activity versioning & approval | ⏳ next  | Biscuit-gated, immutable versions, RLS for tenant isolation                                                                                                         |
+| **Deterministic feedback engine** — rule-based scoring    | ⏳ next  | TypeScript validator, schema-conformant responses, accessibility proof                                                                                              |
 
-The service-free core and editorial gates run without secrets:
+This repository is `private` until a product audit clears it for public reopening (wave 4). **Benchmark target:** professional learning platforms (e.g. DataCamp, Coursera) — differentiated by offline-first ownership, human-reviewed content, and explicit sourcing rather than algorithmic recommendation.
 
-```bash
-cargo test --workspace \
-  --exclude rumble-ai-practices-api \
-  --exclude rumble-ai-practices-store
-cargo run -p rumble-ai-practices-cli -- validate-corpus --content content/questions
-cargo run -p rumble-ai-practices-cli -- validate-activities --activities content/activities
-cargo run -p rumble-ai-practices-cli -- audit-corpus \
-  --content content/questions --media content/media --out reports/audit.json
-cargo run -p rumble-ai-practices-cli -- run-session \
-  --fixture fixtures/session-basic.json \
-  --content content/questions --media content/media \
-  --out reports/session-basic.json
-cargo run -p rumble-ai-practices-cli -- serve --bind 127.0.0.1:3000
-```
+## How it works
 
-The complete workspace suite includes `#[sqlx::test]` cohort tests. The preferred local proof creates a private, short-lived PostgreSQL cluster reachable only through a temporary Unix socket, runs the 78 workspace tests, then stops and removes it:
+1. **Install offline** — learner downloads an approved activity version (schema + instructions + scenarios), stored locally.
+2. **Practice with feedback** — learner submits a bounded response; engine validates the schema and applies deterministic feedback rules linked to documented sources. Failed rules show which rule broke and why. Retry is always available.
+3. **Export or reset** — learner exports a portable progress bundle (review-ready evidence) or deletes all local data without server involvement.
+4. **Publish curated content** — reviewer validates source, licence, accessibility and safety evidence; publisher promotes the immutable reviewed version to the activity index.
 
-```bash
-./scripts/test-postgres-disposable.sh
-```
+## Architecture — built from interoperable bricks
 
-It requires local PostgreSQL client/server binaries and uses no durable credential or existing database. For an externally managed disposable database, set `SQLX_OFFLINE=true` and provide a `DATABASE_URL` whose role may create test databases. Then open <http://127.0.0.1:3000>. Health and PWA proofs include `/readyz`, `/manifest.webmanifest` and `/sw.js`.
+AI Practices is a product assembled from independently versioned bricks; each is usable and testable on its own, and the product is their composition (the multi-repo target of [ADR-0008](https://github.com/libre-ai/libre-ai/blob/main/docs/adr/0008-multi-repo-target-topology-and-brand.md)).
 
-### Governed activity preview
+| Brick                                             | Role                                    | Interface it exposes / consumes                                                                             |
+| ------------------------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Activity Definition v1 & Outcome v1** (schemas) | Bounded contracts for activities        | `activity-definition.v1.schema.json`, `activity-outcome.v1.schema.json`, contract fixtures                  |
+| **`@libre-ai/ui`** (React 19)                     | Keyboard-accessible UI components       | Activity app, data-ownership flows, composable with web-platform                                            |
+| **`@libre-ai/web-platform`**                      | SSR / Bun BFF foundation                | Request handler, server-rendered document, environment for the local-first client                           |
+| **Local outcome persistence** (TypeScript)        | Offline-first storage adapters          | In-memory adapter for tests; IndexedDB adapter for browser persistence; port-based (testable independently) |
+| **Progress Export v1** (schema)                   | Portable evidence format                | `practice-progress-export.v1.schema.json` — learner data without server identity, reviewable                |
+| **OpenAPI: practices.v1.yaml** (reserved)         | Review & publish surface (not yet live) | Activity versioning, approval gates, publisher isolation                                                    |
 
-Three reconstructed activities can be exercised locally without being mistaken for approved training content:
+The local-first client holds no server identity; it exchanges only immutable activity versions and sourced feedback rules. Any consumer that speaks the activity contracts can render and practice; the host environment (server) is responsible for publication gates.
 
-```bash
-cargo run -p rumble-ai-practices-cli -- run-activity \
-  --id activity-rag-citation-support \
-  --status evidence-submitted \
-  --evidence-ref evidence:synthetic-source-check \
-  --allow-draft-preview \
-  --out target/activity-outcome.json
-```
+## Where the work happens
 
-Without `--allow-draft-preview`, the CLI refuses every non-approved activity. An evidence submission produces a reviewable outcome, never an automatic success or individual score.
+All active development is in the base repository, under:
 
-## Database inspection gate
+- `apps/practices` — the product host (offline PWA, server coordination)
+- `packages/contracts/schemas` — the locked activity definition, outcome, and progress export schemas
+- `contracts/openapi/practices.v1.yaml` — the review/publish API surface
+- [`docs/apps/practices.md`](https://github.com/libre-ai/libre-ai/blob/main/docs/apps/practices.md) — the full product brief
 
-[`db-security-manifest.json`](db-security-manifest.json) records the anonymous cohort storage classifications from ADR 0006. Protected branches run the fail-closed workflow in [`.github/workflows/db-inspection.yml`](.github/workflows/db-inspection.yml) with the checksummed consolidated Proof Kit release `db-inspect-v0.1.0-alpha.7`. Run the same evidence check locally with no database connection or secret:
-
-```bash
-wrench-db-inspect run \
-  --manifest db-security-manifest.json \
-  --schema-dump crates/store/migrations/0001_anonymous_cohort.sql \
-  --profile protected_branch \
-  --report-json target/db-inspect/report.json
-```
-
-The current corpus passes with zero parser errors and zero unclassified tables. CI retains the redacted JSON and Markdown reports for 14 days; no global Bolt gate is enabled by this product workflow.
-
-## Architecture
-
-The Rust workspace separates domain rules, governed content, audit, session state, storage ports, API, CLI and UI. Dioxus/PWA is the current proof path; native targets remain conditional on evidence.
-
-Key documentation:
-
-- [Product vision](docs/vision.md)
-- [Architecture](docs/architecture.md)
-- [Content governance](docs/content-governance.md)
-- [Security and GDPR](docs/security-rgpd.md)
-- [Human review gate](docs/local-review.md)
-- [Product readiness cockpit](docs/product-readiness.md)
-- [Testing strategy](docs/testing-strategy.md)
-- [Website curriculum reconstruction plan](docs/plans/2026-07-website-curriculum-reconstruction.md)
-
-## Success criteria
-
-An MVP requires a reviewed corpus, enforceable schemas, a complete private learning path and non-RH feedback. A runnable demo alone is not enough.
-
-## Contributing
-
-Read [`AGENTS.md`](AGENTS.md) and the governance documents before changing content, scoring or media.
+To follow progress or contribute, open issues and pull requests in [`libre-ai/libre-ai`](https://github.com/libre-ai/libre-ai). This repository stays reserved until activation.
 
 ## License
 
-[MIT](LICENSE).
+EUPL-1.2.
