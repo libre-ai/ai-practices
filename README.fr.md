@@ -31,7 +31,7 @@ AI Practices est construit à partir de contrats verrouillés et d'un modèle de
 | **API de révision et publication** — versionnage et approbation        | ⏳ suite     | Portail Biscuit, versions immuables, RLS pour isolation des locataires                                                                                                           |
 | **Moteur de retour déterministe** — notation basée règles              | ⏳ suite     | Validateur TypeScript, réponses conformes au schéma, preuve d'accessibilité                                                                                                      |
 
-Ce dépôt est `private` jusqu'à ce qu'un audit produit autorise sa réouverture publique (vague 4). **Cible de référence :** plateformes d'apprentissage professionnel (p. ex. DataCamp, Coursera) — différenciée par possession hors ligne d'abord, contenu révisé par humain, et sourçage explicite plutôt que recommandation algorithmique.
+Ce dépôt est une réserve publique, volontairement sans code produit jusqu'à l'activation (vague 4). **Cible de référence :** plateformes d'apprentissage professionnel (p. ex. DataCamp, Coursera) — différenciée par possession hors ligne d'abord, contenu révisé par humain, et sourçage explicite plutôt que recommandation algorithmique.
 
 ## Comment ça fonctionne
 
