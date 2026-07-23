@@ -31,7 +31,7 @@ AI Practices is being built from locked contracts and a domain model. It is **no
 | **Review & publish API** — activity versioning & approval | ⏳ next  | Biscuit-gated, immutable versions, RLS for tenant isolation                                                                                                         |
 | **Deterministic feedback engine** — rule-based scoring    | ⏳ next  | TypeScript validator, schema-conformant responses, accessibility proof                                                                                              |
 
-This repository is a public reserved home, intentionally without product code until activation (wave 4). **Benchmark target:** professional learning platforms (e.g. DataCamp, Coursera) — differentiated by offline-first ownership, human-reviewed content, and explicit sourcing rather than algorithmic recommendation.
+This repository is a public reserved home; the legacy implementation it still carries is frozen for reference, and the rebuild happens in the base repository until activation (wave 4). **Benchmark target:** professional learning platforms (e.g. DataCamp, Coursera) — differentiated by offline-first ownership, human-reviewed content, and explicit sourcing rather than algorithmic recommendation.
 
 ## How it works
 
