@@ -1,0 +1,20 @@
+Acquired-rights synthetic media
+
+The covered files are synthetic visual media reused under rights acquired from a
+third party. They are not first-party Libre AI works: Libre AI does not hold
+their copyright and grants no licence in them.
+
+Per ADR 0008, the proof of rights and the full provenance record are held
+outside this repository, and the delivered files deliberately carry no trace of
+their source. The generating model is not recorded. Consequently no outbound
+licence can be asserted here, and none is: these files are published as
+pedagogical study material only, under the terms of the acquisition, and are
+excluded from every blanket licence declared for this repository.
+
+Every media review sheet for these files is currently `status: draft` with
+`decision: rework`, so they are excluded from the served corpus by the
+fail-closed gate until a human bias review approves them.
+
+Downstream recipients acquire no right to redistribute or reuse these files.
+Anyone needing such rights must obtain them from the original rightsholder.
+This marker records the absence of a grant; it is not itself a licence.

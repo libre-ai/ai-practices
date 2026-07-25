@@ -1,0 +1,27 @@
+name: Licensing
+
+# Verifies that every tracked file has an unambiguous copyright and licence,
+# as required before publication by the canonical policy
+# (libre-ai/libre-ai/LICENSING.md). Git LFS objects are not fetched: `reuse`
+# resolves these files through path annotations in REUSE.toml, so the pointer
+# files are sufficient and the LFS bandwidth is not spent.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reuse:
+    name: REUSE compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          lfs: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - name: Verify REUSE compliance
+        run: uvx --from 'reuse[charset-normalizer]==6.2.0' reuse lint
