@@ -20,6 +20,48 @@ allow = [
   "CC0-1.0",
 ]
 
+# The `allow` list above is the INBOUND policy and stays permissive-only: a
+# reciprocal dependency must not enter the graph silently. Our own crates are
+# OUTBOUND EUPL-1.2 (LICENSING.md, REUSE.toml), and cargo-deny checks workspace
+# members alongside dependencies — so each first-party crate is excepted by
+# name rather than by adding EUPL-1.2 to `allow`. A compatible outbound licence
+# does not make an inbound one acceptable.
+[[licenses.exceptions]]
+name = "rumble-ai-practices-domain"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-content"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-audit"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-session"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-store"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-api"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-cli"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-ui"
+allow = ["EUPL-1.2"]
+
+[[licenses.exceptions]]
+name = "rumble-ai-practices-web"
+allow = ["EUPL-1.2"]
+
 [bans]
 multiple-versions = "warn"
 wildcards = "allow"

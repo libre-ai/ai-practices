@@ -16,7 +16,11 @@ members = [
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.95"
-license = "MIT"
+# Outbound licence for every workspace member (inherited via
+# `license.workspace = true`). Kept in step with REUSE.toml and LICENSE: the
+# first-party crates are EUPL-1.2. The inbound dependency allowlist is a
+# separate policy and lives in `deny.toml`.
+license = "EUPL-1.2"
 authors = ["Constantin Jais"]
 repository = "https://github.com/libre-ai/ai-practices"
 
