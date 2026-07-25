@@ -26,8 +26,6 @@ SPDX-License-Identifier = "EUPL-1.2"
 # content corpus. The corpus is first-party authored curriculum material — not
 # a real-world dataset, an imported model output or a third-party corpus — so
 # the documentation licence applies to it (LICENSING.md, DATA-PROVENANCE.md).
-# The media review sheets under `content/media/**` are first-party records
-# *about* third-party media; the media files themselves are carved out below.
 #
 # The boundary this repository applies, stated explicitly because the canonical
 # table only names its endpoints: a file is reciprocal when its *values decide
@@ -126,14 +124,8 @@ precedence = "override"
 SPDX-FileCopyrightText = "2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)"
 SPDX-License-Identifier = "OFL-1.1"
 
-# Synthetic visual media reused under acquired rights (ADR 0008). These are not
-# first-party works: the copyright is held by a third party, the generating
-# model is unrecorded, and the proof of rights lives outside this repository by
-# design. No outbound licence can be asserted, so none is — `NOASSERTION` plus
-# a marker recording the absence of a grant. `override` is required so that no
-# `apps/**` default can silently turn this material into a first-party grant.
-[[annotations]]
-path = ["apps/web/assets/media/**"]
-precedence = "override"
-SPDX-FileCopyrightText = "NOASSERTION"
-SPDX-License-Identifier = "LicenseRef-Acquired-Rights-Media"
+# The visual media block is removed with the media themselves. It declared
+# `NOASSERTION` on the ground that the copyright was held by a third party —
+# a reading drawn from a provenance sheet whose wording ("droits acquis") did
+# not describe reality. The media are the owner's own work, produced outside
+# this repository, and are withdrawn pending a decision on their eventual use.

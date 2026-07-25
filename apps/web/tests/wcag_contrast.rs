@@ -15,11 +15,9 @@ fn libre_ia_contrast_report_passes() {
     );
     let checks = report["checks"].as_array().expect("contrast checks");
     assert!(checks.len() >= 8);
-    assert!(
-        checks
-            .iter()
-            .all(|check| check["passes_wcag_aa"].as_bool() == Some(true))
-    );
+    assert!(checks
+        .iter()
+        .all(|check| check["passes_wcag_aa"].as_bool() == Some(true)));
 }
 
 #[test]
@@ -42,5 +40,4 @@ fn pwa_assets_resolve_from_the_bundled_shell() {
             .unwrap();
     assert_eq!(manifest["start_url"].as_str(), Some("../"));
     assert_eq!(manifest["scope"].as_str(), Some("../"));
-    assert!(root.join("assets/media/rumble_asset_0304.webp").is_file());
 }

@@ -12,16 +12,11 @@ The licence for each file is declared through SPDX metadata and REUSE.toml:
   first-party project records;
 - upstream terms: third-party and vendored material.
 
-Two classes of third-party material are carved out of every declaration above:
+One class of third-party material is carved out of every declaration above:
 
 - the self-hosted fonts under `apps/web/assets/fonts/` and
   `crates/ui/assets/fonts/` remain OFL-1.1, under the copyright of their
-  respective project authors;
-- the synthetic visual media under `apps/web/assets/media/` are reused under
-  acquired rights. Libre AI does not hold their copyright and grants no licence
-  in them. Their proof of rights and provenance are held outside this
-  repository, as decided in ADR 0008. See
-  `LICENSES/LicenseRef-Acquired-Rights-Media.txt`.
+  respective project authors.
 
 Full licence texts are stored in LICENSES/.
 
