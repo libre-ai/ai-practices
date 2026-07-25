@@ -217,10 +217,18 @@ modifie :
 
 ## Politique de licence et souveraineté
 
-Le code du dépôt est sous licence MIT. Les dépendances doivent rester compatibles
-avec la doctrine du projet : MIT, Apache-2.0, BSD, MPL-2.0 ou équivalent
-acceptable ; AGPL, SSPL ou dépendances à usage incompatible sont interdites sans
-décision explicite.
+Le dépôt est multi-licence : la licence de chaque fichier est déclarée dans
+`REUSE.toml` et résumée dans `LICENSE`. Le code de première partie est sous
+EUPL-1.2 ; les contrats, fixtures et sorties de design-system sous Apache-2.0 ;
+la documentation et le corpus pédagogique sous CC-BY-4.0. La politique
+canonique de l'organisation fait foi : `LICENSING.md` du dépôt
+`libre-ai/libre-ai`. Les révisions antérieures à cette bascule restent
+disponibles sous MIT ; aucun octroi passé n'est retiré.
+
+Cette licence sortante ne détermine pas la politique entrante : les dépendances
+doivent rester compatibles avec la doctrine du projet — MIT, Apache-2.0, BSD,
+MPL-2.0 ou équivalent acceptable ; AGPL, SSPL ou dépendances à usage
+incompatible sont interdites sans décision explicite (`deny.toml`).
 
 La trajectoire nominale est :
 

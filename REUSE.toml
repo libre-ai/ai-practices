@@ -6,7 +6,6 @@ version = 1
 # wins, except where `precedence = "override"` is set.
 [[annotations]]
 path = [
-  ".github/**",
   ".gitattributes",
   ".gitignore",
   ".gitlab-ci.yml",
@@ -29,11 +28,35 @@ SPDX-License-Identifier = "EUPL-1.2"
 # the documentation licence applies to it (LICENSING.md, DATA-PROVENANCE.md).
 # The media review sheets under `content/media/**` are first-party records
 # *about* third-party media; the media files themselves are carved out below.
+#
+# The boundary this repository applies, stated explicitly because the canonical
+# table only names its endpoints: a file is reciprocal when its *values decide
+# an outcome* (the `contracts/authz/**` case — a rulebook, a gate threshold, an
+# authorization rule), and editorial when it *describes* content that an engine
+# renders. The corpus is the second case. Every rule that governs a session —
+# draw size, axis interleaving, difficulty ordering and the practice-level
+# thresholds — lives in Rust (`apps/web/src/lib.rs`, `crates/session`); the
+# YAML carries scenarios, prose feedback and pedagogical weights. Four of these
+# files are baked into the wasm client with `include_str!`, which is a
+# packaging detail of the build, not a licensing criterion: it changes where
+# the bytes travel, not whether they decide anything. Should this repository
+# ever ship a file whose values determine a verdict, that file takes the
+# software licence and is declared here explicitly.
 [[annotations]]
 path = ["*.md", "**/*.md", "content/**", "docs/**"]
 precedence = "closest"
 SPDX-FileCopyrightText = "2026 Libre AI contributors"
 SPDX-License-Identifier = "CC-BY-4.0"
+
+# Repository automation. Declared *after* the Markdown rule on purpose: issue
+# and pull-request templates are forge inputs, not editorial documents, so a
+# future `.github/**/*.md` must not be captured by the block above. LICENSING.md
+# maps `.github/**` to `EUPL-1.2` with no extension-based exception.
+[[annotations]]
+path = [".github/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "EUPL-1.2"
 
 # Interoperability contracts, synthetic test fixtures and generic build and
 # qualification harnesses. Synthetic fixtures are software test material, not a
@@ -52,14 +75,46 @@ precedence = "closest"
 SPDX-FileCopyrightText = "2026 Libre AI contributors"
 SPDX-License-Identifier = "EUPL-1.2"
 
+# Generated Libre AI design-system output, vendored from `portal-forge` and
+# kept in two copies (the web app and the `ui` crate). `libre-ia/manifest.json`
+# records the build and the SHA-256 of each artefact; those digests match the
+# canonical output byte for byte. LICENSING.md maps that output to `Apache-2.0`
+# ("Client-facing design/web packages and application templates", canonical
+# `packages/design-system/**`), so declaring it here keeps the vendored copy
+# from silently inheriting a narrower grant from the `apps/**` / `crates/**`
+# default. A first-party copy offered under two different grants would be
+# resolved by recipients in favour of the more permissive one anyway.
+# `libre-ia-bridge.css`, `styles.css` and the PWA `apps/web/assets/manifest.json`
+# are first-party, not generated output, and stay EUPL-1.2.
+[[annotations]]
+path = [
+  "apps/web/assets/components.css",
+  "apps/web/assets/libre-ia/**",
+  "apps/web/assets/themes.css",
+  "apps/web/assets/tokens.css",
+  "crates/ui/assets/components.css",
+  "crates/ui/assets/libre-ia/**",
+  "crates/ui/assets/themes.css",
+  "crates/ui/assets/tokens.css",
+]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
 # Third-party self-hosted fonts (Fontsource 5.2.8). Copyright lines are the
 # ones recorded in each font's own `name` table; both remain under the SIL Open
 # Font License. `override` keeps the surrounding first-party default from
-# reaching them.
+# reaching them. The value carries the year and holder only: the
+# `SPDX-FileCopyrightText` tag already supplies the word "Copyright", and this
+# is the form used by every other annotation in this file and by the other
+# repositories vendoring the same two binaries.
 [[annotations]]
-path = ["apps/web/assets/fonts/inter-latin-wght-normal.woff2", "crates/ui/assets/fonts/inter-latin-wght-normal.woff2"]
+path = [
+  "apps/web/assets/fonts/inter-latin-wght-normal.woff2",
+  "crates/ui/assets/fonts/inter-latin-wght-normal.woff2",
+]
 precedence = "override"
-SPDX-FileCopyrightText = "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)"
+SPDX-FileCopyrightText = "2016 The Inter Project Authors (https://github.com/rsms/inter)"
 SPDX-License-Identifier = "OFL-1.1"
 
 [[annotations]]
@@ -68,7 +123,7 @@ path = [
   "crates/ui/assets/fonts/plus-jakarta-sans-latin-wght-normal.woff2",
 ]
 precedence = "override"
-SPDX-FileCopyrightText = "Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)"
+SPDX-FileCopyrightText = "2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)"
 SPDX-License-Identifier = "OFL-1.1"
 
 # Synthetic visual media reused under acquired rights (ADR 0008). These are not
