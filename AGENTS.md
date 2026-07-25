@@ -1,78 +1,60 @@
-# rumble-ai-practices — consignes agents
+# AGENTS.md
 
-## Identité
+Canonical agent-context surface for this repository. `CLAUDE.md` is a minimal adapter that imports this file.
 
-`rumble-ai-practices` est un produit Rumble multi-plateforme qui entraîne des réflexes professionnels d'usage de l'IA. Le cœur du risque est éditorial : une application techniquement correcte mais un corpus biaisé ou faux est un échec.
+## Purpose
 
-## Doctrine
+AI Practices trains professional reflexes in the use of AI. The core risk is editorial rather than technical: an application that is correct in every engineering respect but carries a biased or false corpus is a failure.
 
-- **Rust-first + Portal** : invariants métier, scoring, validation corpus et audit vivent en Rust ; les primitives client partagées, tokens, accessibilité, i18n UI et shells natifs/web relèvent de Portal.
-- **Content-as-data** : les questions sont des fichiers versionnés, pas du texte codé dans l'UI.
-- **Validation humaine obligatoire** : aucune question ou correction générée par IA n'est publiée sans revue.
-- **Nuance > binaire** : préférer les scénarios contextualisés aux vrai/faux simplistes.
-- **Feedback pédagogique** : expliquer le risque et l'action recommandée, pas seulement "bravo/incorrect".
-- **Pas d'usage RH implicite** : pas de leaderboard nominatif, pas de score global humiliant, pas de profilage caché.
-- **Médias IA sous contrôle** : pas de visage humain généré par IA hors cas justifié et audité.
-- **Souveraineté** : self-hostable, build local et revue localhost par défaut ; aucune plateforme cloud dans le flux nominal.
-- **Preuve > promesse** : tout incrément doit laisser une commande de vérification reproductible.
+## Scope / Non-scope
 
-## Architecture cible
+- **Reserved home.** This repository is the public reserved home of AI Practices. The product is being rebuilt in the canonical base repository [`libre-ai/libre-ai`](https://github.com/libre-ai/libre-ai) (multi-repo topology, [ADR-0008](https://github.com/libre-ai/libre-ai/blob/main/docs/adr/0008-multi-repo-target-topology-and-brand.md)); it reopens as the real product repository when the owner activates it (wave 4).
+- The implementation carried here (Rust workspace `crates/{domain,content,audit,session,store,api,cli,ui}` and `apps/web`, content corpus, schemas, audit tooling) is **frozen for reference**.
+- Non-scope: new product development in this repository until activation.
 
-```text
-crates/
-  domain/    types purs : Question, Scenario, Choice, RiskAxis, Score, Feedback
-  content/   chargement YAML/JSON, validation schema, règles de publication
-  audit/     audit existant, biais média, cohérence source/correction
-  session/   progression, réponses, synthèse pédagogique
-  api/       adapter HTTP Axum
-  cli/       validation, audit, import/export, fixtures
-  ui/        composants métier consommant Portal
-apps/
-  web/       PWA Rust/WASM mobile-first
-  desktop/   Tauri 2 après PWA validée
-  mobile/    SwiftUI/Compose via Portal après preuve produit
-content/
-  questions/ corpus versionné
-schemas/     contrats lisibles par agents
-```
+## Editorial doctrine (frozen for reference)
 
-## Quality gates attendus dès que le code existe
+These rules governed the product built here. They are recorded because they explain why the corpus has the shape it has — not as instructions to build against today.
 
-```bash
-cargo fmt --all --check
-cargo check --workspace
-cargo test --workspace
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo deny check
-```
+- **Content-as-data** — questions are versioned files, never text hard-coded in the UI.
+- **Human validation is mandatory** — no AI-generated question or correction is published without review.
+- **Nuance over binary** — contextualised scenarios rather than simplistic true/false.
+- **Pedagogical feedback** — explain the risk and the recommended action, not just right/wrong.
+- **No implicit HR use** — no named leaderboard, no humiliating global score, no hidden profiling.
+- **AI media under control** — no AI-generated human face outside a justified and audited case.
+- **Sovereignty** — self-hostable, local build and localhost review by default; no cloud platform in the nominal flow.
+- **Evidence over promise** — every increment leaves a reproducible verification command.
 
-Pour la PWA quand elle existe :
+## Commands
 
-```bash
-# nom exact à stabiliser avec la stack Rust/WASM retenue et Portal
-cargo check --target wasm32-unknown-unknown
-# puis smoke navigateur/mobile avec Playwright si un harness web est ajouté
-```
+Verified against `Cargo.toml`, `justfile` and `scripts/`:
 
-## Règles de modification
+- Rust workspace: `cargo test --workspace` (members: `crates/domain`, `crates/content`, `crates/audit`, `crates/session`, `crates/store`, `crates/api`, `crates/cli`, `crates/ui`, `apps/web`).
+- Lint: `cargo clippy --workspace --all-targets --all-features -- -D warnings`.
+- Dependency policy: `cargo deny check` (`deny.toml`).
+- Local serve: `just serve-local`.
+- Build: `scripts/build-all.sh`. Disposable Postgres for tests: `scripts/test-postgres-disposable.sh`.
 
-- Lire les docs et fichiers concernés avant édition.
-- Préférer de petits changements réversibles.
-- Documenter toute décision structurante dans `docs/adrs/`.
-- Ne jamais ajouter de dépendance majeure sans justification licence, souveraineté, maintenance, alternatives rejetées.
-- Ne jamais introduire de collecte de données personnelles sans mise à jour de `docs/security-rgpd.md`.
-- Ne jamais publier de contenu pédagogique sans métadonnées de revue.
-- Ne jamais masquer un biais média par une explication défensive : si doute, marquer `blocked`.
+## CI gates
 
-## Priorité d'implémentation
+- `Context hygiene` (`.github/workflows/context-hygiene.yml`)
+- `Hygiene` (`.github/workflows/hygiene.yml`)
+- `DB inspection` (`.github/workflows/db-inspection.yml`)
 
-1. Créer workspace Rust minimal.
-2. Implémenter `crates/domain` et tests d'invariants.
-3. Implémenter `crates/content` avec validation de `schemas/question.schema.json`.
-4. Implémenter `crates/audit` avec rapports déterministes.
-5. Créer CLI `validate-corpus` et `audit-corpus`.
-6. Ajouter `crates/session` et synthèse pédagogique.
-7. Ajouter API Axum.
-8. Ajouter PWA Rust/WASM consommant Portal.
-9. Évaluer desktop Tauri.
-10. Évaluer mobile SwiftUI/Compose via Portal seulement après preuves sécurité/offline.
+## Links
+
+- [README](README.md) · [Français](README.fr.md)
+- [docs/README.md](docs/README.md) — documentation index
+- [docs/architecture.md](docs/architecture.md), [docs/api-contracts.md](docs/api-contracts.md)
+- [docs/adrs/](docs/adrs/) — ten accepted ADRs, including `0003-content-governance-and-no-rh-scoring`, `0004-media-ai-bias-review` and `0009-cohorte-per-item-k-anon`
+- [SECURITY.md](SECURITY.md)
+
+## Modification rules
+
+- Read the relevant docs and files before editing.
+- Prefer small, reversible changes.
+- Record any structural decision in `docs/adrs/`.
+- Never add a major dependency without a licence, sovereignty, maintenance and rejected-alternatives justification.
+- Never introduce personal-data collection without updating the security and GDPR documentation.
+- Never publish pedagogical content without review metadata.
+- Never explain away a media bias defensively: when in doubt, mark it `blocked`.
