@@ -68,4 +68,24 @@ Pour suivre l'avancement ou contribuer, ouvrez issues et pull requests dans [`li
 
 ## Licence
 
-EUPL-1.2.
+Les licences sont déclarées par chemin dans [`REUSE.toml`](REUSE.toml) ; les
+textes complets sont dans [`LICENSES/`](LICENSES/).
+
+- `EUPL-1.2` — l'espace de travail Rust, l'application web, la configuration du
+  dépôt et les prompts opérationnels
+- `Apache-2.0` — les contrats JSON Schema, les fixtures de test et l'outillage
+  de construction
+- `CC-BY-4.0` — la documentation et le corpus de contenu pédagogique
+
+Deux ensembles de matériel tiers sont exclus de ces déclarations : les polices
+auto-hébergées restent en `OFL-1.1` sous le copyright de leurs auteurs
+respectifs, et les médias visuels synthétiques sous `apps/web/assets/media/`
+sont réutilisés sous droits acquis — Libre AI n'en détient pas le copyright et
+n'accorde aucune licence dessus (voir
+[`LICENSES/LicenseRef-Acquired-Rights-Media.txt`](LICENSES/LicenseRef-Acquired-Rights-Media.txt)
+et l'ADR 0008).
+
+La politique canonique de l'organisation est
+[`LICENSING.md`](https://github.com/libre-ai/libre-ai/blob/main/LICENSING.md).
+Les révisions historiques publiées sous MIT restent disponibles selon ces
+termes.

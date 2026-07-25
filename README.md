@@ -68,4 +68,22 @@ To follow progress or contribute, open issues and pull requests in [`libre-ai/li
 
 ## License
 
-EUPL-1.2.
+Licences are declared per path in [`REUSE.toml`](REUSE.toml); full texts are in
+[`LICENSES/`](LICENSES/).
+
+- `EUPL-1.2` — the Rust workspace, the web application, repository
+  configuration and the operational prompts
+- `Apache-2.0` — the JSON Schema contracts, test fixtures and build tooling
+- `CC-BY-4.0` — the documentation and the pedagogical content corpus
+
+Two classes of third-party material are carved out of those declarations: the
+self-hosted fonts remain `OFL-1.1` under their own project authors' copyright,
+and the synthetic visual media under `apps/web/assets/media/` are reused under
+acquired rights — Libre AI does not hold their copyright and grants no licence
+in them (see
+[`LICENSES/LicenseRef-Acquired-Rights-Media.txt`](LICENSES/LicenseRef-Acquired-Rights-Media.txt)
+and ADR 0008).
+
+The canonical organization-wide policy is
+[`LICENSING.md`](https://github.com/libre-ai/libre-ai/blob/main/LICENSING.md).
+Historical revisions published under MIT remain available under those terms.

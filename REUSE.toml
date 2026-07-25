@@ -1,0 +1,84 @@
+version = 1
+
+# First-party software: the Rust workspace, the web application and repository
+# configuration. Annotations follow the canonical policy in
+# libre-ai/libre-ai/LICENSING.md; within this file the last matching annotation
+# wins, except where `precedence = "override"` is set.
+[[annotations]]
+path = [
+  ".github/**",
+  ".gitattributes",
+  ".gitignore",
+  ".gitlab-ci.yml",
+  "Cargo.lock",
+  "Cargo.toml",
+  "apps/**",
+  "crates/**",
+  "db-security-manifest.json",
+  "deny.toml",
+  "justfile",
+  "lighthouserc.json",
+]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "EUPL-1.2"
+
+# Editorial documentation, first-party project records, and the pedagogical
+# content corpus. The corpus is first-party authored curriculum material — not
+# a real-world dataset, an imported model output or a third-party corpus — so
+# the documentation licence applies to it (LICENSING.md, DATA-PROVENANCE.md).
+# The media review sheets under `content/media/**` are first-party records
+# *about* third-party media; the media files themselves are carved out below.
+[[annotations]]
+path = ["*.md", "**/*.md", "content/**", "docs/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# Interoperability contracts, synthetic test fixtures and generic build and
+# qualification harnesses. Synthetic fixtures are software test material, not a
+# published dataset (DATA-PROVENANCE.md).
+[[annotations]]
+path = ["fixtures/**", "schemas/**", "scripts/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Operational prompts are directly consumed by the engineering workflow and
+# remain reciprocal, overriding the Markdown rule above.
+[[annotations]]
+path = ["prompts/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "EUPL-1.2"
+
+# Third-party self-hosted fonts (Fontsource 5.2.8). Copyright lines are the
+# ones recorded in each font's own `name` table; both remain under the SIL Open
+# Font License. `override` keeps the surrounding first-party default from
+# reaching them.
+[[annotations]]
+path = ["apps/web/assets/fonts/inter-latin-wght-normal.woff2", "crates/ui/assets/fonts/inter-latin-wght-normal.woff2"]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = [
+  "apps/web/assets/fonts/plus-jakarta-sans-latin-wght-normal.woff2",
+  "crates/ui/assets/fonts/plus-jakarta-sans-latin-wght-normal.woff2",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Copyright 2020 The Plus Jakarta Sans Project Authors (https://github.com/tokotype/PlusJakartaSans)"
+SPDX-License-Identifier = "OFL-1.1"
+
+# Synthetic visual media reused under acquired rights (ADR 0008). These are not
+# first-party works: the copyright is held by a third party, the generating
+# model is unrecorded, and the proof of rights lives outside this repository by
+# design. No outbound licence can be asserted, so none is — `NOASSERTION` plus
+# a marker recording the absence of a grant. `override` is required so that no
+# `apps/**` default can silently turn this material into a first-party grant.
+[[annotations]]
+path = ["apps/web/assets/media/**"]
+precedence = "override"
+SPDX-FileCopyrightText = "NOASSERTION"
+SPDX-License-Identifier = "LicenseRef-Acquired-Rights-Media"
