@@ -51,13 +51,19 @@ The four required checks, by the name that appears in `required_status_checks`:
 
 Correctness gates, all inside `Repository hygiene`:
 
-- `cargo test --workspace --all-targets --all-features -- --include-ignored`,
-  plus `cargo test --workspace --doc` because `--all-targets` excludes doctests.
-  A pinned PostgreSQL service backs the ten `#[sqlx::test]` cases in
-  `crates/store` and `crates/api`; those cases carry `#[ignore]` so that a bare
-  `cargo test` stays green on a machine with no database, and
-  `scripts/test-postgres-disposable.sh` passes `--include-ignored` to run them
-  locally.
+- `cargo test --workspace --all-targets --features rumble-ai-practices-web/ssr
+-- --include-ignored`, plus the same command with `--doc` because
+  `--all-targets` excludes doctests. A pinned PostgreSQL service backs the ten
+  `#[sqlx::test]` cases in `crates/store` and `crates/api`; those cases carry
+  `#[ignore]` so that a bare `cargo test` stays green on a machine with no
+  database, and `scripts/test-postgres-disposable.sh` passes `--include-ignored`
+  to run them locally.
+  **Not `--all-features`**: `apps/web` declares `web`, `desktop` and `mobile` as
+  mutually exclusive render targets, so `--all-features` enables a combination
+  the application does not support and pulls the Dioxus desktop stack (GTK /
+  WebKit system libraries), which fails on a clean Linux runner while passing on
+  a macOS workstation. Both selections run the same 68 tests plus 10 ignored;
+  the render targets are covered by the `dx build --platform web` gate.
 - `cargo deny --offline check bans licenses sources` blocks the merge. It is a
   pure function of `Cargo.lock` and `deny.toml`, so it cannot redden without a
   commit.

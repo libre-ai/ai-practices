@@ -38,6 +38,7 @@ cd "$repository"
 # test that needs it — passing while proving nothing.
 SQLX_OFFLINE=true \
 DATABASE_URL="postgres://postgres@localhost/ai_practices_root?host=${encoded_socket}" \
-cargo test --workspace --all-targets --all-features -- --include-ignored
+cargo test --workspace --all-targets \
+  --features rumble-ai-practices-web/ssr -- --include-ignored
 
 echo "AI Practices disposable PostgreSQL suite: PASS"

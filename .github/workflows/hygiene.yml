@@ -154,20 +154,37 @@ jobs:
       # decorative until someone promoted it by hand.
       #
       # `--all-targets` covers integration tests and benches that a bare
-      # `cargo test` skips; `--all-features` covers feature-gated code. Neither
-      # covers doctests, which `--all-targets` silently excludes — hence the
-      # second invocation. No cache: a warm `target/` is exactly what let a
-      # broken tree report success here before.
+      # `cargo test` skips, and it silently EXCLUDES doctests — hence the second
+      # invocation below. No cache: a warm `target/` is exactly what let a broken
+      # tree report success here before.
+      #
+      # Why NOT `--all-features`, which would normally be the right default:
+      # `apps/web` declares `web`, `desktop` and `mobile` as four mutually
+      # exclusive render targets over one shared `Root` (see its Cargo.toml).
+      # `--all-features` turns them all on at once — a combination the
+      # application is not written to support — and drags in the Dioxus desktop
+      # stack, which needs GTK/WebKit system libraries. It fails on a clean
+      # runner with `The system library glib-2.0 required by crate glib-sys was
+      # not found`, while passing on a macOS workstation where those libraries
+      # happen to exist. That is a false signal in both directions.
+      #
+      # Measured, not assumed: `--all-features` and the explicit selection below
+      # both run 68 tests plus 10 ignored, byte for byte. The only feature-gated
+      # item in the workspace is `render_app_html` behind `ssr`, enabled
+      # explicitly here so its cfg block still compiles; it has no caller and no
+      # test. The render targets are covered by the `dx build --platform web`
+      # gate further down, which is how the application is actually shipped.
       # ---------------------------------------------------------------------
       - name: Workspace tests, including the database-backed cases (fail closed)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
         run: |
           set -euo pipefail
-          cargo test --workspace --all-targets --all-features -- --include-ignored
+          cargo test --workspace --all-targets \
+            --features rumble-ai-practices-web/ssr -- --include-ignored
           # `--all-targets` excludes doctests entirely; without this line a
           # broken doctest would never be seen.
-          cargo test --workspace --doc
+          cargo test --workspace --doc --features rumble-ai-practices-web/ssr
 
       # ---------------------------------------------------------------------
       # Web application build gate.
