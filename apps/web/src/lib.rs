@@ -109,7 +109,20 @@ enum Stage {
 
 #[component]
 pub fn App() -> Element {
-    // theme: None = follow OS; Some("dark"|"light") = explicit toggle.
+    // theme: None = no explicit choice; Some("dark"|"light") = explicit toggle.
+    //
+    // `None` renders `data-theme=""`, an attribute value that matches neither
+    // `[data-theme="dark"]` nor `[data-theme="light"]`. What that state *looks
+    // like* is therefore decided in CSS, not here: `libre-ia-bridge.css` maps
+    // `html:root, [data-theme=""]` to the light variant, and to the dark one
+    // under `@media (prefers-color-scheme: dark)`. So `None` now means "light
+    // unless the OS asks for dark".
+    //
+    // It used to be documented here as "follow OS", which it never did: no
+    // stylesheet read `prefers-color-scheme`, and `:root` in the design
+    // system's theme adapter maps to the dark variant, so `None` rendered dark
+    // whatever the OS said. Measured in Chromium before the change: an OS in
+    // light and an OS in dark both produced `background: #000000`.
     let mut theme = use_signal(|| None::<&'static str>);
     let mut stage = use_signal(|| Stage::Intro);
     // recorded answers: (category, motif, chosen feedback | None for "idk").

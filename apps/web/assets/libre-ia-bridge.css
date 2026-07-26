@@ -1,3 +1,74 @@
+/* ---------------------------------------------------------------------------
+ * Product default theme.
+ *
+ * themes.css maps the semantic layer to its *dark* variant on `:root`, so the
+ * absence of an explicit choice rendered dark. `apps/web/src/lib.rs` documented
+ * that state as "follow OS", but nothing in the product ever read
+ * `prefers-color-scheme`: measured in Chromium, an OS set to light and an OS set
+ * to dark both produced `background: #000000`. The default was dark, full stop.
+ *
+ * The product default is now the light theme, and the OS preference is honoured
+ * for the first time: `prefers-color-scheme: dark` selects the dark variant,
+ * anything else (including "no preference", which `prefers-color-scheme: light`
+ * matches) selects the light one. Ignoring a system-level appearance preference
+ * is hard to defend when that preference exists precisely for accessibility.
+ *
+ * Declared here, in first-party CSS, and not in themes.css: that file is a
+ * generated artefact of the design system, pinned by SHA-256 in
+ * `libre-ia/manifest.json`. Which theme a product defaults to is a product
+ * decision, not a design-system one.
+ *
+ * Both selectors are load-bearing:
+ *   - `html:root` covers `body` and the page canvas, which live outside the
+ *     themed wrapper;
+ *   - `[data-theme=""]` covers the wrapper itself. `lib.rs` renders
+ *     `<div class="app-root" data-theme="">` when no theme is chosen (verified
+ *     in the built bundle), and an empty attribute value matches neither
+ *     `[data-theme="dark"]` nor `[data-theme="light"]`.
+ *
+ * `html:root` rather than `:root`, and this is not decoration. themes.css also
+ * declares the dark variant on `:root`, at the same specificity (0,1,0), so
+ * which one wins is decided by stylesheet order — and the Dioxus CLI does not
+ * emit `static_head` stylesheets in `main.rs` order. The built `index.html`
+ * lists them sorted by file name: components, fonts, libre-ia-bridge, styles,
+ * themes, tokens. themes.css therefore loads *after* this file, and a plain
+ * `:root` here lost: measured in Chromium, `.app-root` switched to the light
+ * variant while the page canvas stayed #000000 behind it. `html:root` is
+ * (0,1,1) and wins on specificity, whatever order the CLI picks.
+ *
+ * An explicit choice still wins: `[data-theme="light"]` and `[data-theme="dark"]`
+ * are declared on the wrapper by themes.css and are never matched by either
+ * selector below.
+ *
+ * To make the product default override the OS preference instead, delete the
+ * `@media` block: nothing else has to change. */
+html:root,
+[data-theme=""] {
+  color-scheme: light;
+  --color-background: var(--color-theme-light-background);
+  --color-surface-active: var(--color-theme-light-surface);
+  --color-foreground: var(--color-theme-light-foreground);
+  --color-muted: var(--color-theme-light-muted);
+  --color-border: var(--color-theme-light-border);
+  --color-action: var(--color-theme-light-action);
+  --color-action-text: var(--color-theme-light-actionText);
+  --color-focus: var(--color-theme-light-focus);
+}
+
+@media (prefers-color-scheme: dark) {
+  html:root,
+  [data-theme=""] {
+    color-scheme: dark;
+    --color-background: var(--color-theme-dark-background);
+    --color-surface-active: var(--color-theme-dark-surface);
+    --color-foreground: var(--color-theme-dark-foreground);
+    --color-muted: var(--color-theme-dark-muted);
+    --color-border: var(--color-theme-dark-border);
+    --color-action: var(--color-theme-dark-action);
+    --color-action-text: var(--color-theme-dark-actionText);
+    --color-focus: var(--color-theme-dark-focus);
+  }
+}
 /* Declared on the document root *and* on every themed element, mirroring the
  * selectors of the theme adapter (themes.css).
  *

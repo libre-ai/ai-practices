@@ -74,7 +74,7 @@ body {
   border-color: var(--color-accent);
 }
 .theme-toggle:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -527,12 +527,16 @@ body {
   color: var(--color-text-secondary);
   margin: var(--spacing-md) 0 var(--spacing-sm);
 }
-/* the calm cue: reflection over speed (UX direction a) */
+/* the calm cue: reflection over speed (UX direction a).
+ * No opacity here: the muted token clears AA by only 0.33 in the light theme
+ * (4.83:1 on the light background), so any multiplier spends headroom the
+ * theme does not have -- `opacity: .85` measured 3.60:1 in Chromium, below
+ * the 4.5:1 floor for body text. Recede with size and weight, not by fading
+ * the token. */
 .calm-hint {
   font-family: var(--font-family-sans);
   font-size: 13px;
   color: var(--color-text-secondary);
-  opacity: 0.85;
   margin: 0 0 var(--spacing-lg);
   display: flex;
   align-items: center;
@@ -593,7 +597,7 @@ body {
   min-width: 0;
 }
 .choice:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 .choice.locked {
@@ -658,7 +662,7 @@ body {
 
 }
 .validate-btn:focus-visible {
-  outline: 2px solid var(--color-text);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 .validate-btn:disabled {
@@ -700,7 +704,7 @@ body {
   border-color: var(--color-accent);
 }
 .idk:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -800,7 +804,7 @@ body {
   border-color: var(--color-accent);
 }
 .fb-trigger:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 .fb-trigger::before {
@@ -941,7 +945,7 @@ body {
   border-color: var(--color-accent);
 }
 .start-btn:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
