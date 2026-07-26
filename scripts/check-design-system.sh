@@ -84,7 +84,24 @@ found=0
 for f in $first_party_css; do
   hits=$(awk -v F="$f" -v named="$named" '
     BEGIN { named_re = "(^|[^-a-zA-Z0-9#])(" named ")([^-a-zA-Z0-9]|$)" }
-    { line = $0; sub(/\/\*.*\*\//, "", line) }
+    # Comments are stripped with a state machine, not a single-line sub(): a
+    # /* … */ block spanning several lines used to leave its prose exposed, so
+    # any comment that merely *named* a colour ("white text on white") was
+    # reported as a hard-coded literal. Only declarations are of interest here,
+    # and a declaration is never inside a comment.
+    {
+      line = $0
+      if (incomment) {
+        p = index(line, "*/")
+        if (p == 0) next
+        line = substr(line, p + 2); incomment = 0
+      }
+      while ((s = index(line, "/*")) > 0) {
+        rest = substr(line, s + 2); e = index(rest, "*/")
+        if (e == 0) { line = substr(line, 1, s - 1); incomment = 1; break }
+        line = substr(line, 1, s - 1) " " substr(rest, e + 2)
+      }
+    }
     line ~ /#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]/ ||
     line ~ /(rgb|rgba|hsl|hsla|hwb|oklch|oklab|lab|lch|color-mix)[ \t]*\(/ ||
     line ~ named_re {
@@ -222,6 +239,183 @@ dark-focus|color-theme-dark-focus|color-theme-dark-background|3
 light-border|color-theme-light-border|color-theme-light-background|3
 dark-border|color-theme-dark-border|color-theme-dark-background|3
 PAIRS
+
+echo
+echo "== 7. WCAG contrast of the *resolved product vocabulary*, per theme =="
+# Check 6 proves the design system's own token pairs are sound. That is not the
+# same claim as "the product renders legibly", and the gap between the two is
+# where a 1:1 light theme lived undetected: every pair in check 6 was green
+# while the light theme painted #FFFFFF text on a #FFFFFF background.
+#
+# Two independent mechanisms produced it, and either alone is enough:
+#
+#   a) `--color-text: var(--color-foreground)` declared on :root only. A custom
+#      property containing var() is substituted at computed-value time on the
+#      element the declaration matches; only the result inherits. themes.css
+#      switches --color-foreground on [data-theme="light"], which matches
+#      div.app-root — never :root. So --color-text froze to the dark value and
+#      inherited that literal into the light theme.
+#   b) a background painted with a token that has no theme variant at all
+#      (tokens.css carries a flat `--color-surface: #000000` alongside the
+#      themed `--color-surface-active`).
+#
+# So this check resolves the vocabulary the way the browser does — following
+# aliases, and freezing them at :root when the bridge is not declared on the
+# themed element — and measures the pairs the stylesheet actually paints. The
+# tokens are read out of styles.css rather than restated here, so the check
+# follows the product instead of drifting from it.
+
+# Is the product vocabulary declared on the element that carries the theme?
+# Everything up to the first "{", comments stripped.
+bridge=apps/web/assets/libre-ia-bridge.css
+bridge_selector=$(awk '
+  { line = $0
+    if (inc) { p = index(line, "*/"); if (p == 0) next; line = substr(line, p + 2); inc = 0 }
+    while ((s = index(line, "/*")) > 0) {
+      rest = substr(line, s + 2); e = index(rest, "*/")
+      if (e == 0) { line = substr(line, 1, s - 1); inc = 1; break }
+      line = substr(line, 1, s - 1) " " substr(rest, e + 2)
+    }
+    b = index(line, "{")
+    if (b > 0) { printf "%s", substr(line, 1, b - 1); exit }
+    printf "%s ", line
+  }' "$bridge")
+case "$bridge_selector" in
+  *'[data-theme]'*) bridge_themed=yes ;;
+  *) bridge_themed=no ;;
+esac
+printf 'product vocabulary declared on: %s\n' "$(printf '%s' "$bridge_selector" | tr -s ' \n' ' ')"
+printf 'follows the themed element: %s\n\n' "$bridge_themed"
+
+# First `var(--…)` used by property $2 in the rule block of selector $1.
+painted() {
+  awk -v sel="$1" -v prop="$2" '
+    index($0, sel " {") == 1 { inb = 1; next }
+    inb && index($0, "}") == 1 { inb = 0 }
+    inb && match($0, "^[ \t]*" prop ":[ \t]*var\\(--[a-zA-Z0-9-]+\\)") {
+      s = substr($0, RSTART, RLENGTH); sub(/.*var\(/, "", s); sub(/\).*/, "", s)
+      print s; exit
+    }' apps/web/assets/styles.css
+}
+
+# Resolve a token to a #rrggbb the way it computes on the themed element.
+resolve() {
+  awk -v want="$1" -v theme="$2" -v themed="$bridge_themed" '
+    function resolve(tok, th) {
+      if (tok in alias) return resolve(alias[tok], (themed == "yes") ? th : "dark")
+      if ((th, tok) in sem) return prim[sem[th, tok]]
+      if (tok in prim) return prim[tok]
+      return ""
+    }
+    FILENAME ~ /tokens\.css$/ {
+      if (match($0, /--[a-zA-Z0-9-]+:/)) {
+        k = substr($0, RSTART, RLENGTH - 1); v = substr($0, RSTART + RLENGTH)
+        gsub(/^[ \t]+/, "", v); sub(/[ \t]*;[ \t]*$/, "", v)
+        if (v ~ /^#/) prim[k] = v
+      }
+      next
+    }
+    FILENAME ~ /themes\.css$/ {
+      if ($0 ~ /\[data-theme="light"\]/) cur = "light"
+      else if ($0 ~ /\[data-theme="dark"\]/ || $0 ~ /^:root/) cur = "dark"
+      if (match($0, /--[a-zA-Z0-9-]+:[ \t]*var\(--[a-zA-Z0-9-]+\)/)) {
+        s = substr($0, RSTART, RLENGTH)
+        k = substr(s, 1, index(s, ":") - 1)
+        t = s; sub(/.*var\(/, "", t); sub(/\).*/, "", t)
+        sem[cur, k] = t
+      }
+      next
+    }
+    {
+      if (match($0, /^[ \t]*--[a-zA-Z0-9-]+:[ \t]*var\(--[a-zA-Z0-9-]+\)/)) {
+        s = substr($0, RSTART, RLENGTH); gsub(/^[ \t]+/, "", s)
+        k = substr(s, 1, index(s, ":") - 1)
+        t = s; sub(/.*var\(/, "", t); sub(/\).*/, "", t)
+        if (!(k in alias)) alias[k] = t
+      }
+    }
+    END { print resolve(want, theme) }
+  ' crates/ui/assets/tokens.css crates/ui/assets/themes.css "$bridge"
+}
+
+contrast() {
+  awk -v a="$1" -v b="$2" -v t="$3" '
+    function h2d(s,   i, n) {
+      n = 0
+      for (i = 1; i <= length(s); i++) n = n * 16 + index("0123456789abcdef", tolower(substr(s, i, 1))) - 1
+      return n
+    }
+    function chan(c) { c = c / 255; return (c <= 0.04045) ? c / 12.92 : ((c + 0.055) / 1.055) ^ 2.4 }
+    function lum(x) { return 0.2126 * chan(h2d(substr(x, 2, 2))) \
+                           + 0.7152 * chan(h2d(substr(x, 4, 2))) \
+                           + 0.0722 * chan(h2d(substr(x, 6, 2))) }
+    BEGIN {
+      l1 = lum(a); l2 = lum(b)
+      r = (l1 > l2) ? (l1 + 0.05) / (l2 + 0.05) : (l2 + 0.05) / (l1 + 0.05)
+      printf "%.2f %s", r, (r + 0.005 >= t ? "PASS" : "FAIL")
+    }'
+}
+
+# The per-pair loop is fed by a pipe, so it runs in a subshell and cannot set
+# `status` for the parent. Verdicts are accumulated in files instead.
+tmpfail=$(mktemp); tmpcount=$(mktemp)
+trap 'rm -f "$tmpfail" "$tmpcount"' EXIT
+
+page_fg=$(painted '.app-root' 'color')
+page_bg=$(painted '.app-root' 'background')
+soft_fg=$(painted '.app-mast .brandmark' 'color')
+panel_bg=$(painted '.summary-panel' 'background')
+notice_bg=$(painted '.notice' 'background')
+cap_fg=$(painted '.theme-toggle' 'color')
+cap_bg=$(painted '.theme-toggle' 'background')
+
+pairs="page text|$page_fg|$page_bg|4.5
+secondary text on page|$soft_fg|$page_bg|4.5
+summary panel text|$page_fg|$panel_bg|4.5
+secondary text on panel|$soft_fg|$panel_bg|4.5
+notice text|$page_fg|$notice_bg|4.5
+control label on keycap|$cap_fg|$cap_bg|4.5"
+
+# A token that failed to extract would silently drop its pair and make the
+# check vacuously green — the same failure mode the zero-file guard exists for.
+for tokvar in page_fg page_bg soft_fg panel_bg notice_bg cap_fg cap_bg; do
+  eval "v=\$$tokvar"
+  [ -n "$v" ] || fail "check 7: could not read the token for '$tokvar' from styles.css"
+done
+
+asserted=0
+for theme in dark light; do
+  printf '  -- theme: %s --\n' "$theme"
+  printf '%s\n' "$pairs" | while IFS='|' read -r label fgtok bgtok threshold; do
+    [ -n "${label:-}" ] || continue
+    fg=$(resolve "$fgtok" "$theme"); bg=$(resolve "$bgtok" "$theme")
+    if [ -z "$fg" ] || [ -z "$bg" ]; then
+      printf 'FAIL  %s/%s: unresolved (%s=%s, %s=%s)\n' "$theme" "$label" \
+        "$fgtok" "${fg:-?}" "$bgtok" "${bg:-?}" >&2
+      echo x >>"$tmpfail"; continue
+    fi
+    result=$(contrast "$fg" "$bg" "$threshold")
+    ratio=${result% *}; verdict=${result#* }
+    if [ "$verdict" = "PASS" ]; then
+      printf 'ok    %s/%s %s on %s = %s:1 (>= %s:1)\n' "$theme" "$label" "$fg" "$bg" "$ratio" "$threshold"
+    else
+      printf 'FAIL  %s/%s %s (%s) on %s (%s) = %s:1 (< %s:1)\n' "$theme" "$label" \
+        "$fgtok" "$fg" "$bgtok" "$bg" "$ratio" "$threshold" >&2
+      echo x >>"$tmpfail"
+    fi
+    echo x >>"$tmpcount"
+  done
+done
+asserted=$(wc -l <"$tmpcount" | tr -d ' ')
+if [ -s "$tmpfail" ]; then
+  fail "resolved product vocabulary fails WCAG AA in at least one theme"
+fi
+if [ "$asserted" -eq 0 ]; then
+  echo "::error::check 7 asserted 0 contrast pairs — extraction broke" >&2
+  status=1
+else
+  printf '\ncontrast pairs asserted: %d (both themes)\n' "$asserted"
+fi
 
 echo
 if [ "$status" -eq 0 ]; then
