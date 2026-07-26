@@ -365,7 +365,7 @@ painted() {
 # four `[data-verdict=…]` blocks rebind --v and --v-ink, and `juste` binds --v
 # to the brand colour, which is the pair that behaves differently per theme.
 resolve() {
-  awk -v want="$1" -v theme="$2" -v themed="$bridge_themed" '
+  awk -v want="$1" -v theme="$2" -v themed="$bridge_themed" -v vocsel="$bridge_selector" '
     function resolve(tok, th,   vctx, p) {
       p = index(tok, ":")
       if (p > 0) { vctx = substr(tok, 1, p - 1); tok = substr(tok, p + 1)
@@ -418,8 +418,14 @@ resolve() {
           pending = ""
         } else {
           sel = pending head; pending = ""
-          if (sel ~ /\[data-theme=""\]/) block = (inmedia == "dark") ? "default-os-dark" : "default"
-          else if (sel ~ /\[data-theme\]/) block = "vocabulary"
+          # The vocabulary block is identified by the selector already located
+          # by content (the block that declares --color-text), not by matching
+          # `[data-theme]` again. If someone drops `[data-theme]` from it, the
+          # aliases still resolve — frozen at :root, exactly as the browser
+          # would — and the run reports the resulting contrast failures instead
+          # of a wall of "unresolved", which says nothing about what broke.
+          if (sel == vocsel) block = "vocabulary"
+          else if (sel ~ /\[data-theme=""\]/) block = (inmedia == "dark") ? "default-os-dark" : "default"
           else if (match(sel, /\[data-verdict="[a-z]+"\]/)) {
             block = "verdict"
             vname = substr(sel, RSTART, RLENGTH); sub(/.*="/, "", vname); sub(/".*/, "", vname)
