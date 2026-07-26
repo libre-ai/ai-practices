@@ -175,6 +175,29 @@ jobs:
       # test. The render targets are covered by the `dx build --platform web`
       # gate further down, which is how the application is actually shipped.
       # ---------------------------------------------------------------------
+      # `crates/store` uses `sqlx::query!`, which verifies every statement
+      # against a live schema AT COMPILE TIME whenever DATABASE_URL is set. The
+      # per-test databases that `#[sqlx::test]` creates are migrated by the test
+      # harness, but that happens far too late — the crate has to compile first.
+      # Without this step the build fails with `relation "anonymous_sessions"
+      # does not exist`.
+      #
+      # Applying the migration here is what buys the verification rather than
+      # merely silencing it: setting SQLX_OFFLINE=true would also make the error
+      # go away, by switching the checking off. With the schema present, a typo
+      # in a SQL statement or a column that no longer exists fails the build.
+      - name: Apply migrations to the base database
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          for migration in crates/store/migrations/*.sql; do
+            echo "applying ${migration}"
+            psql --host=localhost --port=5432 --username=postgres --dbname=postgres \
+              --set=ON_ERROR_STOP=1 --file="$migration" > /dev/null
+          done
+          echo "ok    base schema present for compile-time query verification"
+
       - name: Workspace tests, including the database-backed cases (fail closed)
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
