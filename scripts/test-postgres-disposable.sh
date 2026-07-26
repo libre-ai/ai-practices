@@ -31,8 +31,13 @@ encoded_socket="$(python3 -c \
 
 repository="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repository"
+# `--include-ignored` is what makes this script worth running: the `#[sqlx::test]`
+# cases are marked `#[ignore]` so that a plain `cargo test` stays green on a
+# machine with no database instead of failing on a missing DATABASE_URL. Without
+# this flag the script would start up a PostgreSQL instance and then skip every
+# test that needs it — passing while proving nothing.
 SQLX_OFFLINE=true \
 DATABASE_URL="postgres://postgres@localhost/ai_practices_root?host=${encoded_socket}" \
-cargo test --workspace
+cargo test --workspace --all-targets --all-features -- --include-ignored
 
 echo "AI Practices disposable PostgreSQL suite: PASS"
