@@ -29,3 +29,108 @@ jobs:
           fi
       - name: Design-system consumption gate
         run: scripts/check-design-system.sh
+
+      # ---------------------------------------------------------------------
+      # Web application build gate.
+      #
+      # Why it lives in this job rather than a workflow of its own: a check only
+      # blocks a merge once its name is listed in the branch's
+      # `required_status_checks`. A new workflow would run green or red without
+      # blocking anything until someone promoted it by hand — decorative in the
+      # meantime. `Repository hygiene` is already required, so wiring the build
+      # in here makes it binding on its first run, with no branch-settings
+      # change.
+      #
+      # Why it is the LAST step: the checks above still fail in seconds, so the
+      # fast signal is unchanged; the build cost is only paid on a tree that is
+      # otherwise clean.
+      #
+      # What it is here to prevent: nothing in this repository built the
+      # application. `apps/web/assets/media/` was removed from the tree while
+      # `apps/web/src/main.rs` still declared it with `asset!`, and `main` stayed
+      # unbuildable across three merged pull requests without a single red check.
+      # ---------------------------------------------------------------------
+      - name: Rust wasm target
+        run: |
+          set -euo pipefail
+          rustup target add wasm32-unknown-unknown
+          rustc --version
+          cargo --version
+
+      - name: Pinned Dioxus CLI
+        env:
+          # Same shape as the db-inspection gate: fixed version, fixed archive,
+          # checksum verified before the binary is ever executed.
+          DX_VERSION: v0.7.9
+          DX_ARCHIVE: dx-x86_64-unknown-linux-gnu.tar.gz
+          DX_SHA256: 3b132551b480bc96f938f9f0d37936ee1190f994977539dcc347eaf38540d005
+        run: |
+          set -euo pipefail
+          mkdir -p .tools/dx
+          url="https://github.com/DioxusLabs/dioxus/releases/download/${DX_VERSION}/${DX_ARCHIVE}"
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+            --output "${RUNNER_TEMP}/${DX_ARCHIVE}" "$url"
+          printf '%s  %s\n' "$DX_SHA256" "${RUNNER_TEMP}/${DX_ARCHIVE}" \
+            | sha256sum --check --strict
+          tar -xzf "${RUNNER_TEMP}/${DX_ARCHIVE}" -C .tools/dx
+          chmod +x .tools/dx/dx
+          .tools/dx/dx --version
+
+      - name: Build the web application (fail closed)
+        run: |
+          set -euo pipefail
+          log="${RUNNER_TEMP}/web-build.log"
+
+          # Debug, not --release: the failure modes this gate exists for —
+          # missing assets, a crate that no longer compiles to wasm, a bundle
+          # that does not assemble — all surface in a debug build, at a
+          # fraction of the release cost (no wasm-opt pass).
+          if ! .tools/dx/dx build --package rumble-ai-practices-web --platform web \
+              > "$log" 2>&1; then
+            cat "$log"
+            echo "::error::the web application does not build"
+            exit 1
+          fi
+          cat "$log"
+
+          # Exit status alone is NOT sufficient. Observed on this repository:
+          # with a warm target directory `dx build` reuses the cached binary,
+          # prints "ERROR Failed to hash asset <path>: No such file or
+          # directory" for the missing folder asset, and still exits 0. A gate
+          # that only read $? would have called that build green.
+          # ANSI stripping goes through awk, like scripts/check-design-system.sh
+          # and for the same reason: `sed 's/\x1B...'` is a GNU extension that
+          # silently does nothing on BSD sed, which would make this count
+          # vacuously 0. `grep -c` prints 0 and exits 1 on no match, so the
+          # `|| true` keeps the counter at 0 instead of killing the step.
+          errors="$(awk '{gsub(/\033\[[0-9;]*[a-zA-Z]/,""); print}' "$log" \
+            | grep -cE '(^|[[:space:]])ERROR([[:space:]]|$)' || true)"
+          if [ "$errors" -ne 0 ]; then
+            echo "::error::dx reported ${errors} error line(s) while exiting 0"
+            exit 1
+          fi
+          echo "ok    dx reported no error line"
+
+      - name: Bundle is real (fail closed)
+        run: |
+          set -euo pipefail
+          out=target/dx/rumble-ai-practices-web-app/debug/web/public
+
+          test -d "$out" || { echo "::error::no bundle at $out"; exit 1; }
+          test -s "$out/index.html" || { echo "::error::empty or missing index.html"; exit 1; }
+
+          # Counters, not just "no failure": a wrong path or a renamed output
+          # directory would otherwise make every assertion above vacuously true.
+          wasm_count="$(find "$out" -name '*.wasm' -type f | wc -l | tr -d ' ')"
+          css_count="$(grep -oE 'href="[^"]+\.css"' "$out/index.html" | wc -l | tr -d ' ')"
+          echo "wasm modules: ${wasm_count} — stylesheets linked in index.html: ${css_count}"
+
+          [ "$wasm_count" -ge 1 ] || { echo "::error::bundle carries no wasm module"; exit 1; }
+          # main.rs declares six `static_head` stylesheets; the Dioxus CLI emits
+          # them sorted by file name, not in declaration order, so assert the
+          # count rather than the sequence.
+          [ "$css_count" -eq 6 ] || {
+            echo "::error::expected 6 stylesheets in index.html, found ${css_count}"
+            exit 1
+          }
+          echo "ok    the web bundle is present and populated"

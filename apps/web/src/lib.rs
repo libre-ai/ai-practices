@@ -944,6 +944,13 @@ fn framing_for(question: &Question) -> ScenarioFraming {
 fn artifact_for(question: &Question) -> Option<ScenarioArtifact> {
     // A media_review drill shows its actual generated visual (the drill IS the
     // image); the AI-synthetic disclosure is rendered by the view (ADR 0004/0008).
+    //
+    // The URL is deliberately literal, not a Manganis handle: the visual corpus
+    // is withdrawn from the tree, so the bundle carries no `assets/media/`
+    // directory and these 108 drills resolve to 404 until it is served again.
+    // Whether the drills should ship without their visuals is an editorial call,
+    // left to the owner; the code path stays intact so restoring the directory
+    // is the only step needed. See the note on the withdrawn `asset!` in main.rs.
     if let Some(file) = question.media.first() {
         return Some(ScenarioArtifact::Generated {
             src: format!("/assets/media/{file}"),

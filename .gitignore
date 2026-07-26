@@ -17,6 +17,10 @@ dist/
 *.p12
 
 # Local artifacts
+# /.tools/ holds the checksum-pinned binaries the CI gates download
+# (db-inspect, the Dioxus CLI). They must never be committed: a vendored
+# binary would also fail the REUSE gate.
+/.tools/
 /out/
 /tmp/
 *.log

@@ -55,11 +55,27 @@ mod web_app {
         "/assets/icon.svg",
         AssetOptions::builder().with_hash_suffix(false)
     );
-    #[used]
-    static MEDIA: Asset = asset!(
-        "/assets/media/",
-        AssetOptions::folder().with_hash_suffix(false)
-    );
+    // No `asset!("/assets/media/")` here, on purpose. The visual corpus was
+    // withdrawn from the tree (see the commit "chore(media): drop the
+    // references left by the withdrawn visual corpus"), and `asset!` is a
+    // *build-time* existence assertion: declaring a folder that is not in the
+    // tree fails the build outright ("Asset at /assets/media/ doesn't exist").
+    //
+    // Dropping the declaration is what makes the media optional rather than
+    // required. It costs nothing at runtime: the media URL is not derived from
+    // this handle — `artifact_for` in lib.rs formats `/assets/media/{file}`
+    // literally — so the path the withdrawal commit meant to keep is intact,
+    // and the drills light up again as soon as the directory is served.
+    //
+    // To bundle the media again: restore `apps/web/assets/media/`, re-add the
+    // declaration below, list it in `_assets`, and cover the files in
+    // REUSE.toml.
+    //
+    //     #[used]
+    //     static MEDIA: Asset = asset!(
+    //         "/assets/media/",
+    //         AssetOptions::folder().with_hash_suffix(false)
+    //     );
 
     /// Wraps the SSR-tested `App` with the design-system stylesheets and the
     /// mobile-first PWA head (installable, standalone, safe-area aware). The
@@ -82,7 +98,6 @@ mod web_app {
             STYLES_CSS,
             MANIFEST,
             ICON,
-            MEDIA,
         );
 
         rsx! { App {} }
