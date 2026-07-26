@@ -27,3 +27,5 @@ jobs:
             echo "::error::potential secret pattern found"
             exit 1
           fi
+      - name: Design-system consumption gate
+        run: scripts/check-design-system.sh

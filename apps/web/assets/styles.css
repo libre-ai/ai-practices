@@ -952,7 +952,7 @@ body {
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 35em) {
   .app-shell {
     max-width: 100%;
   }
