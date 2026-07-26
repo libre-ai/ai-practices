@@ -52,6 +52,27 @@ jobs:
       - name: Design-system consumption gate
         run: scripts/check-design-system.sh
 
+      # Content media references must point at files that exist. The web client
+      # turns `media[0]` into the literal URL `/assets/media/<file>`, so a
+      # reference with no file behind it is a 404 in a learner's face — and
+      # nothing here noticed when 40c0e8e withdrew the visual corpus: 38 of the
+      # 50 drills in a session render a broken image while four required checks
+      # stay green.
+      #
+      # It lives in this job for the reason stated throughout this file: a check
+      # blocks a merge only once its name is in `required_status_checks`, and
+      # `Repository hygiene` already is. A workflow of its own would be
+      # decorative until someone promoted it by hand.
+      #
+      # The 108 references withdrawn by 40c0e8e are recorded in
+      # `scripts/known-dead-media-references.tsv`, so this is green today. The
+      # comparison is an exact set match that fails in both directions: a new
+      # dead reference fails, and so does a ledger entry that stops being dead.
+      # It therefore cannot be used to accumulate breakage, and it cannot go
+      # stale behind whichever editorial decision the owner takes.
+      - name: Content media reference gate
+        run: scripts/check-content-media-references.sh
+
       # ---------------------------------------------------------------------
       # Dependency policy gate (cargo-deny), split deliberately in two.
       #

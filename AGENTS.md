@@ -42,7 +42,8 @@ The four required checks, by the name that appears in `required_status_checks`:
 - `No private identifiers or machine-local paths` (`.github/workflows/context-hygiene.yml`)
 - `REUSE compliance` (`.github/workflows/licensing.yml`)
 - `Repository hygiene` (`.github/workflows/hygiene.yml`) — policy files, secret
-  smoke, `scripts/check-design-system.sh`, the dependency policy gate, the
+  smoke, `scripts/check-design-system.sh`,
+  `scripts/check-content-media-references.sh`, the dependency policy gate, the
   workspace test suite, and the web application build gate (pinned Dioxus CLI,
   `dx build --platform web`, plus assertions that the bundle is real). These
   live in this job rather than in workflows of their own so that they are
@@ -85,6 +86,30 @@ restored, the exercises hidden, or the drafts left as they are is an editorial
 decision for the owner; the test
 `withdrawn_media_corpus_leaves_only_dangling_draft_references` records the
 current state so that any of those outcomes turns it red on purpose.
+
+Measured symptom, so the decision is taken on numbers rather than impressions: a
+session draws 50 drills, of which **38 carry a dead `media:` reference and render
+a broken image**; the 12 that render correctly are the `situations.yml` drills,
+which carry no `media:` key at all. **No media file exists anywhere in the tree**
+— `apps/web/assets/media/` is absent, so zero of the 108 references resolve.
+There is no subset of "still working" references to preserve.
+
+Why the references were not simply deleted: all 108 are `media_review`
+interactions whose prompt, scenario _and_ feedback describe the specific image
+(`"Cette image est…"`, `"Cet avatar généré est-il une représentation neutre ?"`,
+feedback such as `"Elle réduit un homme africain au village, à la hutte et au
+pagne"`). Stripping `media:` would leave 108 questions asking the learner to
+judge an image that is not there, and would collapse `deepfakes` and `profiles`
+into 27 and 31 identical unanswerable items. That is an editorial rewrite, not a
+technical correction.
+
+`scripts/check-content-media-references.sh` pins the set meanwhile: it resolves
+every content media reference against the tree, logs how many it examined (and
+fails if that is zero), distinguishes _conforme_ / _référence morte_ /
+_incapable de chercher_, and compares the dead set against
+`scripts/known-dead-media-references.tsv` as an exact match that fails in both
+directions — a 109th dead reference fails, and so does a ledger entry that stops
+being dead.
 
 ## Links
 
