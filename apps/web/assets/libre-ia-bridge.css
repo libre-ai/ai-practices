@@ -1,4 +1,21 @@
-:root {
+/* Declared on the document root *and* on every themed element, mirroring the
+ * selectors of the theme adapter (themes.css).
+ *
+ * This is load-bearing, not cosmetic. A custom property whose value contains
+ * var() is substituted at computed-value time on the element the declaration
+ * matches, and only the substituted result inherits. `--color-text:
+ * var(--color-foreground)` declared on :root alone therefore freezes to the
+ * value --color-foreground has *on :root* — the dark one, since themes.css
+ * only switches --color-foreground on [data-theme="light"], which matches
+ * div.app-root (apps/web/src/lib.rs), never :root. The light theme then
+ * painted its text in the dark-theme colour over the background it did
+ * switch, giving a 1:1 contrast ratio.
+ *
+ * Keeping :root in the list preserves the vocabulary for anything outside the
+ * themed wrapper (body); adding [data-theme] re-resolves it on the element
+ * that actually carries the theme. */
+:root,
+[data-theme] {
   /* Product vocabulary mapped exclusively to Libre IA Design System 2.0. */
   --color-ink: var(--color-background);
   --color-board: var(--color-background);
