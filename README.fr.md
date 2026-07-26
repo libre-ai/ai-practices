@@ -77,13 +77,16 @@ textes complets sont dans [`LICENSES/`](LICENSES/).
   de construction
 - `CC-BY-4.0` — la documentation et le corpus de contenu pédagogique
 
-Deux ensembles de matériel tiers sont exclus de ces déclarations : les polices
+Un ensemble de matériel tiers est exclu de ces déclarations : les polices
 auto-hébergées restent en `OFL-1.1` sous le copyright de leurs auteurs
-respectifs, et les médias visuels synthétiques sous `apps/web/assets/media/`
-sont réutilisés sous droits acquis — Libre AI n'en détient pas le copyright et
-n'accorde aucune licence dessus (voir
-[`LICENSES/LicenseRef-Acquired-Rights-Media.txt`](LICENSES/LicenseRef-Acquired-Rights-Media.txt)
-et l'ADR 0008).
+respectifs.
+
+Les médias visuels synthétiques qui se trouvaient sous `apps/web/assets/media/`
+ne font plus partie de ce dépôt. Ils sont l'œuvre propre du propriétaire,
+produite en dehors de celui-ci, et sont retirés le temps que soit tranché le
+choix entre les publier et les réserver ; l'ancienne clause « droits acquis »
+les décrivait à tort et est caduque. Les exercices qui les référencent sont donc
+livrés sans leur visuel.
 
 La politique canonique de l'organisation est
 [`LICENSING.md`](https://github.com/libre-ai/libre-ai/blob/main/LICENSING.md).

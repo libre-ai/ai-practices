@@ -37,9 +37,21 @@ Verified against `Cargo.toml`, `justfile` and `scripts/`:
 
 ## CI gates
 
-- `Context hygiene` (`.github/workflows/context-hygiene.yml`)
-- `Hygiene` (`.github/workflows/hygiene.yml`)
-- `DB inspection` (`.github/workflows/db-inspection.yml`)
+The four required checks, by the name that appears in `required_status_checks`:
+
+- `No private identifiers or machine-local paths` (`.github/workflows/context-hygiene.yml`)
+- `REUSE compliance` (`.github/workflows/licensing.yml`)
+- `Repository hygiene` (`.github/workflows/hygiene.yml`) — policy files, secret
+  smoke, `scripts/check-design-system.sh`, and the web application build gate
+  (pinned Dioxus CLI, `dx build --platform web`, plus assertions that the bundle
+  is real). The build lives in this job rather than a workflow of its own so
+  that it is required without a branch-settings change.
+- `Database inspection gate` (`.github/workflows/db-inspection.yml`)
+
+Not covered by any gate: `cargo test --workspace`, which is red on `main` today
+— `crates/content` still asserts 109 media-review records that were withdrawn
+with the visual corpus, and the `crates/api` tests need a `DATABASE_URL`
+(`scripts/test-postgres-disposable.sh`). `cargo clippy` is green but ungated.
 
 ## Links
 

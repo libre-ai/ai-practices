@@ -76,13 +76,15 @@ Licences are declared per path in [`REUSE.toml`](REUSE.toml); full texts are in
 - `Apache-2.0` — the JSON Schema contracts, test fixtures and build tooling
 - `CC-BY-4.0` — the documentation and the pedagogical content corpus
 
-Two classes of third-party material are carved out of those declarations: the
-self-hosted fonts remain `OFL-1.1` under their own project authors' copyright,
-and the synthetic visual media under `apps/web/assets/media/` are reused under
-acquired rights — Libre AI does not hold their copyright and grants no licence
-in them (see
-[`LICENSES/LicenseRef-Acquired-Rights-Media.txt`](LICENSES/LicenseRef-Acquired-Rights-Media.txt)
-and ADR 0008).
+One class of third-party material is carved out of those declarations: the
+self-hosted fonts remain `OFL-1.1` under their own project authors' copyright.
+
+The synthetic visual media that used to sit under `apps/web/assets/media/` are
+no longer part of this repository. They are the owner's own work, produced
+outside it, and are withdrawn while the choice between publishing them and
+reserving them stays open; the earlier "acquired rights" carve-out described
+them wrongly and is void. The drills that reference them therefore ship without
+their visuals.
 
 The canonical organization-wide policy is
 [`LICENSING.md`](https://github.com/libre-ai/libre-ai/blob/main/LICENSING.md).
