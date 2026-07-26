@@ -208,6 +208,7 @@ mod tests {
     }
 
     #[sqlx::test]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn insert_then_cohort_levels_roundtrips(pool: PgPool) {
         let axis = RiskAxis::SourceVerification;
         seed(&pool, axis, PracticeLevel::CarefulAutonomy, 3, 1000).await;
@@ -217,6 +218,7 @@ mod tests {
     }
 
     #[sqlx::test]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn distribution_withholds_below_k_and_audits(pool: PgPool) {
         let axis = RiskAxis::SourceVerification;
         seed(
@@ -250,6 +252,7 @@ mod tests {
     }
 
     #[sqlx::test]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn distribution_exposes_at_k(pool: PgPool) {
         let axis = RiskAxis::SourceVerification;
         seed(
@@ -276,6 +279,7 @@ mod tests {
     }
 
     #[sqlx::test]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn purge_removes_only_expired(pool: PgPool) {
         let axis = RiskAxis::Security;
         let now = 1_000_000i64;
@@ -292,6 +296,7 @@ mod tests {
     }
 
     #[sqlx::test]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn schema_holds_no_nominative_column(pool: PgPool) {
         // structural anonymity check (ADR 0006): no column looks like PII
         let cols: Vec<String> = sqlx::query_scalar(

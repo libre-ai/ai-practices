@@ -13,6 +13,28 @@ jobs:
   hygiene:
     name: Repository hygiene
     runs-on: ubuntu-latest
+
+    # PostgreSQL is here so that the ten `#[sqlx::test]` cases in `crates/store`
+    # and `crates/api` actually execute rather than being skipped. They are
+    # marked `#[ignore]` in the source so that a plain `cargo test` stays green
+    # on a developer machine with no database instead of panicking on a missing
+    # DATABASE_URL; `--include-ignored` below opts them back in where a database
+    # exists. Pinned by digest, like every other tool this workflow fetches: a
+    # floating `17-alpine` tag is rebuilt upstream and would let the runtime
+    # change under a tree that did not.
+    services:
+      postgres:
+        image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Required repository policy files
@@ -29,6 +51,163 @@ jobs:
           fi
       - name: Design-system consumption gate
         run: scripts/check-design-system.sh
+
+      # ---------------------------------------------------------------------
+      # Dependency policy gate (cargo-deny), split deliberately in two.
+      #
+      # `bans`, `licenses` and `sources` are a pure function of files that live
+      # in this repository — `Cargo.lock` and `deny.toml` — plus crate metadata
+      # already fixed by that lock. Nothing they read can change unless a commit
+      # changes it, so they are safe to block a merge. Verified: the same three
+      # checks pass under `cargo deny --offline`, i.e. with no network at all.
+      #
+      # `advisories` is NOT the same kind of check. It resolves the RustSec
+      # advisory database over the network, so a new advisory published upstream
+      # turns this repository red without a single commit having changed. A
+      # required check that reddens on its own schedule is one that people learn
+      # to ignore, which is worse than no check — so it runs as a signal, is
+      # allowed to fail, and never blocks. It still reports: the finding shows up
+      # in the job log and in the step summary.
+      #
+      # The trade-off is stated plainly: a real vulnerability disclosed in a
+      # dependency will NOT block a merge here. Catching it is a review duty, not
+      # an automated veto. Promoting advisories to blocking would require pinning
+      # the advisory database to a commit and bumping it deliberately.
+      # ---------------------------------------------------------------------
+      - name: Pinned cargo-deny
+        env:
+          DENY_VERSION: 0.19.5
+          DENY_ARCHIVE: cargo-deny-0.19.5-x86_64-unknown-linux-musl.tar.gz
+          DENY_SHA256: 5ea64ae09959b5fe1072d898f95caaa89b374678ba6728d5e9ed1366745479b0
+        run: |
+          set -euo pipefail
+          mkdir -p .tools/cargo-deny
+          url="https://github.com/EmbarkStudios/cargo-deny/releases/download/${DENY_VERSION}/${DENY_ARCHIVE}"
+          curl --proto '=https' --tlsv1.2 --fail --silent --show-error --location \
+            --output "${RUNNER_TEMP}/${DENY_ARCHIVE}" "$url"
+          printf '%s  %s\n' "$DENY_SHA256" "${RUNNER_TEMP}/${DENY_ARCHIVE}" \
+            | sha256sum --check --strict
+          tar -xzf "${RUNNER_TEMP}/${DENY_ARCHIVE}" -C .tools/cargo-deny --strip-components=1
+          chmod +x .tools/cargo-deny/cargo-deny
+          .tools/cargo-deny/cargo-deny --version
+
+      - name: Dependency policy — bans, licences, sources (fail closed)
+        run: |
+          set -euo pipefail
+
+          # Populate the cache first. A runner starts with an empty registry and
+          # no git checkouts, and `cargo metadata` — which cargo-deny runs — has
+          # to resolve `dioxus-primitives`, a git dependency pinned by rev. It
+          # cannot do that offline from a cold cache, so `--offline` alone fails
+          # with "can't checkout from ...: you are in the offline mode".
+          #
+          # This does not weaken the determinism argument. `--locked` refuses to
+          # touch `Cargo.lock`: every version fetched is one the lock already
+          # names, crates.io artifacts are immutable, and the git dependency is
+          # pinned to a revision. The set of bytes fetched changes only when a
+          # commit changes the lock.
+          cargo fetch --locked
+
+          # --offline is the point, not an optimisation: with the cache already
+          # populated above, this proves the check reads nothing but the locked
+          # tree — no index refresh, no advisory database, nothing that can move
+          # underneath a tree that did not change. That is what makes it safe to
+          # block a merge.
+          .tools/cargo-deny/cargo-deny --offline check bans licenses sources
+          echo "ok    dependency policy holds against the committed lock"
+
+      - name: Security advisories (signal only, never blocks)
+        id: advisories
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          .tools/cargo-deny/cargo-deny check advisories
+
+      - name: Report the advisory outcome
+        if: always()
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.advisories.outcome }}" = "success" ]; then
+            echo "advisories: clean" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::cargo-deny reported security advisories — see the 'Security advisories' step. This does not block the merge by design; triage it."
+            {
+              echo "### Security advisories reported"
+              echo
+              echo "\`cargo deny check advisories\` did not pass. This step is a signal,"
+              echo "not a gate: the advisory database is fetched from upstream, so it can"
+              echo "change without a commit. Triage the finding in the job log."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ---------------------------------------------------------------------
+      # Workspace test suite.
+      #
+      # Nothing in this repository ran the tests until now, and `main` was red
+      # while four required checks stayed green: `crates/content` still asserted
+      # 109 media-review records withdrawn by 40c0e8e, and the `#[sqlx::test]`
+      # cases panicked on a missing DATABASE_URL.
+      #
+      # It lives in this job for the same reason the build gate does: a check
+      # only blocks a merge once its name appears in `required_status_checks`,
+      # and `Repository hygiene` is already required. A new workflow would be
+      # decorative until someone promoted it by hand.
+      #
+      # `--all-targets` covers integration tests and benches that a bare
+      # `cargo test` skips, and it silently EXCLUDES doctests — hence the second
+      # invocation below. No cache: a warm `target/` is exactly what let a broken
+      # tree report success here before.
+      #
+      # Why NOT `--all-features`, which would normally be the right default:
+      # `apps/web` declares `web`, `desktop` and `mobile` as four mutually
+      # exclusive render targets over one shared `Root` (see its Cargo.toml).
+      # `--all-features` turns them all on at once — a combination the
+      # application is not written to support — and drags in the Dioxus desktop
+      # stack, which needs GTK/WebKit system libraries. It fails on a clean
+      # runner with `The system library glib-2.0 required by crate glib-sys was
+      # not found`, while passing on a macOS workstation where those libraries
+      # happen to exist. That is a false signal in both directions.
+      #
+      # Measured, not assumed: `--all-features` and the explicit selection below
+      # both run 68 tests plus 10 ignored, byte for byte. The only feature-gated
+      # item in the workspace is `render_app_html` behind `ssr`, enabled
+      # explicitly here so its cfg block still compiles; it has no caller and no
+      # test. The render targets are covered by the `dx build --platform web`
+      # gate further down, which is how the application is actually shipped.
+      # ---------------------------------------------------------------------
+      # `crates/store` uses `sqlx::query!`, which verifies every statement
+      # against a live schema AT COMPILE TIME whenever DATABASE_URL is set. The
+      # per-test databases that `#[sqlx::test]` creates are migrated by the test
+      # harness, but that happens far too late — the crate has to compile first.
+      # Without this step the build fails with `relation "anonymous_sessions"
+      # does not exist`.
+      #
+      # Applying the migration here is what buys the verification rather than
+      # merely silencing it: setting SQLX_OFFLINE=true would also make the error
+      # go away, by switching the checking off. With the schema present, a typo
+      # in a SQL statement or a column that no longer exists fails the build.
+      - name: Apply migrations to the base database
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          for migration in crates/store/migrations/*.sql; do
+            echo "applying ${migration}"
+            psql --host=localhost --port=5432 --username=postgres --dbname=postgres \
+              --set=ON_ERROR_STOP=1 --file="$migration" > /dev/null
+          done
+          echo "ok    base schema present for compile-time query verification"
+
+      - name: Workspace tests, including the database-backed cases (fail closed)
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+        run: |
+          set -euo pipefail
+          cargo test --workspace --all-targets \
+            --features rumble-ai-practices-web/ssr -- --include-ignored
+          # `--all-targets` excludes doctests entirely; without this line a
+          # broken doctest would never be seen.
+          cargo test --workspace --doc --features rumble-ai-practices-web/ssr
 
       # ---------------------------------------------------------------------
       # Web application build gate.

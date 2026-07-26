@@ -42,16 +42,49 @@ The four required checks, by the name that appears in `required_status_checks`:
 - `No private identifiers or machine-local paths` (`.github/workflows/context-hygiene.yml`)
 - `REUSE compliance` (`.github/workflows/licensing.yml`)
 - `Repository hygiene` (`.github/workflows/hygiene.yml`) — policy files, secret
-  smoke, `scripts/check-design-system.sh`, and the web application build gate
-  (pinned Dioxus CLI, `dx build --platform web`, plus assertions that the bundle
-  is real). The build lives in this job rather than a workflow of its own so
-  that it is required without a branch-settings change.
+  smoke, `scripts/check-design-system.sh`, the dependency policy gate, the
+  workspace test suite, and the web application build gate (pinned Dioxus CLI,
+  `dx build --platform web`, plus assertions that the bundle is real). These
+  live in this job rather than in workflows of their own so that they are
+  required without a branch-settings change.
 - `Database inspection gate` (`.github/workflows/db-inspection.yml`)
 
-Not covered by any gate: `cargo test --workspace`, which is red on `main` today
-— `crates/content` still asserts 109 media-review records that were withdrawn
-with the visual corpus, and the `crates/api` tests need a `DATABASE_URL`
-(`scripts/test-postgres-disposable.sh`). `cargo clippy` is green but ungated.
+Correctness gates, all inside `Repository hygiene`:
+
+- `cargo test --workspace --all-targets --features rumble-ai-practices-web/ssr
+-- --include-ignored`, plus the same command with `--doc` because
+  `--all-targets` excludes doctests. A pinned PostgreSQL service backs the ten
+  `#[sqlx::test]` cases in `crates/store` and `crates/api`; those cases carry
+  `#[ignore]` so that a bare `cargo test` stays green on a machine with no
+  database, and `scripts/test-postgres-disposable.sh` passes `--include-ignored`
+  to run them locally.
+  **Not `--all-features`**: `apps/web` declares `web`, `desktop` and `mobile` as
+  mutually exclusive render targets, so `--all-features` enables a combination
+  the application does not support and pulls the Dioxus desktop stack (GTK /
+  WebKit system libraries), which fails on a clean Linux runner while passing on
+  a macOS workstation. Both selections run the same 68 tests plus 10 ignored;
+  the render targets are covered by the `dx build --platform web` gate.
+- `cargo deny --offline check bans licenses sources` blocks the merge. It is a
+  pure function of `Cargo.lock` and `deny.toml`, so it cannot redden without a
+  commit.
+- `cargo deny check advisories` runs as a **signal only** and never blocks: it
+  fetches the RustSec database over the network, so a new upstream advisory
+  would otherwise turn `main` red with no change to the tree. A vulnerability
+  disclosed in a dependency will therefore not stop a merge here — triage is a
+  review duty. It is surfaced as a warning and in the job summary.
+
+Still ungated: `cargo clippy --workspace --all-targets --all-features -- -D
+warnings`, which is green today.
+
+Known-open, and deliberately not decided by any test: 108 questions
+(`bias-visual`, `deepfakes`, `profiles`) still carry `media:` references whose
+files were withdrawn by `40c0e8e`, so `validate_content` reports 108 dangling
+references and the content report is not "successful". Every one of those
+questions is a draft, so nothing is publication-blocking. Whether the media are
+restored, the exercises hidden, or the drafts left as they are is an editorial
+decision for the owner; the test
+`withdrawn_media_corpus_leaves_only_dangling_draft_references` records the
+current state so that any of those outcomes turns it red on purpose.
 
 ## Links
 

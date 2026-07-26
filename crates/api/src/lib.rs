@@ -1045,6 +1045,7 @@ mod tests {
     }
 
     #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn summary_persists_anonymously_idempotently_and_withholds_below_k(pool: PgPool) {
         let app = router_with_state(ApiState::with_store(vec![question()], pool.clone()));
         let session_id = create_anon_session(&app).await;
@@ -1075,6 +1076,7 @@ mod tests {
     }
 
     #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn summary_exposes_distribution_at_k(pool: PgPool) {
         use rumble_ai_practices_domain::PracticeLevel;
         let k = rumble_ai_practices_session::cohort::DEFAULT_MIN_COHORT;
@@ -1128,6 +1130,7 @@ mod tests {
     }
 
     #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn cohort_endpoint_withholds_below_k_and_is_idempotent(pool: PgPool) {
         let app = router_with_state(ApiState::with_store(vec![question()], pool.clone()));
         let body = r#"{"client_id":"abc","axis_levels":[{"axis":"source_verification","level":"careful_autonomy","score":1.0}]}"#;
@@ -1149,6 +1152,7 @@ mod tests {
     }
 
     #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn cohort_endpoint_exposes_at_k(pool: PgPool) {
         use rumble_ai_practices_domain::PracticeLevel;
         let k = rumble_ai_practices_session::cohort::DEFAULT_MIN_COHORT;
@@ -1184,6 +1188,7 @@ mod tests {
     }
 
     #[sqlx::test(migrator = "rumble_ai_practices_store::MIGRATOR")]
+    #[ignore = "needs PostgreSQL: set DATABASE_URL and run with --ignored"]
     async fn cohort_wire_contract_roundtrips_with_the_web_client_types(pool: PgPool) {
         use rumble_ai_practices_domain::PracticeLevel;
         // The real client wire types (not mirrors) drive both serde directions

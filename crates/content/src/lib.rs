@@ -458,14 +458,65 @@ mod tests {
         assert!(loaded.report.is_success());
     }
 
+    // The visual corpus (108 media + their five provenance sheets) was withdrawn
+    // by 40c0e8e — the owner's own work, removed deliberately. This test used to
+    // assert 109 media-review records and a successful report; both statements
+    // describe a tree that no longer exists, so it has been red on `main` since.
+    //
+    // What is asserted below is the state as it *is*, not the state as it should
+    // be. In particular this test takes NO position on the open editorial
+    // question of what becomes of the 108 exercises whose visual is now missing
+    // — restore the media, hide the exercises, or leave them as drafts. That
+    // decision belongs to the owner, and each of the three outcomes changes the
+    // counts here; the assertions are written so that whichever one lands turns
+    // this test red and forces the number to be updated consciously.
     #[test]
-    fn validates_content_with_media_reviews() {
+    fn withdrawn_media_corpus_leaves_only_dangling_draft_references() {
         let loaded = validate_content("../../content/questions", "../../content/media")
             .expect("pilot content parses");
         assert!(loaded.report.questions_read >= 5);
-        // bias-game corpus: pilot(1) + bias-visual(50) + deepfakes(27) + profiles(31) = 109
-        assert_eq!(loaded.media_reviews.len(), 109);
-        assert!(loaded.report.is_success());
+
+        // `content/media/` is absent from the tree; `load_media_reviews` treats a
+        // missing path as an empty corpus by contract (it returns `Ok(vec![])`),
+        // which is what lets the CLI keep a `--media` option pointing at a
+        // directory that need not exist. Zero here is that contract holding, not
+        // a read that failed silently.
+        assert_eq!(loaded.media_reviews.len(), 0);
+        assert_eq!(loaded.report.media_reviews_read, 0);
+
+        // The 108 questions of bias-visual(50) + deepfakes(27) + profiles(31)
+        // still carry `media:` references, so validation reports one dangling
+        // reference each. This is the validator working, not a defect.
+        let dangling = loaded
+            .report
+            .findings
+            .iter()
+            .filter(|finding| {
+                finding.message.contains("without a media-review record")
+                    && finding.severity == ValidationSeverity::Fail
+            })
+            .count();
+        assert_eq!(dangling, 108);
+
+        // The invariant that DOES still hold, and the reason this is not a
+        // release-blocking state: every one of those questions is a draft, so
+        // nothing is publication-blocking. A Blocker appearing here would mean an
+        // approved question had lost its media — a genuine regression.
+        assert!(
+            loaded
+                .report
+                .findings
+                .iter()
+                .all(|finding| finding.severity != ValidationSeverity::Blocker)
+        );
+
+        // Dangling media references are the ONLY consequence of the withdrawal:
+        // if any other kind of finding appears, something else regressed.
+        assert_eq!(loaded.report.findings.len(), dangling);
+
+        // Deliberately NOT asserted: `loaded.report.is_success()`. It is `false`
+        // today and cannot become `true` without resolving the editorial question
+        // above. Asserting it either way would decide that question by proxy.
     }
 
     #[test]
