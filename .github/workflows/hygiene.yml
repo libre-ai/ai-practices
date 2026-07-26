@@ -94,8 +94,25 @@ jobs:
       - name: Dependency policy — bans, licences, sources (fail closed)
         run: |
           set -euo pipefail
-          # --offline is the point, not an optimisation: it proves this gate
-          # reads nothing but the locked tree, so it cannot redden on its own.
+
+          # Populate the cache first. A runner starts with an empty registry and
+          # no git checkouts, and `cargo metadata` — which cargo-deny runs — has
+          # to resolve `dioxus-primitives`, a git dependency pinned by rev. It
+          # cannot do that offline from a cold cache, so `--offline` alone fails
+          # with "can't checkout from ...: you are in the offline mode".
+          #
+          # This does not weaken the determinism argument. `--locked` refuses to
+          # touch `Cargo.lock`: every version fetched is one the lock already
+          # names, crates.io artifacts are immutable, and the git dependency is
+          # pinned to a revision. The set of bytes fetched changes only when a
+          # commit changes the lock.
+          cargo fetch --locked
+
+          # --offline is the point, not an optimisation: with the cache already
+          # populated above, this proves the check reads nothing but the locked
+          # tree — no index refresh, no advisory database, nothing that can move
+          # underneath a tree that did not change. That is what makes it safe to
+          # block a merge.
           .tools/cargo-deny/cargo-deny --offline check bans licenses sources
           echo "ok    dependency policy holds against the committed lock"
 
