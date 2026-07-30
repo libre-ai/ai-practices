@@ -1,0 +1,94 @@
+# Fiche d'état du projet — autorité de l'état depuis ADR-0020 (design §6.2).
+# La section statut du README est générée depuis cette fiche (sentinelles),
+# jamais éditée à la main ; l'avancement est calculé, jamais déclaré.
+schema_version: libre-ai.project.v1
+project: practices
+repository: libre-ai/ai-practices
+kind: product
+layer: couche-1
+statement:
+  for: "les professionnelles et professionnels qui utilisent l'IA au travail"
+  who_faces: "des formations superficielles ou des questionnaires RH déguisés"
+  enables: "s'entraîner à une pratique sourcée et responsable de l'IA"
+  producing:
+    - "des parcours d'entraînement vérifiables, sans notation cachée"
+  without_depending_on:
+    - "aucun scoring RH, aucune donnée transmise"
+summary: "Entraînement professionnel à une pratique sourcée et responsable de l'IA — ni quiz, ni scoring RH (couche 1)."
+current_situation: >-
+  L'application Practices (garde no-transmission, fonctionnement local-only) est greffée et verte sur les briques épinglées ; les parcours d'entraînement couvrant le référentiel de pratique restent à écrire.
+scope:
+  - "parcours d'entraînement sourcés"
+  - "pratique responsable vérifiable, en local"
+non_goals:
+  - "quiz de conformité"
+  - "scoring RH"
+  - "transmission de données"
+dependencies:
+  - on: libre-ai/ui
+    why: "composants d'interface du système de design"
+    pinned: "git-dep épinglée par SHA dans le manifest de ce repo"
+  - on: libre-ai/web-platform
+    why: "socle applicatif Bun.serve + React"
+    pinned: "git-dep épinglée par SHA dans le manifest de ce repo"
+  - on: libre-ai/contracts
+    why: "autorité des contrats"
+    pinned: "git-dep épinglée par SHA dans le manifest de ce repo"
+  - on: libre-ai/governance
+    why: "gabarit de flotte et gates de qualité"
+    pinned: "git-dep épinglée par SHA dans le manifest de ce repo"
+maturity: usable
+confidence: medium
+exposure: spec-published
+freshness:
+  last_verified_on: "2026-07-30"
+hypothesis: >
+  Human-reviewed, schema-validated, immutable feedback (model advisory
+  only, never grading) trains sourced AI judgment to DataCamp-class
+  exercise utility without certification or employer-facing proof.
+evidence_required:
+  - parity audit against the 62-feature DataCamp/Codecademy map (docs/parity/audits/PARITY-practices-datacamp.md)
+  - the 3 T1 amendments shipped (XP/streak, messy data, attempt history)
+  - accessibility evidence at WCAG AA with 200% zoom readability
+promotion_criteria:
+  - to: usable-verifiable
+    when: coverage >= 75% of 62 features (baseline 56%) and the 11 ABSENT-T1 closed
+  - to: proven
+    when: coverage >= 85% across two consecutive parity audits
+kill_predicates:
+  - id: parity-regression
+    predicate: coverage < 56% of 62 features (below the 2026-07 baseline)
+    window: any parity audit after wave-4 activation
+    source: docs/parity/audits/PARITY-practices-datacamp.md
+  - id: advisory-invariant-breach
+    predicate: any autonomous model-grading path enters the covered set
+    source: docs/parity/audits/PARITY-practices-datacamp.md
+benchmark:
+  product: DataCamp
+  url: https://www.datacamp.com
+scope_stability: stable
+phases:
+  - id: activation
+    title: Activation multi-repo (γ 3.5)
+    exit_criteria:
+      - id: graft-green
+        text: Contenu greffé depuis le hub avec son histoire, workspace autonome vert en CI réelle, description dégelée.
+        weight: 2
+        status: accepted
+        evidence:
+          date: "2026-07-30"
+          reference: "gate-acceptance-log 2026-07-30 (ligne 3.5), PR hub #286"
+  - id: training-content
+    title: Parcours d'entraînement complets
+    exit_criteria:
+      - id: training-content-done
+        text: Des parcours d'entraînement sourcés couvrent le référentiel de pratique, parcours e2e verts.
+        weight: 4
+        status: pending
+  - id: exposure
+    title: Exposition vérifiable
+    exit_criteria:
+      - id: promotion-met
+        text: Les conditions de promotion vers usable-verifiable déclarées par cette fiche (promotion_criteria) sont réunies et vérifiées.
+        weight: 4
+        status: pending
