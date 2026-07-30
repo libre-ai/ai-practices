@@ -129,3 +129,17 @@ SPDX-License-Identifier = "OFL-1.1"
 # a reading drawn from a provenance sheet whose wording ("droits acquis") did
 # not describe reality. The media are the owner's own work, produced outside
 # this repository, and are withdrawn pending a decision on their eventual use.
+
+# Grafted hub content and workspace bootstrap (ADR-0020, γ 3.5).
+[[annotations]]
+path = ["**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "EUPL-1.2"
+
+# Documentation keeps the frozen-home CC-BY-4.0 grant.
+[[annotations]]
+path = ["*.md", "**/*.md", "docs/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Libre AI contributors"
+SPDX-License-Identifier = "CC-BY-4.0"
