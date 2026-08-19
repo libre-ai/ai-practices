@@ -16,7 +16,13 @@ statement:
     - "aucun scoring RH, aucune donnée transmise"
 summary: "Entraînement professionnel à une pratique sourcée et responsable de l'IA — ni quiz, ni scoring RH (couche 1)."
 current_situation: >-
-  L'application Practices (garde no-transmission, fonctionnement local-only) est greffée et verte sur les briques épinglées ; les parcours d'entraînement couvrant le référentiel de pratique restent à écrire.
+  L'application Practices (garde no-transmission, fonctionnement local-only) est greffée et
+  verte sur les briques épinglées, avec sa suite e2e Playwright désormais gatée en CI (PR #52,
+  job dédié `e2e`) ; les parcours d'entraînement couvrant le référentiel de pratique restent à
+  écrire. La présente fiche recalibre leur périmètre (phases training-content et parity
+  ci-dessous, remise à plat produits du 2026-08-18, ADR-0027) sans encore livrer de code — les
+  deux corpus sourcés de 1.1 sont fact-checkés et prêts pour la session d'implémentation dédiée
+  qui les codera (voir la note de la phase training-content).
 scope:
   - "parcours d'entraînement sourcés"
   - "pratique responsable vérifiable, en local"
@@ -41,24 +47,40 @@ maturity: usable
 confidence: medium
 exposure: spec-published
 freshness:
-  last_verified_on: "2026-07-30"
+  last_verified_on: "2026-08-19"
 hypothesis: >
   Human-reviewed, schema-validated, immutable feedback (model advisory
   only, never grading) trains sourced AI judgment to DataCamp-class
   exercise utility without certification or employer-facing proof.
 evidence_required:
-  - parity audit against the 62-feature DataCamp/Codecademy map (docs/parity/audits/PARITY-practices-datacamp.md)
+  - >-
+    parity audit against the 62-feature DataCamp/Codecademy map
+    (docs/parity/audits/PARITY-practices-datacamp.md, governance repo) — requalified
+    "spec-baseline, non opposable" by ADR-0027 D2 (2026-08-18) until re-run against
+    delivered code; two of its "couvert" marks (item 6, "Indices/hints progressifs", and
+    item 38, "Retry stratégie") have no code evidence as of 2026-08-19 (no hints exist in
+    apps/practices/src today) and need correcting at that re-run
   - the 3 T1 amendments shipped (XP/streak, messy data, attempt history)
   - accessibility evidence at WCAG AA with 200% zoom readability
 promotion_criteria:
   - to: usable-verifiable
-    when: coverage >= 75% of 62 features (baseline 56%) and the 11 ABSENT-T1 closed
+    when: >-
+      the training-content phase's dogfooding-proven exit criterion (below) is accepted
+      with dated evidence — ADR-0027 D1: no parity-based promotion fires before the
+      product's own dogfooding milestone — AND the parity phase's re-audit criterion is
+      accepted, i.e. a parity audit against delivered code (not the 2026-07-22
+      spec-baseline, ADR-0027 D2) reaches >= 75% of 62 features (baseline 56%) with the
+      11 ABSENT-T1 items closed
   - to: proven
-    when: coverage >= 85% across two consecutive parity audits
+    when: coverage >= 85% across two consecutive parity audits against delivered code, measured after usable-verifiable
 kill_predicates:
   - id: parity-regression
-    predicate: coverage < 56% of 62 features (below the 2026-07 baseline)
-    window: any parity audit after wave-4 activation
+    predicate: >-
+      coverage < 56% of 62 features (below the 2026-07 baseline), measured only once the
+      training-content phase is accepted and only against a parity re-audit run on
+      delivered code — never against the 2026-07-22 spec-baseline audit itself, which
+      ADR-0027 D2 disqualifies from founding any promotion or kill decision
+    window: any parity re-audit after the training-content phase is accepted
     source: docs/parity/audits/PARITY-practices-datacamp.md
   - id: advisory-invariant-breach
     predicate: any autonomous model-grading path enters the covered set
@@ -80,10 +102,114 @@ phases:
           reference: "gate-acceptance-log 2026-07-30 (ligne 3.5), PR hub #286"
   - id: training-content
     title: Parcours d'entraînement complets
+    note: >-
+      Séquencement ADR-0027 (governance, 2026-08-18) — D1 : aucun promotion_criteria ni
+      kill_predicate fondé sur la parité (voir plus bas et la phase parity) ne s'évalue avant
+      que ce jalon soit accepted avec preuve datée ; l'usage réel exigé est celui de l'exit
+      criterion dogfooding-proven ci-dessous, jamais une fixture synthétique. D2 :
+      docs/parity/audits/PARITY-practices-datacamp.md est requalifié « spec-baseline, non
+      opposable » jusqu'à ré-exécution contre ce code livré.
+
+
+      Les deux corpus sourcés pour 1.1, recherche faite et fact-checkée le 2026-08-19 (WebSearch
+      + WebFetch, pas de mémoire), prêts pour la session d'implémentation dédiée qui les codera —
+      non codés par la présente fiche :
+
+
+      (a) Vérification de source / hallucination LLM — Mata v. Avianca, Inc., S.D.N.Y.
+      1:22-cv-01461, ordonnance de sanctions du juge P. Kevin Castel le 22 juin 2023 (5 000 $
+      chacun contre Steven A. Schwartz, Peter LoDuca et leur cabinet Levidow, Levidow & Oberman,
+      P.C.). Le mémoire déposé citait six décisions fabriquées par ChatGPT, dont « Varghese v.
+      China Southern Airlines » ; l'avocat avait redemandé à ChatGPT si ce cas était réel, qui a
+      confirmé à tort son existence sur Westlaw et LexisNexis — l'exercice type pour juger une
+      citation IA avant de la faire confiance. Sources vérifiées : docket CourtListener
+      https://www.courtlistener.com/docket/63107798/mata-v-avianca-inc/ (dossier primaire),
+      reportage CNBC
+      https://www.cnbc.com/2023/06/22/judge-sanctions-lawyers-whose-ai-written-filing-contained-fake-citations.html.
+
+
+      (b) Jugement de biais visuel, re-sourcé — aucun contenu ni code de l'ancien jeu retiré
+      (purgé du dépôt par le commit f172adc du 2026-07-30, cf. ADR-0017 clos) n'est repris.
+      Buolamwini & Gebru, « Gender Shades: Intersectional Accuracy Disparities in Commercial
+      Gender Classification », 1st Conference on Fairness, Accountability and Transparency
+      (FAccT 2018), PMLR vol. 81 : trois systèmes commerciaux de classification de genre
+      affichent un taux d'erreur maximal de 34,7 % sur les femmes à peau foncée contre 0,8 % sur
+      les hommes à peau claire — écart de facteur 43. Source vérifiée :
+      https://proceedings.mlr.press/v81/buolamwini18a.html. Rendu prévu en SVG inline à partir de
+      ces chiffres publiés (barres, aucune photographie de personne réelle) : le jugement porte
+      sur une visualisation de données réelles et citées, jamais sur une image générée non
+      sourcée.
     exit_criteria:
-      - id: training-content-done
-        text: Des parcours d'entraînement sourcés couvrent le référentiel de pratique, parcours e2e verts.
-        weight: 4
+      - id: corpora-sourced
+        text: >-
+          1.1 — deux corpus réels et sourcés livrés en code : (a) vérification de source /
+          jugement d'hallucination LLM, (b) jugement de biais visuel re-sourcé (voir la note de
+          phase pour les deux cas déjà fact-checkés).
+        weight: 2
+        status: pending
+      - id: feedback-protocol-implemented
+        text: >-
+          1.2 — feedback déterministe sourcé et la query GetFeedbackExplanation sont implémentés
+          en code, conformes au protocole déjà engagé dans docs/apps/practices.md §Domain
+          protocol (Commands/Queries/Events), qui n'a aujourd'hui aucune contrepartie dans
+          apps/practices/src.
+        weight: 2
+        status: pending
+      - id: progressive-hints
+        text: >-
+          1.3 — les indices progressifs sont livrés en code, ce qui rend enfin vrais les items 6
+          (« Indices/hints progressifs ») et 38 (« Retry stratégie ») de
+          docs/parity/audits/PARITY-practices-datacamp.md marqués couvert sans preuve de code au
+          2026-08-19 (voir evidence_required) ; le prochain audit de parité les revérifie contre
+          ce code livré plutôt que de reconduire l'affirmation.
+        weight: 2
+        status: pending
+      - id: dogfooding-proven
+        text: >-
+          Jalon dogfooding ADR-0027 D1 : le propriétaire complète une activité de chaque corpus
+          de bout en bout, le feedback sourcé s'affiche, et l'export et la suppression locale
+          sont vérifiés — preuve d'usage réel, jamais une fixture synthétique vide. Cette
+          acceptation, datée, est la précondition de tout promotion_criteria/kill_predicate fondé
+          sur la parité ci-dessus et dans la phase parity.
+        weight: 3
+        status: pending
+  - id: parity
+    title: Amendements parité T1 et ré-audit sur code livré
+    note: >-
+      Gated derrière training-content (ADR-0027 D1) — ne s'évalue pas avant que ce jalon soit
+      accepted. Les 3 amendements ci-dessous sont les items T1 B.1/B.2/B.3 de
+      docs/parity/audits/PARITY-practices-datacamp.md (XP/streak, données désordonnées,
+      historique de tentatives). Les 8 autres items ABSENT-T1 du même audit (guidé/non-guidé,
+      temps de complétion, analytics personnelle, skill tracks, prérequis, niveau apprenti,
+      checkpoint de réflexion, template d'activité) restent hors scope T1 par arbitrage
+      propriétaire du 2026-08-18 — seuls ces 3 sont amendés avant le seuil de promotion
+      usable-verifiable.
+    exit_criteria:
+      - id: xp-streak-tracking
+        text: >-
+          T1 B.1 — XP/streak tracking livré : LocalProgressSnapshot.xp_earned + streak_days,
+          local-only, aucune transmission.
+        weight: 2
+        status: pending
+      - id: messy-data-contexts
+        text: >-
+          T1 B.2 — contextes de données désordonnées livrés : schéma
+          ActivityDefinition.data_profile (champs nullables, valeurs aberrantes) exercé par au
+          moins une activité.
+        weight: 2
+        status: pending
+      - id: attempt-history
+        text: >-
+          T1 B.3 — historique de tentatives livré : chronologie locale par exercice des réponses
+          et feedback précédents, portée par IndexedDB.
+        weight: 2
+        status: pending
+      - id: parity-re-audit
+        text: >-
+          Audit de parité ré-exécuté contre ce code livré (pas le spec-baseline du 2026-07-22,
+          ADR-0027 D2) et atteignant >= 75 % des 62 traits (référence 56 %) avec les 11 items
+          ABSENT-T1 fermés.
+        weight: 3
         status: pending
   - id: exposure
     title: Exposition vérifiable
