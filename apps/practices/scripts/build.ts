@@ -14,6 +14,12 @@ await mkdir(join(dist, "static"), { recursive: true });
 await mkdir(assets, { recursive: true });
 
 const clientBuild = await Bun.build({
+  // @libre-ai/ui and @libre-ai/web-platform are consumed as source git-deps (no
+  // publish step produced their `dist/*` export targets), so the browser-target
+  // default conditions ("import"/"default" -> dist/*) do not resolve. The "bun"
+  // condition maps to their TypeScript source instead, which the bundler can
+  // still transpile for a browser output regardless of this condition's name.
+  conditions: ["bun"],
   define: { "process.env.NODE_ENV": JSON.stringify("production") },
   entrypoints: [join(root, "src/client/app.tsx")],
   minify: true,
@@ -26,7 +32,10 @@ if (!clientBuild.success) {
   throw new Error("web.client_build_failed");
 }
 
-const foundationCss = await Bun.file(join(root, "../../packages/ui/src/styles.css")).text();
+// @libre-ai/ui is consumed as a pinned external package (github git-dep), not a
+// local monorepo workspace member — its foundation stylesheet ships inside the
+// installed package itself.
+const foundationCss = await Bun.file(join(root, "node_modules/@libre-ai/ui/src/styles.css")).text();
 const utilityCss = await buildTailwindUtilities([]);
 await Bun.write(join(assets, "styles.css"), `${foundationCss}\n${utilityCss}`);
 await Bun.write(join(assets, "icon.svg"), Bun.file(join(root, "public/icon.svg")));
