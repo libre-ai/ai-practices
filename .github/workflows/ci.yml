@@ -50,4 +50,43 @@ jobs:
           test "$(bun --revision)" = "1.4.0-canary.1+57f349f63"
           bun run check:toolchain
       - run: bun run check
+  e2e:
+    name: End-to-end (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+      - name: Install archived Bun toolchain
+        env:
+          BUN_ARCHIVE_URL: https://github.com/libre-ai/governance/releases/download/toolchain-bun-1.4.0-canary.1-57f349f63/bun-linux-x64.zip
+          BUN_ARCHIVE_SHA256: 83144e2542c33aaae541cf16b42f8cf1c55c3b94c5395fc776417fa27e95bcbf
+        run: |
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/bun.zip" "$BUN_ARCHIVE_URL"
+          echo "$BUN_ARCHIVE_SHA256  $RUNNER_TEMP/bun.zip" | sha256sum --check --strict
+          unzip -q "$RUNNER_TEMP/bun.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/bun-linux-x64" >> "$GITHUB_PATH"
+      # Root install first: it vendors the pinned governance git-dep whose tools
+      # `apps/practices`'s own scripts forward to (tools/quality/check-bun-minimum.ts).
+      - run: bun install --frozen-lockfile
+      - name: Verify Bun 1.4+ floor and exact CI revision
+        run: |
+          test "$(bun --revision)" = "1.4.0-canary.1+57f349f63"
+          bun run check:toolchain
+      - run: bun install --frozen-lockfile --cwd apps/practices
+      - name: Install Playwright browsers
+        working-directory: apps/practices
+        # `bun x`, not `bunx`: the pinned toolchain archive ships only the
+        # `bun` binary — the `bunx` shim is created by installers we don't run.
+        run: bun x playwright install --with-deps chromium firefox webkit
+      - name: Run end-to-end suite (chromium, firefox, webkit, no-js, PWA)
+        working-directory: apps/practices
+        run: bun run test:e2e
+      - name: Upload Playwright traces on failure
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: playwright-traces
+          path: apps/practices/test-results/
+          retention-days: 7
 
