@@ -9,12 +9,12 @@ Pour les professionnelles et professionnels qui utilisent l'IA au travail, qui r
 <!-- libre-ai:project-status:begin -->
 <!-- Section générée depuis project.v1.yaml — ne pas éditer à la main. -->
 
-- Situation actuelle : L'application Practices (garde no-transmission, fonctionnement local-only) est greffée et verte sur les briques épinglées ; les parcours d'entraînement couvrant le référentiel de pratique restent à écrire.
+- Situation actuelle : L'application Practices (garde no-transmission, fonctionnement local-only) est greffée et verte sur les briques épinglées, avec sa suite e2e Playwright désormais gatée en CI (PR #52, job dédié `e2e`) ; les parcours d'entraînement couvrant le référentiel de pratique restent à écrire. La présente fiche recalibre leur périmètre (phases training-content et parity ci-dessous, remise à plat produits du 2026-08-18, ADR-0027) sans encore livrer de code — les deux corpus sourcés de 1.1 sont fact-checkés et prêts pour la session d'implémentation dédiée qui les codera (voir la note de la phase training-content).
 - Maturité : usable
 - Exposition : spec-published
 - Confiance : medium
-- Preuves vérifiées le : 2026-07-30
-- Avancement : 20 % du périmètre actuellement déclaré
+- Preuves vérifiées le : 2026-08-19
+- Avancement : 8,3 % du périmètre actuellement déclaré
 
 <!-- libre-ai:project-status:end -->
 
