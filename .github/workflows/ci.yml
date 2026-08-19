@@ -76,7 +76,9 @@ jobs:
       - run: bun install --frozen-lockfile --cwd apps/practices
       - name: Install Playwright browsers
         working-directory: apps/practices
-        run: bunx playwright install --with-deps chromium firefox webkit
+        # `bun x`, not `bunx`: the pinned toolchain archive ships only the
+        # `bun` binary — the `bunx` shim is created by installers we don't run.
+        run: bun x playwright install --with-deps chromium firefox webkit
       - name: Run end-to-end suite (chromium, firefox, webkit, no-js, PWA)
         working-directory: apps/practices
         run: bun run test:e2e
